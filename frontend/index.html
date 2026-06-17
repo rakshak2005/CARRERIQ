@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en" class="light">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&family=Geist:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CDN with plugins -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    
+    <!-- Tailwind Config for SkillRank theme -->
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-tertiary-fixed-variant": "#7c008e",
+              "on-surface": "#e5e2e3",
+              "on-secondary-container": "#00424e",
+              "on-background": "#e5e2e3",
+              "on-primary-fixed-variant": "#2f2ebe",
+              "primary-fixed": "#e1e0ff",
+              "surface-container-lowest": "#0e0e0f",
+              "background": "#131314",
+              "on-tertiary": "#580065",
+              "secondary-container": "#03b5d3",
+              "tertiary-container": "#e14ef6",
+              "surface-tint": "#c0c1ff",
+              "on-secondary": "#003640",
+              "on-secondary-fixed": "#001f26",
+              "surface-container-low": "#1c1b1c",
+              "on-secondary-fixed-variant": "#004e5c",
+              "on-primary-fixed": "#07006c",
+              "on-primary-container": "#0d0096",
+              "on-tertiary-container": "#4d0059",
+              "surface-container-highest": "#353436",
+              "surface-bright": "#3a393a",
+              "primary-fixed-dim": "#c0c1ff",
+              "tertiary-fixed": "#ffd6fd",
+              "inverse-primary": "#494bd6",
+              "tertiary": "#fbabff",
+              "surface": "#131314",
+              "inverse-on-surface": "#313031",
+              "on-error-container": "#ffdad6",
+              "on-surface-variant": "#c7c4d7",
+              "secondary-fixed-dim": "#4cd7f6",
+              "tertiary-fixed-dim": "#fbabff",
+              "error-container": "#93000a",
+              "primary": "#c0c1ff",
+              "outline-variant": "#464554",
+              "surface-container-high": "#2a2a2b",
+              "inverse-surface": "#e5e2e3",
+              "outline": "#908fa0",
+              "surface-container": "#201f20",
+              "on-tertiary-fixed": "#36003e",
+              "error": "#ffb4ab",
+              "primary-container": "#8083ff",
+              "surface-dim": "#131314",
+              "secondary-fixed": "#acedff",
+              "on-error": "#690005",
+              "on-primary": "#1000a9",
+              "secondary": "#4cd7f6",
+              "surface-variant": "#353436"
+            },
+            borderRadius: {
+              "DEFAULT": "0.125rem",
+              "lg": "0.25rem",
+              "xl": "0.5rem",
+              "full": "0.75rem"
+            },
+            spacing: {
+              "sm": "16px",
+              "xs": "8px",
+              "md": "24px",
+              "base": "4px",
+              "container-max": "1280px",
+              "lg": "40px",
+              "xl": "64px",
+              "gutter": "24px"
+            },
+            fontFamily: {
+              "body-md": ["Inter"],
+              "label-sm": ["Geist"],
+              "display-lg": ["Geist"],
+              "body-lg": ["Inter"],
+              "headline-md": ["Geist"],
+              "display-lg-mobile": ["Geist"],
+              "mono-code": ["Geist"]
+            },
+            fontSize: {
+              "body-md": ["16px", {"lineHeight": "1.5", "letterSpacing": "0", "fontWeight": "400"}],
+              "label-sm": ["13px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "500"}],
+              "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "700"}],
+              "body-lg": ["18px", {"lineHeight": "1.6", "letterSpacing": "0", "fontWeight": "400"}],
+              "headline-md": ["24px", {"lineHeight": "1.3", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+              "display-lg-mobile": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+              "mono-code": ["14px", {"lineHeight": "1.5", "letterSpacing": "0", "fontWeight": "400"}]
+            }
+          }
+        }
+      }
+    </script>
+    
+    <title>CareerIQ - AI-Powered Job Readiness Platform</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

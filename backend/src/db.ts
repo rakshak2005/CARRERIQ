@@ -1,0 +1,1141 @@
+import mongoose, { Schema, model, Document } from 'mongoose';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+// --- Schema & Model definitions ---
+
+// Counter for auto-increment sequences (maintains compatible integer IDs for user/profile IDs)
+interface ICounter {
+  _id: string;
+  seq: number;
+}
+const CounterSchema = new Schema<ICounter>({
+  _id: { type: String, required: true },
+  seq: { type: Number, default: 0 }
+});
+const CounterModel = mongoose.models.Counter || model<ICounter>('Counter', CounterSchema);
+
+const getNextSequenceValue = async (sequenceName: string): Promise<number> => {
+  const sequenceDocument = await CounterModel.findOneAndUpdate(
+    { _id: sequenceName },
+    { $inc: { seq: 1 } },
+    { new: true, upsert: true }
+  );
+  return sequenceDocument.seq;
+};
+
+// LocalUser Schema
+interface IUser {
+  _id: number;
+  email: string;
+  passwordHash: string;
+  role: 'student' | 'recruiter';
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+const UserSchema = new Schema<IUser>({
+  _id: { type: Number, required: true },
+  email: { type: String, required: true, unique: true },
+  passwordHash: { type: String, required: true },
+  role: { type: String, enum: ['student', 'recruiter'], required: true },
+}, { _id: false, timestamps: true });
+const UserModel = mongoose.models.LocalUser || model<IUser>('LocalUser', UserSchema);
+
+// LocalStudentProfile Schema
+interface IStudentProfileLocal {
+  _id: number;
+  userId: number;
+  fullName: string;
+  targetRole: string;
+  resumeUrl?: string;
+  githubUrl: string;
+  linkedinUrl: string;
+  certificatesIncluded: boolean;
+  dsaIncluded: boolean;
+  overallScore: number;
+  githubUsername?: string;
+  githubRepos: number;
+  githubFollowers: number;
+  githubStars: number;
+  githubScore: number;
+  githubAgeYears: number;
+  githubBreakdown?: any;
+  githubRepositories?: any[];
+  githubTechStacks?: string[];
+  githubRecommendations?: string[];
+  githubFollowing: number;
+  githubPublicRepos: number;
+  githubAvatar?: string;
+  githubLastActivity?: string;
+  githubLastAnalyzed?: Date;
+  aiProjectComplexityScore: number;
+  resumeScore?: number;
+  resumeATSScore?: number;
+  resumeSkillsScore?: number;
+  resumeProjectsScore?: number;
+  resumeExperienceScore?: number;
+  resumeCertificationScore?: number;
+  resumeProfessionalPresenceScore?: number;
+  resumeRoleMatchScore?: number;
+  resumeStrengths?: string[];
+  resumeWeaknesses?: string[];
+  resumeMissingKeywords?: string[];
+  resumeRecommendedSkills?: string[];
+  resumeSummary?: string;
+  resumeProjects?: any[];
+  resumeSkills?: string[];
+  resumeLastAnalyzed?: Date;
+  resumeFileName?: string;
+  resumeText?: string;
+  portfolioProjects?: any[];
+  portfolioScore?: number;
+  portfolioInsights?: any;
+  portfolioRecommendations?: any[];
+  githubImprovementReport?: any;
+  githubHealthMetrics?: any;
+  githubPortfolioGaps?: any;
+  githubCareerReview?: any;
+  githubWowProjects?: any[];
+  githubGrowthPlan?: any;
+  githubDetailedIssues?: any;
+  githubDetailedRecs?: any[];
+  githubLastDetailedAnalysis?: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+const StudentProfileLocalSchema = new Schema<IStudentProfileLocal>({
+  _id: { type: Number, required: true },
+  userId: { type: Number, required: true, unique: true },
+  fullName: { type: String, required: true },
+  targetRole: { type: String, default: '' },
+  resumeUrl: { type: String },
+  githubUrl: { type: String, default: '' },
+  linkedinUrl: { type: String, default: '' },
+  certificatesIncluded: { type: Boolean, default: true },
+  dsaIncluded: { type: Boolean, default: false },
+  overallScore: { type: Number, default: 0 },
+  githubUsername: { type: String },
+  githubRepos: { type: Number, default: 0 },
+  githubFollowers: { type: Number, default: 0 },
+  githubStars: { type: Number, default: 0 },
+  githubScore: { type: Number, default: 0 },
+  githubAgeYears: { type: Number, default: 1 },
+  githubBreakdown: { type: Schema.Types.Mixed },
+  githubRepositories: { type: [Schema.Types.Mixed], default: [] },
+  githubTechStacks: { type: [String], default: [] },
+  githubRecommendations: { type: [String], default: [] },
+  githubFollowing: { type: Number, default: 0 },
+  githubPublicRepos: { type: Number, default: 0 },
+  githubAvatar: { type: String },
+  githubLastActivity: { type: String },
+  githubLastAnalyzed: { type: Date },
+  aiProjectComplexityScore: { type: Number, default: 0 },
+  resumeScore: { type: Number, default: 0 },
+  resumeATSScore: { type: Number, default: 0 },
+  resumeSkillsScore: { type: Number, default: 0 },
+  resumeProjectsScore: { type: Number, default: 0 },
+  resumeExperienceScore: { type: Number, default: 0 },
+  resumeCertificationScore: { type: Number, default: 0 },
+  resumeProfessionalPresenceScore: { type: Number, default: 0 },
+  resumeRoleMatchScore: { type: Number, default: 0 },
+  resumeStrengths: { type: [String], default: [] },
+  resumeWeaknesses: { type: [String], default: [] },
+  resumeMissingKeywords: { type: [String], default: [] },
+  resumeRecommendedSkills: { type: [String], default: [] },
+  resumeSummary: { type: String, default: '' },
+  resumeProjects: { type: [Schema.Types.Mixed], default: [] },
+  resumeSkills: { type: [String], default: [] },
+  resumeLastAnalyzed: { type: Date },
+  resumeFileName: { type: String },
+  resumeText: { type: String },
+  portfolioProjects: { type: [Schema.Types.Mixed], default: [] },
+  portfolioScore: { type: Number, default: 0 },
+  portfolioInsights: { type: Schema.Types.Mixed },
+  portfolioRecommendations: { type: [Schema.Types.Mixed], default: [] },
+  githubImprovementReport: { type: Schema.Types.Mixed },
+  githubHealthMetrics: { type: Schema.Types.Mixed },
+  githubPortfolioGaps: { type: Schema.Types.Mixed },
+  githubCareerReview: { type: Schema.Types.Mixed },
+  githubWowProjects: { type: [Schema.Types.Mixed], default: [] },
+  githubGrowthPlan: { type: Schema.Types.Mixed },
+  githubDetailedIssues: { type: Schema.Types.Mixed },
+  githubDetailedRecs: { type: [Schema.Types.Mixed], default: [] },
+  githubLastDetailedAnalysis: { type: Date },
+}, { _id: false, timestamps: true });
+const StudentProfileLocalModel = mongoose.models.LocalStudentProfile || model<IStudentProfileLocal>('LocalStudentProfile', StudentProfileLocalSchema);
+
+// LocalRecruiterProfile Schema
+interface IRecruiterProfileLocal {
+  _id: number;
+  userId: number;
+  fullName: string;
+  companyName: string;
+  companyWebsite: string;
+  industry: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+const RecruiterProfileLocalSchema = new Schema<IRecruiterProfileLocal>({
+  _id: { type: Number, required: true },
+  userId: { type: Number, required: true, unique: true },
+  fullName: { type: String, required: true },
+  companyName: { type: String, default: '' },
+  companyWebsite: { type: String, default: '' },
+  industry: { type: String, default: '' },
+}, { _id: false, timestamps: true });
+const RecruiterProfileLocalModel = mongoose.models.LocalRecruiterProfile || model<IRecruiterProfileLocal>('LocalRecruiterProfile', RecruiterProfileLocalSchema);
+
+// LocalProject Schema
+interface IProjectLocal {
+  _id: number;
+  studentId: number;
+  title: string;
+  description: string;
+  technologies: string;
+  projectUrl: string;
+}
+const ProjectLocalSchema = new Schema<IProjectLocal>({
+  _id: { type: Number, required: true },
+  studentId: { type: Number, required: true, index: true },
+  title: { type: String, required: true },
+  description: { type: String, default: '' },
+  technologies: { type: String, default: '' },
+  projectUrl: { type: String, default: '' },
+}, { _id: false });
+const ProjectLocalModel = mongoose.models.LocalProject || model<IProjectLocal>('LocalProject', ProjectLocalSchema);
+
+// LocalCertificate Schema
+interface ICertificateLocal {
+  _id: number;
+  studentId: number;
+  name: string;
+  issuer: string;
+  issueDate: string;
+  credentialUrl: string;
+  filePath?: string;
+}
+const CertificateLocalSchema = new Schema<ICertificateLocal>({
+  _id: { type: Number, required: true },
+  studentId: { type: Number, required: true, index: true },
+  name: { type: String, required: true },
+  issuer: { type: String, required: true },
+  issueDate: { type: String, required: true },
+  credentialUrl: { type: String, default: '' },
+  filePath: { type: String },
+}, { _id: false });
+const CertificateLocalModel = mongoose.models.LocalCertificate || model<ICertificateLocal>('LocalCertificate', CertificateLocalSchema);
+
+// LocalCategoryScore Schema
+interface ICategoryScoreLocal {
+  _id: number;
+  studentId: number;
+  resumeScore: number;
+  projectsScore: number;
+  experienceScore: number;
+  onlinePresenceScore: number;
+  dsaScore: number;
+}
+const CategoryScoreLocalSchema = new Schema<ICategoryScoreLocal>({
+  _id: { type: Number, required: true },
+  studentId: { type: Number, required: true, unique: true },
+  resumeScore: { type: Number, default: 0 },
+  projectsScore: { type: Number, default: 0 },
+  experienceScore: { type: Number, default: 0 },
+  onlinePresenceScore: { type: Number, default: 0 },
+  dsaScore: { type: Number, default: 0 },
+}, { _id: false });
+const CategoryScoreLocalModel = mongoose.models.LocalCategoryScore || model<ICategoryScoreLocal>('LocalCategoryScore', CategoryScoreLocalSchema);
+
+// LocalAIRecommendation Schema
+interface IAIRecommendationLocal {
+  _id: number;
+  studentId: number;
+  category: string;
+  recommendation: string;
+}
+const AIRecommendationLocalSchema = new Schema<IAIRecommendationLocal>({
+  _id: { type: Number, required: true },
+  studentId: { type: Number, required: true, index: true },
+  category: { type: String, required: true },
+  recommendation: { type: String, required: true },
+}, { _id: false });
+const AIRecommendationLocalModel = mongoose.models.LocalAIRecommendation || model<IAIRecommendationLocal>('LocalAIRecommendation', AIRecommendationLocalSchema);
+
+// --- Mapping Helper Functions (ensures compatibility with existing interfaces) ---
+
+const mapUser = (doc: any) => {
+  if (!doc) return null;
+  return {
+    id: doc._id,
+    email: doc.email,
+    password_hash: doc.passwordHash,
+    role: doc.role,
+    created_at: doc.createdAt
+  };
+};
+
+const mapStudentProfile = (doc: any) => {
+  if (!doc) return null;
+  return {
+    id: doc._id,
+    user_id: doc.userId,
+    full_name: doc.fullName,
+    target_role: doc.targetRole,
+    resume_url: doc.resumeUrl,
+    github_url: doc.githubUrl,
+    linkedin_url: doc.linkedinUrl,
+    certificates_included: doc.certificatesIncluded !== undefined ? doc.certificatesIncluded : true,
+    dsa_included: doc.dsaIncluded,
+    overall_score: doc.overallScore,
+    github_username: doc.githubUsername,
+    github_repos: doc.githubRepos,
+    github_followers: doc.githubFollowers,
+    github_stars: doc.githubStars,
+    github_score: doc.githubScore,
+    github_age_years: doc.githubAgeYears,
+    github_breakdown: doc.githubBreakdown,
+    github_repositories: doc.githubRepositories,
+    github_tech_stacks: doc.githubTechStacks,
+    github_recommendations: doc.githubRecommendations,
+    github_following: doc.githubFollowing,
+    github_public_repos: doc.githubPublicRepos,
+    github_avatar: doc.githubAvatar,
+    github_last_activity: doc.githubLastActivity,
+    github_last_analyzed: doc.githubLastAnalyzed,
+    github_improvement_report: doc.githubImprovementReport,
+    ai_project_complexity_score: doc.aiProjectComplexityScore,
+    resume_score: doc.resumeScore,
+    resume_ats_score: doc.resumeATSScore,
+    resume_skills_score: doc.resumeSkillsScore,
+    resume_projects_score: doc.resumeProjectsScore,
+    resume_experience_score: doc.resumeExperienceScore,
+    resume_certification_score: doc.resumeCertificationScore,
+    resume_professional_presence_score: doc.resumeProfessionalPresenceScore,
+    resume_role_match_score: doc.resumeRoleMatchScore,
+    resume_strengths: doc.resumeStrengths,
+    resume_weaknesses: doc.resumeWeaknesses,
+    resume_missing_keywords: doc.resumeMissingKeywords,
+    resume_recommended_skills: doc.resumeRecommendedSkills,
+    resume_summary: doc.resumeSummary,
+    resume_projects: doc.resumeProjects,
+    resume_skills: doc.resumeSkills,
+    resume_last_analyzed: doc.resumeLastAnalyzed,
+    resume_file_name: doc.resumeFileName,
+    resume_text: doc.resumeText,
+    portfolio_projects: doc.portfolioProjects,
+    portfolio_score: doc.portfolioScore,
+    portfolio_insights: doc.portfolioInsights,
+    portfolio_recommendations: doc.portfolioRecommendations,
+    github_health_metrics: doc.githubHealthMetrics,
+    github_portfolio_gaps: doc.githubPortfolioGaps,
+    github_career_review: doc.githubCareerReview,
+    github_wow_projects: doc.githubWowProjects,
+    github_growth_plan: doc.githubGrowthPlan,
+    github_detailed_issues: doc.githubDetailedIssues,
+    github_detailed_recs: doc.githubDetailedRecs,
+    github_last_detailed_analysis: doc.githubLastDetailedAnalysis,
+    created_at: doc.createdAt,
+    updated_at: doc.updatedAt
+  };
+};
+
+const mapRecruiterProfile = (doc: any) => {
+  if (!doc) return null;
+  return {
+    id: doc._id,
+    user_id: doc.userId,
+    full_name: doc.fullName,
+    company_name: doc.companyName,
+    company_website: doc.companyWebsite,
+    industry: doc.industry,
+    created_at: doc.createdAt,
+    updated_at: doc.updatedAt
+  };
+};
+
+const mapProject = (doc: any) => {
+  if (!doc) return null;
+  return {
+    id: doc._id,
+    student_id: doc.studentId,
+    title: doc.title,
+    description: doc.description,
+    technologies: doc.technologies,
+    project_url: doc.projectUrl
+  };
+};
+
+const mapCertificate = (doc: any) => {
+  if (!doc) return null;
+  return {
+    id: doc._id,
+    student_id: doc.studentId,
+    name: doc.name,
+    issuer: doc.issuer,
+    issue_date: doc.issueDate,
+    credential_url: doc.credentialUrl,
+    file_path: doc.filePath
+  };
+};
+
+const mapCategoryScore = (doc: any) => {
+  if (!doc) return null;
+  return {
+    id: doc._id,
+    student_id: doc.studentId,
+    resume_score: doc.resumeScore,
+    projects_score: doc.projectsScore,
+    experience_score: doc.experienceScore,
+    online_presence_score: doc.onlinePresenceScore,
+    dsa_score: doc.dsaScore
+  };
+};
+
+const mapAIRecommendation = (doc: any) => {
+  if (!doc) return null;
+  return {
+    id: doc._id,
+    student_id: doc.studentId,
+    category: doc.category,
+    recommendation: doc.recommendation
+  };
+};
+
+// --- In-Memory Mock Database Fallback (for offline/disconnected state) ---
+
+let useMockDb = false;
+
+const mockDb = {
+  users: [] as any[],
+  studentProfiles: [] as any[],
+  recruiterProfiles: [] as any[],
+  projects: [] as any[],
+  certificates: [] as any[],
+  categoryScores: [] as any[],
+  aiRecommendations: [] as any[],
+  userIdCounter: 1,
+  profileIdCounter: 1,
+  recruiterIdCounter: 1,
+  projectIdCounter: 1,
+  certificateIdCounter: 1,
+  categoryScoreIdCounter: 1,
+  aiRecommendationIdCounter: 1,
+};
+
+const seedMockData = () => {
+  console.log('[INFO] Seeding in-memory database with test candidates...');
+
+  const students = [
+    { email: 'alex.coder@example.com', name: 'Alex Rivera', role: 'student', password: 'password123' },
+    { email: 'sarah.ds@example.com', name: 'Sarah Chen', role: 'student', password: 'password123' },
+    { email: 'mark.dev@example.com', name: 'Mark Johnson', role: 'student', password: 'password123' }
+  ];
+
+  students.forEach((s, idx) => {
+    const userId = mockDb.userIdCounter++;
+    mockDb.users.push({
+      id: userId,
+      email: s.email,
+      password_hash: '$2a$10$7c6cW3kdXpxqeeETFTLLeeBatM9WupFutOccf2HX1zkTTwJeX779.',
+      role: s.role,
+      created_at: new Date()
+    });
+
+    const profileId = mockDb.profileIdCounter++;
+    const targetRoles = ['Frontend Engineer', 'Data Scientist', 'Fullstack Developer'];
+    const resumes = ['uploads/alex_resume.pdf', 'uploads/sarah_resume.pdf', 'uploads/mark_resume.pdf'];
+    const githubs = ['https://github.com/alexrivera', 'https://github.com/sarahchen-ds', 'https://github.com/markjohnson-dev'];
+    const linkedins = ['https://linkedin.com/in/alexrivera', 'https://linkedin.com/in/sarahchen-ds', 'https://linkedin.com/in/markjohnson-dev'];
+
+    const ghUsernames = ['alexrivera', 'sarahchen-ds', 'markjohnson-dev'];
+    const ghRepos = [15, 28, 8];
+    const ghFollowers = [45, 120, 12];
+    const ghStars = [12, 84, 3];
+    const ghScores = [82, 98, 64];
+    const ghAgeYears = [4, 5, 2];
+
+    mockDb.studentProfiles.push({
+      id: profileId,
+      user_id: userId,
+      full_name: s.name,
+      target_role: targetRoles[idx],
+      resume_url: resumes[idx],
+      github_url: githubs[idx],
+      linkedin_url: linkedins[idx],
+      dsa_included: idx !== 0,
+      overall_score: idx === 0 ? 82 : idx === 1 ? 94 : 70,
+      github_username: ghUsernames[idx],
+      github_repos: ghRepos[idx],
+      github_followers: ghFollowers[idx],
+      github_stars: ghStars[idx],
+      github_score: ghScores[idx],
+      github_age_years: ghAgeYears[idx],
+      github_breakdown: null,
+      github_repositories: [],
+      github_tech_stacks: [],
+      github_recommendations: [],
+      github_following: 0,
+      github_public_repos: ghRepos[idx],
+      github_avatar: '',
+      github_last_activity: null,
+      github_last_analyzed: null,
+      ai_project_complexity_score: 0,
+      created_at: new Date()
+    });
+
+    if (idx === 0) {
+      mockDb.projects.push({ id: mockDb.projectIdCounter++, student_id: profileId, title: 'Portfolio Website', description: 'Personal portfolio with sleek transitions and responsive layout', technologies: 'React, CSS Grid, Framer Motion', project_url: 'https://alexrivera.dev' });
+      mockDb.projects.push({ id: mockDb.projectIdCounter++, student_id: profileId, title: 'E-commerce UI', description: 'Product grid with search and shopping cart functionality', technologies: 'React, Redux, Vanilla CSS', project_url: 'https://shop-alex.dev' });
+    } else if (idx === 1) {
+      mockDb.projects.push({ id: mockDb.projectIdCounter++, student_id: profileId, title: 'Predictive Analytics Dashboard', description: 'Machine learning model dashboard displaying user churn forecasts', technologies: 'Python, Flask, React, ChartJS', project_url: 'https://churn-predict.ai' });
+    } else {
+      mockDb.projects.push({ id: mockDb.projectIdCounter++, student_id: profileId, title: 'Task Manager API', description: 'RESTful API with user authentication and task CRUD operations', technologies: 'Node.js, Express, MongoDB', project_url: 'https://github.com/markjohnson-dev/task-api' });
+    }
+
+    if (idx === 0) {
+      mockDb.certificates.push({ id: mockDb.certificateIdCounter++, student_id: profileId, name: 'Advanced CSS and Sass', issuer: 'Udemy', issue_date: '2025-10', credential_url: 'https://udemy.com/cert/123' });
+    } else if (idx === 1) {
+      mockDb.certificates.push({ id: mockDb.certificateIdCounter++, student_id: profileId, name: 'Google Data Analytics Professional Certificate', issuer: 'Coursera', issue_date: '2025-12', credential_url: 'https://coursera.org/cert/456' });
+      mockDb.certificates.push({ id: mockDb.certificateIdCounter++, student_id: profileId, name: 'AWS Certified Cloud Practitioner', issuer: 'Amazon Web Services', issue_date: '2026-02', credential_url: 'https://aws.amazon.com/cert/789' });
+    }
+
+    const categoryScores = idx === 0 ?
+      { id: mockDb.categoryScoreIdCounter++, student_id: profileId, resume_score: 85, projects_score: 80, experience_score: 75, online_presence_score: 90, dsa_score: 0 } :
+      idx === 1 ?
+        { id: mockDb.categoryScoreIdCounter++, student_id: profileId, resume_score: 95, projects_score: 90, experience_score: 90, online_presence_score: 95, dsa_score: 92 } :
+        { id: mockDb.categoryScoreIdCounter++, student_id: profileId, resume_score: 70, projects_score: 65, experience_score: 60, online_presence_score: 80, dsa_score: 75 };
+
+    mockDb.categoryScores.push(categoryScores);
+
+    if (idx === 0) {
+      mockDb.aiRecommendations.push({ id: mockDb.aiRecommendationIdCounter++, student_id: profileId, category: 'Projects', recommendation: 'Your UI projects look great! Adding a full-stack project with backend integration (e.g. Node.js + DB) would make your profile more competitive.' });
+      mockDb.aiRecommendations.push({ id: mockDb.aiRecommendationIdCounter++, student_id: profileId, category: 'DSA', recommendation: 'DSA is currently toggled OFF. For top tier engineering roles, solidifying core algorithms and toggling DSA ON is highly recommended.' });
+    } else if (idx === 1) {
+      mockDb.aiRecommendations.push({ id: mockDb.aiRecommendationIdCounter++, student_id: profileId, category: 'General', recommendation: 'Excellent profile alignment. Resume score is 95% and online presence is strong. You are ready to apply for junior/mid-level Data Scientist roles.' });
+    } else {
+      mockDb.aiRecommendations.push({ id: mockDb.aiRecommendationIdCounter++, student_id: profileId, category: 'Resume', recommendation: 'Consider tailoring your resume to emphasize specific Node.js and REST API projects. Elaborate on tech stacks used in bullet points.' });
+      mockDb.aiRecommendations.push({ id: mockDb.aiRecommendationIdCounter++, student_id: profileId, category: 'Online Presence', recommendation: 'Link your LinkedIn profile to expand recruiter reach. Adding certifications in backend technologies would also help.' });
+    }
+  });
+
+  const recruiterUserId = mockDb.userIdCounter++;
+  mockDb.users.push({
+    id: recruiterUserId,
+    email: 'hr@google.com',
+    password_hash: '$2a$10$7c6cW3kdXpxqeeETFTLLeeBatM9WupFutOccf2HX1zkTTwJeX779.',
+    role: 'recruiter',
+    created_at: new Date()
+  });
+
+  mockDb.recruiterProfiles.push({
+    id: mockDb.recruiterIdCounter++,
+    user_id: recruiterUserId,
+    full_name: 'Jane Recruiter',
+    company_name: 'Google',
+    company_website: 'https://careers.google.com',
+    industry: 'Technology',
+    created_at: new Date()
+  });
+};
+
+const checkDbState = async () => {
+  // We assume MongoDB connects correctly because index.ts handles failures
+  useMockDb = false;
+};
+
+checkDbState();
+
+// --- Exported DB client methods ---
+
+export const db = {
+  query: async (text: string, params?: any[]) => {
+    throw new Error('Direct SQL queries are not supported on MongoDB db layer. Use high-level db methods.');
+  },
+
+  createUser: async (email: string, passwordHash: string, role: 'student' | 'recruiter') => {
+    if (useMockDb) {
+      const existingUser = mockDb.users.find(u => u.email === email);
+      if (existingUser) throw new Error('duplicate key value violates unique constraint');
+      const id = mockDb.userIdCounter++;
+      const newUser = { id, email, password_hash: passwordHash, role, created_at: new Date() };
+      mockDb.users.push(newUser);
+      return newUser;
+    }
+
+    const existing = await UserModel.findOne({ email });
+    if (existing) throw new Error('duplicate key value violates unique constraint');
+
+    const id = await getNextSequenceValue('userId');
+    const user = new UserModel({
+      _id: id,
+      email,
+      passwordHash,
+      role
+    });
+    await user.save();
+    return mapUser(user)!;
+  },
+
+  getUserByEmail: async (email: string) => {
+    if (useMockDb) {
+      return mockDb.users.find(u => u.email === email) || null;
+    }
+    const user = await UserModel.findOne({ email });
+    return mapUser(user);
+  },
+
+  getUserById: async (id: number) => {
+    if (useMockDb) {
+      return mockDb.users.find(u => u.id === id) || null;
+    }
+    const user = await UserModel.findById(id);
+    return mapUser(user);
+  },
+
+  getStudentProfileByUserId: async (userId: number) => {
+    if (useMockDb) {
+      return mockDb.studentProfiles.find(p => p.user_id === userId) || null;
+    }
+    const profile = await StudentProfileLocalModel.findOne({ userId });
+    return mapStudentProfile(profile);
+  },
+
+  getStudentProfileById: async (id: number) => {
+    if (useMockDb) {
+      return mockDb.studentProfiles.find(p => p.id === id) || null;
+    }
+    const profile = await StudentProfileLocalModel.findById(id);
+    return mapStudentProfile(profile);
+  },
+
+  createOrUpdateStudentProfile: async (
+    userId: number,
+    fullName: string,
+    targetRole: string,
+    githubUrl: string,
+    linkedinUrl: string,
+    certificatesIncluded: boolean,
+    dsaIncluded: boolean,
+    resumeUrl?: string
+  ) => {
+    if (useMockDb) {
+      let profile = mockDb.studentProfiles.find(p => p.user_id === userId);
+      if (profile) {
+        profile.full_name = fullName;
+        profile.target_role = targetRole;
+        profile.github_url = githubUrl;
+        profile.linkedin_url = linkedinUrl;
+        profile.certificates_included = certificatesIncluded;
+        profile.dsa_included = dsaIncluded;
+        if (resumeUrl !== undefined) {
+          profile.resume_url = resumeUrl;
+        }
+        profile.updated_at = new Date();
+      } else {
+        profile = {
+          id: mockDb.profileIdCounter++,
+          user_id: userId,
+          full_name: fullName,
+          target_role: targetRole,
+          resume_url: resumeUrl || null,
+          github_url: githubUrl,
+          linkedin_url: linkedinUrl,
+          certificates_included: certificatesIncluded,
+          dsa_included: dsaIncluded,
+          github_age_years: 1,
+          github_breakdown: null,
+          github_repositories: [],
+          github_tech_stacks: [],
+          github_recommendations: [],
+          github_following: 0,
+          github_public_repos: 0,
+          github_avatar: '',
+          github_last_activity: null,
+          github_last_analyzed: null,
+          ai_project_complexity_score: 0,
+          created_at: new Date(),
+          updated_at: new Date(),
+        };
+        mockDb.studentProfiles.push(profile);
+      }
+      return profile;
+    }
+
+    let profile = await StudentProfileLocalModel.findOne({ userId });
+    if (profile) {
+      profile.fullName = fullName;
+      profile.targetRole = targetRole;
+      profile.githubUrl = githubUrl;
+      profile.linkedinUrl = linkedinUrl;
+      profile.dsaIncluded = dsaIncluded;
+      profile.certificatesIncluded = certificatesIncluded;
+      if (resumeUrl !== undefined) {
+        profile.resumeUrl = resumeUrl;
+      }
+      await profile.save();
+    } else {
+      const id = await getNextSequenceValue('profileId');
+      profile = new StudentProfileLocalModel({
+        _id: id,
+        userId,
+        fullName,
+        targetRole,
+        githubUrl,
+        linkedinUrl,
+        dsaIncluded,
+        certificatesIncluded,
+        resumeUrl: resumeUrl || null
+      });
+      await profile.save();
+    }
+    return mapStudentProfile(profile)!;
+  },
+
+  updateStudentGitHubStats: async (
+    studentId: number,
+    stats: any
+  ) => {
+    if (useMockDb) {
+      const profile = mockDb.studentProfiles.find(p => p.id === studentId);
+      if (profile) {
+        profile.github_username = stats.username;
+        profile.github_repos = stats.repos;
+        profile.github_followers = stats.followers;
+        profile.github_stars = stats.stars;
+        profile.github_score = stats.score;
+        profile.github_age_years = stats.accountAgeYears;
+        profile.github_breakdown = typeof stats.breakdown === 'string' ? JSON.parse(stats.breakdown) : stats.breakdown;
+        profile.github_repositories = typeof stats.repositories === 'string' ? JSON.parse(stats.repositories) : stats.repositories;
+        profile.github_tech_stacks = typeof stats.techStacks === 'string' ? JSON.parse(stats.techStacks) : stats.techStacks;
+        profile.github_recommendations = typeof stats.recommendations === 'string' ? JSON.parse(stats.recommendations) : stats.recommendations;
+        profile.github_improvement_report = typeof stats.githubImprovementReport === 'string' ? JSON.parse(stats.githubImprovementReport) : stats.githubImprovementReport;
+        profile.github_following = stats.following;
+        profile.github_public_repos = stats.publicRepos;
+        profile.github_avatar = stats.avatar;
+        profile.github_last_activity = stats.lastActivity;
+        profile.github_last_analyzed = new Date();
+        profile.ai_project_complexity_score = stats.aiProjectComplexityScore || 0;
+        profile.updated_at = new Date();
+      }
+      return profile;
+    }
+
+    const profile = await StudentProfileLocalModel.findById(studentId);
+    if (profile) {
+      profile.githubUsername = stats.username;
+      profile.githubRepos = stats.repos;
+      profile.githubFollowers = stats.followers;
+      profile.githubStars = stats.stars;
+      profile.githubScore = stats.score;
+      profile.githubAgeYears = stats.accountAgeYears;
+      profile.githubBreakdown = typeof stats.breakdown === 'string' ? JSON.parse(stats.breakdown) : stats.breakdown;
+      profile.githubRepositories = typeof stats.repositories === 'string' ? JSON.parse(stats.repositories) : stats.repositories;
+      profile.githubTechStacks = typeof stats.techStacks === 'string' ? JSON.parse(stats.techStacks) : stats.techStacks;
+      profile.githubRecommendations = typeof stats.recommendations === 'string' ? JSON.parse(stats.recommendations) : stats.recommendations;
+      profile.githubImprovementReport = typeof stats.githubImprovementReport === 'string' ? JSON.parse(stats.githubImprovementReport) : stats.githubImprovementReport;
+      profile.githubFollowing = stats.following;
+      profile.githubPublicRepos = stats.publicRepos;
+      profile.githubAvatar = stats.avatar;
+      profile.githubLastActivity = stats.lastActivity;
+      profile.githubLastAnalyzed = new Date();
+      profile.aiProjectComplexityScore = stats.aiProjectComplexityScore || 0;
+      await profile.save();
+    }
+    return mapStudentProfile(profile)!;
+  },
+
+  updateStudentGitHubDetailedReport: async (studentId: number, fields: {
+    githubHealthMetrics?: any;
+    githubPortfolioGaps?: any;
+    githubCareerReview?: any;
+    githubWowProjects?: any[];
+    githubGrowthPlan?: any;
+    githubDetailedIssues?: any;
+    githubDetailedRecs?: any[];
+  }) => {
+    const profile = await StudentProfileLocalModel.findById(studentId);
+    if (profile) {
+      if (fields.githubHealthMetrics !== undefined) profile.githubHealthMetrics = fields.githubHealthMetrics;
+      if (fields.githubPortfolioGaps !== undefined) profile.githubPortfolioGaps = fields.githubPortfolioGaps;
+      if (fields.githubCareerReview !== undefined) profile.githubCareerReview = fields.githubCareerReview;
+      if (fields.githubWowProjects !== undefined) profile.githubWowProjects = fields.githubWowProjects;
+      if (fields.githubGrowthPlan !== undefined) profile.githubGrowthPlan = fields.githubGrowthPlan;
+      if (fields.githubDetailedIssues !== undefined) profile.githubDetailedIssues = fields.githubDetailedIssues;
+      if (fields.githubDetailedRecs !== undefined) profile.githubDetailedRecs = fields.githubDetailedRecs;
+      profile.githubLastDetailedAnalysis = new Date();
+      await profile.save();
+    }
+    return mapStudentProfile(profile);
+  },
+
+  updateStudentScore: async (
+    studentId: number,
+    overallScore: number,
+    catScores: {
+      resumeScore: number;
+      projectsScore: number;
+      experienceScore: number;
+      onlinePresenceScore: number;
+      dsaScore: number;
+    }
+  ) => {
+    if (useMockDb) {
+      const profile = mockDb.studentProfiles.find(p => p.id === studentId);
+      if (profile) {
+        profile.overall_score = overallScore;
+      }
+      let scoreRecord = mockDb.categoryScores.find(s => s.student_id === studentId);
+      if (scoreRecord) {
+        scoreRecord.resume_score = catScores.resumeScore;
+        scoreRecord.projects_score = catScores.projectsScore;
+        scoreRecord.experience_score = catScores.experienceScore;
+        scoreRecord.online_presence_score = catScores.onlinePresenceScore;
+        scoreRecord.dsa_score = catScores.dsaScore;
+        scoreRecord.updated_at = new Date();
+      } else {
+        scoreRecord = {
+          id: mockDb.categoryScoreIdCounter++,
+          student_id: studentId,
+          resume_score: catScores.resumeScore,
+          projects_score: catScores.projectsScore,
+          experience_score: catScores.experienceScore,
+          online_presence_score: catScores.onlinePresenceScore,
+          dsa_score: catScores.dsaScore,
+          updated_at: new Date()
+        };
+        mockDb.categoryScores.push(scoreRecord);
+      }
+      return { overallScore, categoryScores: scoreRecord };
+    }
+
+    await StudentProfileLocalModel.findByIdAndUpdate(studentId, { overallScore });
+
+    let scoreRecord = await CategoryScoreLocalModel.findOne({ studentId });
+    if (scoreRecord) {
+      scoreRecord.resumeScore = catScores.resumeScore;
+      scoreRecord.projectsScore = catScores.projectsScore;
+      scoreRecord.experienceScore = catScores.experienceScore;
+      scoreRecord.onlinePresenceScore = catScores.onlinePresenceScore;
+      scoreRecord.dsaScore = catScores.dsaScore;
+      await scoreRecord.save();
+    } else {
+      const id = await getNextSequenceValue('categoryScoreId');
+      scoreRecord = new CategoryScoreLocalModel({
+        _id: id,
+        studentId,
+        resumeScore: catScores.resumeScore,
+        projectsScore: catScores.projectsScore,
+        experienceScore: catScores.experienceScore,
+        onlinePresenceScore: catScores.onlinePresenceScore,
+        dsaScore: catScores.dsaScore
+      });
+      await scoreRecord.save();
+    }
+
+    return {
+      overallScore,
+      categoryScores: mapCategoryScore(scoreRecord)!
+    };
+  },
+
+  getRecruiterProfileByUserId: async (userId: number) => {
+    if (useMockDb) {
+      return mockDb.recruiterProfiles.find(p => p.user_id === userId) || null;
+    }
+    const profile = await RecruiterProfileLocalModel.findOne({ userId });
+    return mapRecruiterProfile(profile);
+  },
+
+  createOrUpdateRecruiterProfile: async (
+    userId: number,
+    fullName: string,
+    companyName: string,
+    companyWebsite: string,
+    industry: string
+  ) => {
+    if (useMockDb) {
+      let profile = mockDb.recruiterProfiles.find(p => p.user_id === userId);
+      if (profile) {
+        profile.full_name = fullName;
+        profile.company_name = companyName;
+        profile.company_website = companyWebsite;
+        profile.industry = industry;
+        profile.updated_at = new Date();
+      } else {
+        profile = {
+          id: mockDb.recruiterIdCounter++,
+          user_id: userId,
+          full_name: fullName,
+          company_name: companyName,
+          company_website: companyWebsite,
+          industry: industry,
+          created_at: new Date(),
+          updated_at: new Date(),
+        };
+        mockDb.recruiterProfiles.push(profile);
+      }
+      return profile;
+    }
+
+    let profile = await RecruiterProfileLocalModel.findOne({ userId });
+    if (profile) {
+      profile.fullName = fullName;
+      profile.companyName = companyName;
+      profile.companyWebsite = companyWebsite;
+      profile.industry = industry;
+      await profile.save();
+    } else {
+      const id = await getNextSequenceValue('recruiterId');
+      profile = new RecruiterProfileLocalModel({
+        _id: id,
+        userId,
+        fullName,
+        companyName,
+        companyWebsite,
+        industry
+      });
+      await profile.save();
+    }
+    return mapRecruiterProfile(profile)!;
+  },
+
+  getProjectsByStudentId: async (studentId: number) => {
+    if (useMockDb) {
+      return mockDb.projects.filter(p => p.student_id === studentId);
+    }
+    const projects = await ProjectLocalModel.find({ studentId });
+    return projects.map(mapProject);
+  },
+
+  addProject: async (
+    studentId: number,
+    title: string,
+    description: string,
+    technologies: string,
+    projectUrl: string
+  ) => {
+    if (useMockDb) {
+      const id = mockDb.projectIdCounter++;
+      const newProj = { id, student_id: studentId, title, description, technologies, project_url: projectUrl };
+      mockDb.projects.push(newProj);
+      return newProj;
+    }
+    const id = await getNextSequenceValue('projectId');
+    const project = new ProjectLocalModel({
+      _id: id,
+      studentId,
+      title,
+      description,
+      technologies,
+      projectUrl
+    });
+    await project.save();
+    return mapProject(project);
+  },
+
+  deleteProject: async (id: number, studentId: number) => {
+    if (useMockDb) {
+      const idx = mockDb.projects.findIndex(p => p.id === id && p.student_id === studentId);
+      if (idx !== -1) {
+        mockDb.projects.splice(idx, 1);
+        return true;
+      }
+      return false;
+    }
+    const res = await ProjectLocalModel.deleteOne({ _id: id, studentId });
+    return (res.deletedCount ?? 0) > 0;
+  },
+
+  getCertificatesByStudentId: async (studentId: number) => {
+    if (useMockDb) {
+      return mockDb.certificates.filter(c => c.student_id === studentId);
+    }
+    const certificates = await CertificateLocalModel.find({ studentId });
+    return certificates.map(mapCertificate);
+  },
+
+  addCertificate: async (
+    studentId: number,
+    name: string,
+    issuer: string,
+    issueDate: string,
+    credentialUrl: string,
+    filePath?: string
+  ) => {
+    if (useMockDb) {
+      const id = mockDb.certificateIdCounter++;
+      const newCert = { id, student_id: studentId, name, issuer, issue_date: issueDate, credential_url: credentialUrl, file_path: filePath || null };
+      mockDb.certificates.push(newCert);
+      return newCert;
+    }
+    const id = await getNextSequenceValue('certificateId');
+    const certificate = new CertificateLocalModel({
+      _id: id,
+      studentId,
+      name,
+      issuer,
+      issueDate,
+      credentialUrl,
+      filePath
+    });
+    await certificate.save();
+    return mapCertificate(certificate);
+  },
+
+  deleteCertificate: async (id: number, studentId: number) => {
+    if (useMockDb) {
+      const idx = mockDb.certificates.findIndex(c => c.id === id && c.student_id === studentId);
+      if (idx !== -1) {
+        mockDb.certificates.splice(idx, 1);
+        return true;
+      }
+      return false;
+    }
+    const res = await CertificateLocalModel.deleteOne({ _id: id, studentId });
+    return (res.deletedCount ?? 0) > 0;
+  },
+
+  updateStudentResumeAnalysis: async (id: number, analysisData: any) => {
+    return StudentProfileLocalModel.findOneAndUpdate(
+      { _id: id },
+      { $set: analysisData },
+      { new: true }
+    );
+  },
+
+  getCategoryScoresByStudentId: async (studentId: number) => {
+    if (useMockDb) {
+      return mockDb.categoryScores.find(s => s.student_id === studentId) || null;
+    }
+    const score = await CategoryScoreLocalModel.findOne({ studentId });
+    return mapCategoryScore(score);
+  },
+
+  getRecommendationsByStudentId: async (studentId: number) => {
+    if (useMockDb) {
+      return mockDb.aiRecommendations.filter(r => r.student_id === studentId);
+    }
+    const recommendations = await AIRecommendationLocalModel.find({ studentId });
+    return recommendations.map(mapAIRecommendation);
+  },
+
+  createRecommendations: async (studentId: number, recommendations: Array<{ category: string, recommendation: string }>) => {
+    if (useMockDb) {
+      mockDb.aiRecommendations = mockDb.aiRecommendations.filter(r => r.student_id !== studentId);
+      const inserted: any[] = [];
+      recommendations.forEach(r => {
+        const newRec = {
+          id: mockDb.aiRecommendationIdCounter++,
+          student_id: studentId,
+          category: r.category,
+          recommendation: r.recommendation,
+          created_at: new Date()
+        };
+        mockDb.aiRecommendations.push(newRec);
+        inserted.push(newRec);
+      });
+      return inserted;
+    }
+
+    await AIRecommendationLocalModel.deleteMany({ studentId });
+    const inserted: any[] = [];
+    for (const r of recommendations) {
+      const id = await getNextSequenceValue('recommendationId');
+      const rec = new AIRecommendationLocalModel({
+        _id: id,
+        studentId,
+        category: r.category,
+        recommendation: r.recommendation
+      });
+      await rec.save();
+      inserted.push(mapAIRecommendation(rec));
+    }
+    return inserted;
+  },
+
+  getAllCandidates: async (filters: { search?: string; targetRole?: string; minScore?: number; dsaRequired?: boolean }) => {
+    if (useMockDb) {
+      let filtered = [...mockDb.studentProfiles];
+
+      if (filters.search) {
+        const search = filters.search.toLowerCase();
+        filtered = filtered.filter(p => p.full_name.toLowerCase().includes(search));
+      }
+
+      if (filters.targetRole) {
+        const role = filters.targetRole.toLowerCase();
+        filtered = filtered.filter(p => p.target_role && p.target_role.toLowerCase().includes(role));
+      }
+
+      if (filters.minScore !== undefined) {
+        filtered = filtered.filter(p => p.overall_score >= filters.minScore!);
+      }
+
+      if (filters.dsaRequired) {
+        filtered = filtered.filter(p => p.dsa_included === true);
+      }
+
+      filtered.sort((a, b) => b.overall_score - a.overall_score);
+
+      return filtered.map(profile => {
+        const score = mockDb.categoryScores.find(s => s.student_id === profile.id) || null;
+        return {
+          ...profile,
+          category_scores: score
+        };
+      });
+    }
+
+    const filterQuery: any = {};
+    if (filters.search) {
+      filterQuery.fullName = { $regex: new RegExp(filters.search, 'i') };
+    }
+    if (filters.targetRole) {
+      filterQuery.targetRole = { $regex: new RegExp(filters.targetRole, 'i') };
+    }
+    if (filters.minScore !== undefined) {
+      filterQuery.overallScore = { $gte: filters.minScore };
+    }
+    if (filters.dsaRequired) {
+      filterQuery.dsaIncluded = true;
+    }
+
+    const profiles = await StudentProfileLocalModel.find(filterQuery).sort({ overallScore: -1 });
+    const candidates = [];
+
+    for (const p of profiles) {
+      const score = await CategoryScoreLocalModel.findOne({ studentId: p._id });
+      candidates.push({
+        ...mapStudentProfile(p),
+        category_scores: score ? {
+          id: score._id,
+          resume_score: score.resumeScore,
+          projects_score: score.projectsScore,
+          experience_score: score.experienceScore,
+          online_presence_score: score.onlinePresenceScore,
+          dsa_score: score.dsaScore
+        } : null
+      });
+    }
+    return candidates;
+  },
+
+  getCandidateDetail: async (studentId: number) => {
+    const profile = await db.getStudentProfileById(studentId);
+    if (!profile) return null;
+
+    const projects = await db.getProjectsByStudentId(studentId);
+    const certificates = await db.getCertificatesByStudentId(studentId);
+    const categoryScores = await db.getCategoryScoresByStudentId(studentId);
+    const recommendations = await db.getRecommendationsByStudentId(studentId);
+
+    return {
+      profile,
+      projects,
+      certificates,
+      categoryScores,
+      recommendations
+    };
+  }
+};

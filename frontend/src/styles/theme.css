@@ -1,0 +1,108 @@
+:root {
+  /* Fonts */
+  --font-primary: 'Geist', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  /* LAYOUT DEFAULTS - LIGHT THEME ("Human-Centered Career Platform") */
+  --bg-dark: #f8fafc;             /* Warm soft gray background */
+  --bg-card: #ffffff;             /* Pure white cards */
+  --bg-card-hover: #ffffff;
+  
+  --color-primary: #2563eb;       /* Deep Trust Blue */
+  --color-primary-glow: rgba(37, 99, 235, 0.08);
+  --color-secondary: #10b981;     /* Growth Green */
+  --color-secondary-glow: rgba(16, 185, 129, 0.08);
+  --color-tertiary: #f59e0b;      /* Achievement Gold */
+  --color-tertiary-glow: rgba(245, 158, 11, 0.08);
+  
+  --color-text-main: #374151;     /* Charcoal Gray body text */
+  --color-text-muted: #6b7280;    /* Muted Slate Gray */
+  --color-text-dark: #111827;     /* Off-black headers */
+  --color-text-title: #111827;    /* Title Text */
+  
+  /* Semantic Statuses */
+  --color-success: #10b981;
+  --color-success-glow: rgba(16, 185, 129, 0.1);
+  --color-warning: #f59e0b;
+  --color-warning-glow: rgba(245, 158, 11, 0.1);
+  --color-error: #ef4444;
+  --color-error-glow: rgba(239, 68, 68, 0.1);
+  
+  /* Gradients */
+  --grad-primary: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);  /* Professional blue gradient */
+  --grad-secondary: linear-gradient(135deg, #10b981 0%, #34d399 100%); /* Green growth gradient */
+  --grad-dark: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  --grad-accent: linear-gradient(90deg, #2563eb 0%, #10b981 100%);
+  
+  /* Glassmorphism / Modern Card Styles */
+  --glass-border: #e5e7eb;        /* Clean, subtle gray border */
+  --glass-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  
+  /* Inputs */
+  --bg-input: #ffffff;
+  --color-input-text: #111827;
+  --border-input: #d1d5db;
+  --color-placeholder: #9ca3af;
+
+  /* Subcards */
+  --bg-subcard: #f9fafb;
+  --border-subcard: #e5e7eb;
+
+  /* Modals */
+  --bg-modal-overlay: rgba(17, 24, 39, 0.5);
+
+  /* Layout Border Radius */
+  --radius-sm: 12px;
+  --radius-md: 24px;              /* High-end soft rounded cards */
+  --radius-lg: 32px;
+  --radius-round: 50%;
+  
+  /* Transitions */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Background gradients */
+  --bg-gradient: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+
+  --blob-color-1: rgba(37, 99, 235, 0.03);
+  --blob-color-2: rgba(16, 185, 129, 0.02);
+  --blob-color-3: rgba(245, 158, 11, 0.02);
+  --blob-color-4: rgba(37, 99, 235, 0.02);
+}
+
+/* DARK MODE OVERRIDES (Polished Slate Dark Theme) */
+:root.dark {
+  --bg-dark: #0f172a;             /* Slate 900 */
+  --bg-card: #1e293b;             /* Slate 800 */
+  --bg-card-hover: #1e293b;
+  
+  --color-primary: #3b82f6;       /* Lighter blue for dark contrast */
+  --color-primary-glow: rgba(59, 130, 246, 0.15);
+  --color-secondary: #10b981;
+  --color-secondary-glow: rgba(16, 185, 129, 0.15);
+  --color-tertiary: #f59e0b;
+  --color-tertiary-glow: rgba(245, 158, 11, 0.15);
+  
+  --color-text-main: #e2e8f0;     /* Slate 200 */
+  --color-text-muted: #94a3b8;    /* Slate 400 */
+  --color-text-dark: #ffffff;
+  --color-text-title: #ffffff;
+  
+  --glass-border: #334155;        /* Slate 700 */
+  --glass-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  
+  --bg-input: #0f172a;
+  --color-input-text: #ffffff;
+  --border-input: #475569;
+  
+  --bg-subcard: #1e293b;
+  --border-subcard: #334155;
+  
+  --bg-modal-overlay: rgba(0, 0, 0, 0.7);
+  --bg-gradient: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+
+  --blob-color-1: rgba(59, 130, 246, 0.05);
+  --blob-color-2: rgba(16, 185, 129, 0.03);
+  --blob-color-3: rgba(245, 158, 11, 0.03);
+  --blob-color-4: rgba(59, 130, 246, 0.03);
+}
