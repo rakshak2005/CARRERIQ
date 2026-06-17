@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { api } from '../services/api';
+import { api, BACKEND_URL } from '../services/api';
 import { ScoreMeter } from '../components/ScoreMeter';
 
 export const CandidateDetail: React.FC = () => {
@@ -95,7 +95,7 @@ export const CandidateDetail: React.FC = () => {
               <div style={{ display: 'flex', gap: '0.5rem' }}>
                 {profile.resume_url && (
                   <a 
-                    href={`http://localhost:5000/${profile.resume_url}`} 
+                    href={`${BACKEND_URL}/${profile.resume_url}`} 
                     target="_blank" 
                     rel="noreferrer"
                     className="btn btn-primary"

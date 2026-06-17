@@ -94,7 +94,7 @@ export const GitHubReport: React.FC = () => {
   if (repoSort === 'stars') displayRepos.sort((a, b) => (b.stars || 0) - (a.stars || 0));
   if (repoSort === 'updated') displayRepos.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
 
-  const allLangs = Array.from(new Set(repos.map((r: any) => r.primaryLanguage).filter((l: string) => l && l !== 'Unknown')));
+  const allLangs: string[] = Array.from(new Set(repos.map((r: any) => r.primaryLanguage).filter((l: any) => l && l !== 'Unknown')));
 
   return (
     <div className="container" style={{ padding: '2rem 1rem', maxWidth: '1200px' }}>

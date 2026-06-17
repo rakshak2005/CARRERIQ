@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { db } from '../db';
 import { GithubAnalysisService } from '../services/githubAnalysisService';
-import { generateDetailedCareerReview, generateWOWProjects } from '../services/aiService';
+import { generateDetailedCareerReview, generateWowProjects } from '../services/aiService';
 
 const router = Router();
 
@@ -89,11 +89,9 @@ async function regenerateReportForProfile(profile: any, res: Response) {
         d.repositories,
         d.githubScore
       ),
-      generateWOWProjects(
-        d.username,
+      generateWowProjects(
         profile.target_role || 'Software Engineer',
-        d.technologies,
-        d.githubScore
+        d.technologies
       )
     ]);
 

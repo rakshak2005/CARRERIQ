@@ -12,11 +12,13 @@ let loggedRedisError = false;
 
 export const getUseMockQueue = () => useMockQueue;
 
-export const redisConnection = new IORedis({
-  host: REDIS_HOST,
-  port: REDIS_PORT,
-  maxRetriesPerRequest: null, // Required by BullMQ
-});
+export const redisConnection = process.env.REDIS_URL
+  ? new IORedis(process.env.REDIS_URL, { maxRetriesPerRequest: null })
+  : new IORedis({
+      host: REDIS_HOST,
+      port: REDIS_PORT,
+      maxRetriesPerRequest: null, // Required by BullMQ
+    });
 
 // Suppress unhandled error log spam when Redis is offline
 redisConnection.on('error', (err: any) => {

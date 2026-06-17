@@ -1,6 +1,6 @@
 // @ts-nocheck
 import React, { useState, useEffect } from 'react';
-import { api } from '../services/api';
+import { api, BACKEND_URL } from '../services/api';
 import { ScoreMeter } from '../components/ScoreMeter';
 import { ProjectsPortfolio } from '../components/ProjectsPortfolio';
 import { useNavigate } from 'react-router-dom';
@@ -696,7 +696,7 @@ export const StudentDashboard: React.FC = () => {
               >
                 {uploadingResume ? 'Analyzing Resume...' : resumeUrl ? 'Re-upload Resume' : 'Upload PDF/DOCX'}
               </button>
-              {resumeUrl && <a href={`http://localhost:5000/${resumeUrl}`} target="_blank" rel="noreferrer" className="btn btn-ghost-premium">View File</a>}
+              {resumeUrl && <a href={`${BACKEND_URL}/${resumeUrl}`} target="_blank" rel="noreferrer" className="btn btn-ghost-premium">View File</a>}
               {resumeFileName && <span style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>{resumeFileName}</span>}
               {resumeLastAnalyzed && <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginLeft: 'auto' }}>Analyzed: {new Date(resumeLastAnalyzed).toLocaleString()}</span>}
             </div>
