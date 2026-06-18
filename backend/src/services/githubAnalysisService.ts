@@ -385,11 +385,10 @@ export class GithubAnalysisService {
             if (aiReport.growthPotential) {
               growthPlanFinal = {
                 currentScore: aiReport.growthPotential.currentScore || finalTotalScore,
-                potentialScore: aiReport.growthPotential.potentialScore || (finalTotalScore + 20),
                 phases: [
-                  { phase: 1, name: 'Documentation & Testing', description: 'Address critical testing and docs.', projectedScore: (aiReport.growthPotential.currentScore || finalTotalScore) + 8 },
-                  { phase: 2, name: 'CI/CD & Containers', description: 'Setup pipelines and packaging.', projectedScore: (aiReport.growthPotential.currentScore || finalTotalScore) + 15 },
-                  { phase: 3, name: 'Scalability & Design', description: 'Implement microservices & patterns.', projectedScore: aiReport.growthPotential.potentialScore || (finalTotalScore + 20) }
+                  { phase: 1, name: 'Documentation & Testing', description: 'Address critical testing and docs.', actions: ['Add testing configurations', 'Write detailed READMEs'], scoreGain: 8, projectedScore: (aiReport.growthPotential.currentScore || finalTotalScore) + 8, estimatedTime: '1-2 weeks' },
+                  { phase: 2, name: 'CI/CD & Containers', description: 'Setup pipelines and packaging.', actions: ['Set up GitHub Actions workflows', 'Deploy applications to cloud'], scoreGain: 7, projectedScore: (aiReport.growthPotential.currentScore || finalTotalScore) + 15, estimatedTime: '2-3 weeks' },
+                  { phase: 3, name: 'Scalability & Design', description: 'Implement microservices & patterns.', actions: ['Apply modular architectural design patterns', 'Build microservices endpoints'], scoreGain: 5, projectedScore: aiReport.growthPotential.potentialScore || (finalTotalScore + 20), estimatedTime: '3-4 weeks' }
                 ]
               };
             }

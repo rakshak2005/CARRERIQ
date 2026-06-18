@@ -44,6 +44,9 @@ export const api = {
     register: (body: any) => request('/auth/register', { method: 'POST', body: JSON.stringify(body) }),
     login: (body: any) => request('/auth/login', { method: 'POST', body: JSON.stringify(body) }),
     getStats: () => request('/auth/stats'),
+    getFeatured: () => request('/auth/featured'),
+    getReviews: () => request('/auth/reviews'),
+    submitReview: (body: any) => request('/auth/reviews', { method: 'POST', body: JSON.stringify(body) }),
   },
 
   // Student Profile

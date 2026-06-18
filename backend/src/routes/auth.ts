@@ -270,5 +270,45 @@ router.get('/stats', async (req: Request, res: Response) => {
   }
 });
 
+// GET /api/auth/featured
+// Public endpoint to get top 3 candidate profiles
+router.get('/featured', async (req: Request, res: Response) => {
+  try {
+    const featured = await db.getFeaturedProfiles();
+    res.json(featured);
+  } catch (error: any) {
+    console.error('Error fetching featured profiles:', error);
+    res.status(500).json({ error: 'Server error fetching featured profiles' });
+  }
+});
+
+// GET /api/auth/reviews
+// Public endpoint to get all reviews
+router.get('/reviews', async (req: Request, res: Response) => {
+  try {
+    const reviews = await db.getReviews();
+    res.json(reviews);
+  } catch (error: any) {
+    console.error('Error fetching reviews:', error);
+    res.status(500).json({ error: 'Server error fetching reviews' });
+  }
+});
+
+// POST /api/auth/reviews
+// Public endpoint to submit a review
+router.post('/reviews', async (req: Request, res: Response) => {
+  try {
+    const { fullName, role, comment, rating } = req.body;
+    if (!fullName || !role || !comment || !rating) {
+      return res.status(400).json({ error: 'fullName, role, comment, and rating are required' });
+    }
+    const newReview = await db.createReview(fullName, role, comment, Number(rating));
+    res.json(newReview);
+  } catch (error: any) {
+    console.error('Error creating review:', error);
+    res.status(500).json({ error: 'Server error creating review' });
+  }
+});
+
 export default router;
 

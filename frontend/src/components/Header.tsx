@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 export const Header: React.FC = () => {
   const { user, logout, isAuthenticated } = useAuth();
-  const { theme, toggleTheme } = useTheme();
+  useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   const [showQuickActions, setShowQuickActions] = useState(false);

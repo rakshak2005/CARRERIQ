@@ -4,16 +4,27 @@ import { useTheme } from '../context/ThemeContext';
 import logoImg from '../assets/logo.png';
 import heroImg from '../assets/hero.png';
 import { api } from '../services/api';
+import { FileText, Code2, ShieldAlert, FolderGit2, CheckSquare, BrainCircuit, Compass } from 'lucide-react';
 
 export const Home: React.FC = () => {
   const navigate = useNavigate();
-  const { theme, toggleTheme } = useTheme();
+  const { theme } = useTheme();
 
   // Tracking active header role indicator ('students' or 'recruiters')
   const [activeRole, setActiveRole] = useState<'students' | 'recruiters'>('students');
 
   // Stats state for dynamic count
   const [stats, setStats] = useState({ students: 0, recruiters: 0, admins: 0 });
+  const [featuredCandidates, setFeaturedCandidates] = useState<any[]>([]);
+  const [reviews, setReviews] = useState<any[]>([]);
+
+  // Review submission state
+  const [newReviewName, setNewReviewName] = useState('');
+  const [newReviewRole, setNewReviewRole] = useState('Software Engineer');
+  const [newReviewComment, setNewReviewComment] = useState('');
+  const [newReviewRating, setNewReviewRating] = useState(5);
+  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+  const [reviewSubmitSuccess, setReviewSubmitSuccess] = useState(false);
 
   useEffect(() => {
     api.auth.getStats()
@@ -27,7 +38,49 @@ export const Home: React.FC = () => {
       .catch(err => {
         console.error('Error fetching live stats:', err);
       });
+
+    api.auth.getFeatured()
+      .then(res => {
+        setFeaturedCandidates(res || []);
+      })
+      .catch(err => {
+        console.error('Error fetching featured candidates:', err);
+      });
+
+    api.auth.getReviews()
+      .then(res => {
+        setReviews(res || []);
+      })
+      .catch(err => {
+        console.error('Error fetching reviews:', err);
+      });
   }, []);
+
+  const handleReviewSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newReviewName.trim() || !newReviewComment.trim()) return;
+    setIsSubmittingReview(true);
+    api.auth.submitReview({
+      fullName: newReviewName,
+      role: newReviewRole,
+      comment: newReviewComment,
+      rating: newReviewRating
+    })
+    .then(newReview => {
+      setReviews(prev => [newReview, ...prev]);
+      setNewReviewName('');
+      setNewReviewComment('');
+      setNewReviewRating(5);
+      setReviewSubmitSuccess(true);
+      setTimeout(() => setReviewSubmitSuccess(false), 5000);
+    })
+    .catch(err => {
+      console.error('Error submitting review:', err);
+    })
+    .finally(() => {
+      setIsSubmittingReview(false);
+    });
+  };
 
   // Carousel ref for scroll behavior
   const carouselRef = useRef<HTMLDivElement>(null);
@@ -253,68 +306,120 @@ export const Home: React.FC = () => {
           </div>
         </section>
 
-        {/* 3c. Comparison Section ("The Smart Way to Get Hired") */}
+        {/* 3c. Comparison Section (Replaced by Real-time Candidate Profiles) */}
         <section className="py-20 px-6 max-w-[1100px] mx-auto border-t border-slate-200/50 dark:border-white/5">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-extrabold text-slate-800 dark:text-white mb-4">
-              The Smart Way to <span className="text-[#4b61eb] dark:text-[#9bb2ff]">Get Hired</span>
+              Real-time <span className="text-[#4b61eb] dark:text-[#9bb2ff]">Talent Registry</span>
             </h2>
             <p className="text-slate-500 dark:text-slate-400 text-sm md:text-base max-w-2xl mx-auto leading-relaxed">
-              The automated verification engine for a faster career path.
+              Actual candidate credentials, portfolio scores, and engineering metrics queried dynamically from our MongoDB evaluation pool.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Traditional Screening */}
-            <div className="bg-white dark:bg-[#121526] border border-slate-200/40 dark:border-[#1c223c]/85 rounded-[24px] p-8 shadow-[0_8px_30px_rgba(0,0,0,0.01)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.2)]">
-              <h3 className="text-xl font-bold text-red-500 mb-6 flex items-center gap-2">
-                ✕ Traditional Screening (Painful)
-              </h3>
-              <ul className="space-y-4">
-                <li className="flex items-start gap-3 text-slate-500 dark:text-slate-400 text-sm">
-                  <span className="text-red-500 font-bold mt-0.5">•</span>
-                  <span>Manual CV filtering & bias</span>
-                </li>
-                <li className="flex items-start gap-3 text-slate-500 dark:text-slate-400 text-sm">
-                  <span className="text-red-500 font-bold mt-0.5">•</span>
-                  <span>No feedback on why you were rejected</span>
-                </li>
-                <li className="flex items-start gap-3 text-slate-500 dark:text-slate-400 text-sm">
-                  <span className="text-red-500 font-bold mt-0.5">•</span>
-                  <span>Weeks of waiting for a recruiter response</span>
-                </li>
-                <li className="flex items-start gap-3 text-slate-500 dark:text-slate-400 text-sm">
-                  <span className="text-red-500 font-bold mt-0.5">•</span>
-                  <span>Inconsistent profile sections</span>
-                </li>
-              </ul>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {featuredCandidates.length === 0 ? (
+              // Fallback loading/empty state cards
+              [1, 2, 3].map((num) => (
+                <div key={num} className="bg-white/40 dark:bg-[#121526]/40 border border-slate-200/20 dark:border-[#1c223c]/40 rounded-[24px] p-6 backdrop-blur-sm animate-pulse flex flex-col gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-slate-300 dark:bg-slate-700" />
+                    <div className="flex-1 space-y-2">
+                      <div className="h-4 bg-slate-300 dark:bg-slate-700 rounded w-2/3" />
+                      <div className="h-3 bg-slate-300 dark:bg-slate-700 rounded w-1/2" />
+                    </div>
+                  </div>
+                  <div className="h-1 bg-slate-300 dark:bg-slate-700 rounded w-full my-2" />
+                  <div className="space-y-2">
+                    <div className="h-3 bg-slate-300 dark:bg-slate-700 rounded w-full" />
+                    <div className="h-3 bg-slate-300 dark:bg-slate-700 rounded w-5/6" />
+                  </div>
+                </div>
+              ))
+            ) : (
+              featuredCandidates.map((candidate) => (
+                <div 
+                  key={candidate.id} 
+                  className="bg-white dark:bg-[#121526] border border-slate-200/40 dark:border-[#1c223c]/85 rounded-[24px] p-6 shadow-[0_8px_30px_rgba(0,0,0,0.01)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.2)] hover:-translate-y-1.5 transition-all duration-300 relative overflow-hidden flex flex-col justify-between"
+                >
+                  <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#4b61eb] to-[#9bb2ff]" />
+                  
+                  <div>
+                    {/* Header info */}
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-[#4b61eb]/15 text-[#4b61eb] dark:text-[#9bb2ff] font-extrabold text-sm flex items-center justify-center">
+                          {candidate.fullName.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase()}
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-slate-800 dark:text-white text-sm leading-tight">{candidate.fullName}</h4>
+                          <span className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold">{candidate.githubUsername ? `@${candidate.githubUsername}` : 'Local Candidate'}</span>
+                        </div>
+                      </div>
+                      <div className="flex flex-col items-end">
+                        <span className="text-xs font-extrabold text-[#4b61eb] dark:text-[#9bb2ff] bg-[#4b61eb]/10 px-2 py-0.5 rounded-md">
+                          {candidate.overallScore}%
+                        </span>
+                        <span className="text-[8px] text-slate-400 font-semibold uppercase mt-0.5 tracking-wider">Readiness</span>
+                      </div>
+                    </div>
 
-            {/* CareerIQ Engine */}
-            <div className="bg-white dark:bg-[#121526] border border-slate-200/40 dark:border-[#1c223c]/85 rounded-[24px] p-8 shadow-[0_8px_30px_rgba(0,0,0,0.01)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.2)] relative overflow-hidden">
-              <div className="absolute top-0 left-0 right-0 h-1 bg-[#4b61eb]" />
-              <h3 className="text-xl font-bold text-emerald-500 mb-6 flex items-center gap-2">
-                ✓ CareerIQ Engine (Solution)
-              </h3>
-              <ul className="space-y-4">
-                <li className="flex items-start gap-3 text-slate-600 dark:text-slate-300 text-sm font-medium">
-                  <span className="text-emerald-500 font-bold mt-0.5">✓</span>
-                  <span>Real-time AI profile evaluation</span>
-                </li>
-                <li className="flex items-start gap-3 text-slate-600 dark:text-slate-300 text-sm font-medium">
-                  <span className="text-emerald-500 font-bold mt-0.5">✓</span>
-                  <span>Actionable improvement recommendations</span>
-                </li>
-                <li className="flex items-start gap-3 text-slate-600 dark:text-slate-300 text-sm font-medium">
-                  <span className="text-emerald-500 font-bold mt-0.5">✓</span>
-                  <span>Zero-noise connection with matching roles</span>
-                </li>
-                <li className="flex items-start gap-3 text-slate-600 dark:text-slate-300 text-sm font-medium">
-                  <span className="text-emerald-500 font-bold mt-0.5">✓</span>
-                  <span>24/7 AI Career Coach assistance</span>
-                </li>
-              </ul>
-            </div>
+                    <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">
+                      Targeting: <span className="text-slate-800 dark:text-slate-200">{candidate.targetRole}</span>
+                    </div>
+
+                    {/* Breakdown Scores */}
+                    <div className="space-y-2 border-t border-b border-slate-200/30 dark:border-white/5 py-3.5 my-3.5">
+                      <div>
+                        <div className="flex justify-between text-[10px] text-slate-400 mb-1">
+                          <span>GitHub Score</span>
+                          <span className="font-bold text-slate-700 dark:text-slate-300">{candidate.githubScore || 0}%</span>
+                        </div>
+                        <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800/80 rounded-full overflow-hidden">
+                          <div 
+                            className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full transition-all duration-500" 
+                            style={{ width: `${candidate.githubScore || 0}%` }}
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <div className="flex justify-between text-[10px] text-slate-400 mb-1">
+                          <span>Resume Score</span>
+                          <span className="font-bold text-slate-700 dark:text-slate-300">{candidate.resumeScore || 0}%</span>
+                        </div>
+                        <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800/80 rounded-full overflow-hidden">
+                          <div 
+                            className="h-full bg-gradient-to-r from-blue-500 to-indigo-400 rounded-full transition-all duration-500" 
+                            style={{ width: `${candidate.resumeScore || 0}%` }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Skills tags */}
+                  <div>
+                    <div className="flex flex-wrap gap-1.5 mt-2">
+                      {candidate.techStacks && candidate.techStacks.length > 0 ? (
+                        candidate.techStacks.slice(0, 4).map((tech: string, i: number) => (
+                          <span key={i} className="text-[9px] px-2 py-0.5 bg-slate-50 dark:bg-[#1a1f36]/40 text-slate-600 dark:text-slate-300 border border-slate-200/40 dark:border-white/5 rounded-md font-semibold">
+                            {tech}
+                          </span>
+                        ))
+                      ) : (
+                        ['React', 'Node.js', 'TypeScript', 'CSS'].map((tech: string, i: number) => (
+                          <span key={i} className="text-[9px] px-2 py-0.5 bg-slate-50 dark:bg-[#1a1f36]/40 text-slate-600 dark:text-slate-300 border border-slate-200/40 dark:border-white/5 rounded-md font-semibold">
+                            {tech}
+                          </span>
+                        ))
+                      )}
+                    </div>
+                  </div>
+
+                </div>
+              ))
+            )}
           </div>
         </section>
 
@@ -331,66 +436,72 @@ export const Home: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {/* Automated Analysis */}
-            <div className="bg-white dark:bg-[#121526] border border-slate-200/40 dark:border-[#1c223c]/85 rounded-[24px] p-6 shadow-[0_8px_30px_rgba(0,0,0,0.01)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.2)] transition-all duration-300 hover:-translate-y-1 flex flex-col items-center text-center">
-              <div className="w-16 h-16 rounded-full bg-indigo-50 dark:bg-[#1c223c] flex items-center justify-center text-2xl mb-4">
-                📄
+            <div className="group bg-white dark:bg-[#121526] border border-slate-200/40 dark:border-[#1c223c]/85 rounded-[24px] p-8 shadow-[0_8px_30px_rgba(0,0,0,0.01)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.2)] transition-all duration-500 hover:-translate-y-2 hover:border-[#4b61eb]/40 hover:shadow-[0_20px_40px_rgba(75,97,235,0.08)] flex flex-col items-center text-center relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-[#4b61eb]/5 rounded-full blur-2xl group-hover:bg-[#4b61eb]/15 transition-all duration-500" />
+              <div className="w-16 h-16 rounded-2xl bg-indigo-50 dark:bg-[#1c223c]/60 flex items-center justify-center mb-6 shadow-inner transition-all duration-500 group-hover:scale-110 group-hover:rotate-6">
+                <FileText className="w-7 h-7 text-[#4b61eb] dark:text-[#9bb2ff]" />
               </div>
-              <h3 className="font-bold text-slate-800 dark:text-white text-base mb-2">Automated Analysis</h3>
+              <h3 className="font-extrabold text-slate-800 dark:text-white text-base mb-2 group-hover:text-[#4b61eb] dark:group-hover:text-[#9bb2ff] transition-colors">Automated Analysis</h3>
               <p className="text-slate-500 dark:text-slate-400 text-xs leading-relaxed max-w-[220px]">
                 Parse resume content and evaluate skills in seconds.
               </p>
             </div>
 
             {/* GitHub Evaluation */}
-            <div className="bg-white dark:bg-[#121526] border border-slate-200/40 dark:border-[#1c223c]/85 rounded-[24px] p-6 shadow-[0_8px_30px_rgba(0,0,0,0.01)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.2)] transition-all duration-300 hover:-translate-y-1 flex flex-col items-center text-center">
-              <div className="w-16 h-16 rounded-full bg-indigo-50 dark:bg-[#1c223c] flex items-center justify-center text-2xl mb-4">
-                💻
+            <div className="group bg-white dark:bg-[#121526] border border-slate-200/40 dark:border-[#1c223c]/85 rounded-[24px] p-8 shadow-[0_8px_30px_rgba(0,0,0,0.01)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.2)] transition-all duration-500 hover:-translate-y-2 hover:border-emerald-500/40 hover:shadow-[0_20px_40px_rgba(16,185,129,0.08)] flex flex-col items-center text-center relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full blur-2xl group-hover:bg-emerald-500/15 transition-all duration-500" />
+              <div className="w-16 h-16 rounded-2xl bg-indigo-50 dark:bg-[#1c223c]/60 flex items-center justify-center mb-6 shadow-inner transition-all duration-500 group-hover:scale-110 group-hover:rotate-6">
+                <Code2 className="w-7 h-7 text-emerald-500" />
               </div>
-              <h3 className="font-bold text-slate-800 dark:text-white text-base mb-2">GitHub Evaluation</h3>
+              <h3 className="font-extrabold text-slate-800 dark:text-white text-base mb-2 group-hover:text-emerald-500 dark:group-hover:text-emerald-400 transition-colors">GitHub Evaluation</h3>
               <p className="text-slate-500 dark:text-slate-400 text-xs leading-relaxed max-w-[220px]">
                 Connect your GitHub to calculate real-world coding impact.
               </p>
             </div>
 
             {/* LinkedIn Verification */}
-            <div className="bg-white dark:bg-[#121526] border border-slate-200/40 dark:border-[#1c223c]/85 rounded-[24px] p-6 shadow-[0_8px_30px_rgba(0,0,0,0.01)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.2)] transition-all duration-300 hover:-translate-y-1 flex flex-col items-center text-center">
-              <div className="w-16 h-16 rounded-full bg-indigo-50 dark:bg-[#1c223c] flex items-center justify-center text-2xl mb-4">
-                🛡️
+            <div className="group bg-white dark:bg-[#121526] border border-slate-200/40 dark:border-[#1c223c]/85 rounded-[24px] p-8 shadow-[0_8px_30px_rgba(0,0,0,0.01)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.2)] transition-all duration-500 hover:-translate-y-2 hover:border-blue-500/40 hover:shadow-[0_20px_40px_rgba(59,130,246,0.08)] flex flex-col items-center text-center relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/5 rounded-full blur-2xl group-hover:bg-blue-500/15 transition-all duration-500" />
+              <div className="w-16 h-16 rounded-2xl bg-indigo-50 dark:bg-[#1c223c]/60 flex items-center justify-center mb-6 shadow-inner transition-all duration-500 group-hover:scale-110 group-hover:rotate-6">
+                <ShieldAlert className="w-7 h-7 text-blue-500" />
               </div>
-              <h3 className="font-bold text-slate-800 dark:text-white text-base mb-2">LinkedIn Verification</h3>
+              <h3 className="font-extrabold text-slate-800 dark:text-white text-base mb-2 group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors">LinkedIn Verification</h3>
               <p className="text-slate-500 dark:text-slate-400 text-xs leading-relaxed max-w-[220px]">
                 Verify employment and academic history.
               </p>
             </div>
 
             {/* Project Assessment */}
-            <div className="bg-white dark:bg-[#121526] border border-slate-200/40 dark:border-[#1c223c]/85 rounded-[24px] p-6 shadow-[0_8px_30px_rgba(0,0,0,0.01)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.2)] transition-all duration-300 hover:-translate-y-1 flex flex-col items-center text-center">
-              <div className="w-16 h-16 rounded-full bg-indigo-50 dark:bg-[#1c223c] flex items-center justify-center text-2xl mb-4">
-                📁
+            <div className="group bg-white dark:bg-[#121526] border border-slate-200/40 dark:border-[#1c223c]/85 rounded-[24px] p-8 shadow-[0_8px_30px_rgba(0,0,0,0.01)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.2)] transition-all duration-500 hover:-translate-y-2 hover:border-amber-500/40 hover:shadow-[0_20px_40px_rgba(245,158,11,0.08)] flex flex-col items-center text-center relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 rounded-full blur-2xl group-hover:bg-amber-500/15 transition-all duration-500" />
+              <div className="w-16 h-16 rounded-2xl bg-indigo-50 dark:bg-[#1c223c]/60 flex items-center justify-center mb-6 shadow-inner transition-all duration-500 group-hover:scale-110 group-hover:rotate-6">
+                <FolderGit2 className="w-7 h-7 text-amber-500" />
               </div>
-              <h3 className="font-bold text-slate-800 dark:text-white text-base mb-2">Project Assessment</h3>
+              <h3 className="font-extrabold text-slate-800 dark:text-white text-base mb-2 group-hover:text-amber-500 dark:group-hover:text-amber-400 transition-colors">Project Assessment</h3>
               <p className="text-slate-500 dark:text-slate-400 text-xs leading-relaxed max-w-[220px]">
                 Real-time code quality and architectural design reviews.
               </p>
             </div>
 
             {/* Cert Verification */}
-            <div className="bg-white dark:bg-[#121526] border border-slate-200/40 dark:border-[#1c223c]/85 rounded-[24px] p-6 shadow-[0_8px_30px_rgba(0,0,0,0.01)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.2)] transition-all duration-300 hover:-translate-y-1 flex flex-col items-center text-center">
-              <div className="w-16 h-16 rounded-full bg-indigo-50 dark:bg-[#1c223c] flex items-center justify-center text-2xl mb-4">
-                ✓
+            <div className="group bg-white dark:bg-[#121526] border border-slate-200/40 dark:border-[#1c223c]/85 rounded-[24px] p-8 shadow-[0_8px_30px_rgba(0,0,0,0.01)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.2)] transition-all duration-500 hover:-translate-y-2 hover:border-purple-500/40 hover:shadow-[0_20px_40px_rgba(139,92,246,0.08)] flex flex-col items-center text-center relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-purple-500/5 rounded-full blur-2xl group-hover:bg-purple-500/15 transition-all duration-500" />
+              <div className="w-16 h-16 rounded-2xl bg-indigo-50 dark:bg-[#1c223c]/60 flex items-center justify-center mb-6 shadow-inner transition-all duration-500 group-hover:scale-110 group-hover:rotate-6">
+                <CheckSquare className="w-7 h-7 text-purple-500" />
               </div>
-              <h3 className="font-bold text-slate-800 dark:text-white text-base mb-2">Cert Verification</h3>
+              <h3 className="font-extrabold text-slate-800 dark:text-white text-base mb-2 group-hover:text-purple-500 dark:group-hover:text-purple-400 transition-colors">Cert Verification</h3>
               <p className="text-slate-500 dark:text-slate-400 text-xs leading-relaxed max-w-[220px]">
                 Validate credential links in real time.
               </p>
             </div>
 
             {/* DSA Evaluation */}
-            <div className="bg-white dark:bg-[#121526] border border-slate-200/40 dark:border-[#1c223c]/85 rounded-[24px] p-6 shadow-[0_8px_30px_rgba(0,0,0,0.01)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.2)] transition-all duration-300 hover:-translate-y-1 flex flex-col items-center text-center">
-              <div className="w-16 h-16 rounded-full bg-indigo-50 dark:bg-[#1c223c] flex items-center justify-center text-2xl mb-4">
-                ⚙️
+            <div className="group bg-white dark:bg-[#121526] border border-slate-200/40 dark:border-[#1c223c]/85 rounded-[24px] p-8 shadow-[0_8px_30px_rgba(0,0,0,0.01)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.2)] transition-all duration-500 hover:-translate-y-2 hover:border-[#3b4cb8]/40 hover:shadow-[0_20px_40px_rgba(59,76,184,0.08)] flex flex-col items-center text-center relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-[#3b4cb8]/5 rounded-full blur-2xl group-hover:bg-[#3b4cb8]/15 transition-all duration-500" />
+              <div className="w-16 h-16 rounded-2xl bg-indigo-50 dark:bg-[#1c223c]/60 flex items-center justify-center mb-6 shadow-inner transition-all duration-500 group-hover:scale-110 group-hover:rotate-6">
+                <BrainCircuit className="w-7 h-7 text-[#4b61eb] dark:text-[#3b4cb8]" />
               </div>
-              <h3 className="font-bold text-slate-800 dark:text-white text-base mb-2">DSA Evaluation</h3>
+              <h3 className="font-extrabold text-slate-800 dark:text-white text-base mb-2 group-hover:text-[#3b4cb8] dark:group-hover:text-[#9bb2ff] transition-colors">DSA Evaluation</h3>
               <p className="text-slate-500 dark:text-slate-400 text-xs leading-relaxed max-w-[220px]">
                 Test your algorithmic logic through mock challenges.
               </p>
@@ -398,78 +509,29 @@ export const Home: React.FC = () => {
           </div>
 
           {/* Personalized Roadmaps */}
-          <div className="mt-8 bg-[#4b61eb]/5 dark:bg-[#4b61eb]/15 border border-[#4b61eb]/15 rounded-[24px] p-8 shadow-[0_8px_30px_rgba(0,0,0,0.01)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.2)] flex flex-col md:flex-row items-center gap-6 text-center md:text-left">
-            <div className="w-16 h-16 rounded-2xl bg-[#4b61eb]/15 dark:bg-[#4b61eb]/25 flex items-center justify-center text-3xl">
-              🗺️
+          <div className="mt-12 bg-gradient-to-r from-[#4b61eb]/5 to-[#8b5cf6]/5 dark:from-[#4b61eb]/10 dark:to-[#8b5cf6]/10 border border-[#4b61eb]/15 rounded-[28px] p-8 shadow-[0_8px_30px_rgba(0,0,0,0.01)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.25)] flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left relative overflow-hidden group hover:border-[#4b61eb]/30 transition-all duration-500">
+            <div className="absolute top-0 left-0 bottom-0 w-1.5 bg-gradient-to-b from-[#4b61eb] to-[#8b5cf6]" />
+            <div className="flex flex-col md:flex-row items-center gap-6">
+              <div className="w-16 h-16 rounded-2xl bg-[#4b61eb]/10 dark:bg-[#4b61eb]/25 flex items-center justify-center shadow-inner transition-all duration-500 group-hover:scale-110">
+                <Compass className="w-7 h-7 text-[#4b61eb]" />
+              </div>
+              <div>
+                <h3 className="font-extrabold text-slate-800 dark:text-white text-lg mb-1">Personalized Career Roadmaps</h3>
+                <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed max-w-xl">
+                  Get a step-by-step custom training and project plan tailored to target role requirements and skill gaps.
+                </p>
+              </div>
             </div>
-            <div className="flex-1">
-              <h3 className="font-bold text-slate-800 dark:text-white text-lg mb-1">Personalized Roadmaps</h3>
-              <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">
-                A step-by-step training and project plan tailored to your profile goals.
-              </p>
-            </div>
+            <button 
+              onClick={() => navigate('/register')}
+              className="px-6 py-3 bg-[#4b61eb] hover:bg-[#3b51e6] text-white text-xs font-extrabold rounded-xl shadow-[0_6px_20px_rgba(75,97,235,0.2)] transition-all duration-300 hover:scale-[1.03] active:scale-95 whitespace-nowrap"
+            >
+              Generate My Roadmap
+            </button>
           </div>
         </section>
 
-        {/* 4b. The Top 1% Talent Section */}
-        <section className="py-20 px-6 max-w-[1100px] mx-auto border-t border-slate-200/50 dark:border-white/5">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-extrabold text-slate-800 dark:text-white mb-4">
-              The <span className="text-[#4b61eb] dark:text-[#9bb2ff]">Top 1%</span> Talent
-            </h2>
-            <p className="text-slate-500 dark:text-slate-400 text-sm md:text-base max-w-2xl mx-auto leading-relaxed">
-              Browse candidate ratings based on real verified coding metrics and portfolio reviews.
-            </p>
-          </div>
 
-          <div className="overflow-x-auto bg-white dark:bg-[#121526] border border-slate-200/40 dark:border-[#1c223c]/85 rounded-[24px] shadow-[0_8px_30px_rgba(0,0,0,0.01)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.2)]">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="border-b border-slate-200/50 dark:border-white/5 text-xs text-slate-400 uppercase tracking-wider">
-                  <th className="px-8 py-5 font-semibold">Candidate</th>
-                  <th className="px-8 py-5 font-semibold text-center">Skill Index</th>
-                  <th className="px-8 py-5 font-semibold">Top Category</th>
-                  <th className="px-8 py-5 font-semibold">Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-200/50 dark:divide-white/5 text-sm">
-                <tr className="hover:bg-slate-50/50 dark:hover:bg-white/[0.02] transition-colors">
-                  <td className="px-8 py-4 font-semibold text-slate-800 dark:text-white flex items-center gap-3">
-                    <span className="w-8 h-8 rounded-full bg-[#4b61eb]/15 flex items-center justify-center text-xs">👨‍💻</span>
-                    Alex Rivera
-                  </td>
-                  <td className="px-8 py-4 text-center font-bold text-[#4b61eb] dark:text-[#9bb2ff]">88.5</td>
-                  <td className="px-8 py-4 text-slate-500 dark:text-slate-400">Full Stack React/Node</td>
-                  <td className="px-8 py-4">
-                    <span className="badge badge-success text-[10px] px-2.5 py-0.5 bg-emerald-500/10 text-emerald-500 dark:bg-emerald-500/20 rounded-full">Active</span>
-                  </td>
-                </tr>
-                <tr className="hover:bg-slate-50/50 dark:hover:bg-white/[0.02] transition-colors">
-                  <td className="px-8 py-4 font-semibold text-slate-800 dark:text-white flex items-center gap-3">
-                    <span className="w-8 h-8 rounded-full bg-emerald-500/15 flex items-center justify-center text-xs">👩‍💻</span>
-                    Sarah Jenkins
-                  </td>
-                  <td className="px-8 py-4 text-center font-bold text-emerald-500">92.0</td>
-                  <td className="px-8 py-4 text-slate-500 dark:text-slate-400">Python Data Science</td>
-                  <td className="px-8 py-4">
-                    <span className="badge badge-success text-[10px] px-2.5 py-0.5 bg-emerald-500/10 text-emerald-500 dark:bg-emerald-500/20 rounded-full">Available</span>
-                  </td>
-                </tr>
-                <tr className="hover:bg-slate-50/50 dark:hover:bg-white/[0.02] transition-colors">
-                  <td className="px-8 py-4 font-semibold text-slate-800 dark:text-white flex items-center gap-3">
-                    <span className="w-8 h-8 rounded-full bg-amber-500/15 flex items-center justify-center text-xs">👨‍💻</span>
-                    Kenji Tanaka
-                  </td>
-                  <td className="px-8 py-4 text-center font-bold text-amber-500">89.5</td>
-                  <td className="px-8 py-4 text-slate-500 dark:text-slate-400">Mobile iOS/Swift</td>
-                  <td className="px-8 py-4">
-                    <span className="badge badge-warning text-[10px] px-2.5 py-0.5 bg-amber-500/10 text-amber-500 dark:bg-amber-500/20 rounded-full">Interviewing</span>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </section>
 
         {/* 5. Stories of Transformation Section */}
         <section className="py-20 px-4 max-w-[1100px] mx-auto border-t border-slate-200/50 dark:border-white/5 relative">
@@ -506,60 +568,144 @@ export const Home: React.FC = () => {
             ref={carouselRef}
             className="flex gap-6 overflow-x-auto pb-6 scrollbar-none snap-x snap-mandatory"
           >
-            {/* Testimonial 1 */}
-            <div className="min-w-[280px] md:min-w-[350px] max-w-[370px] bg-white dark:bg-[#121526] border border-slate-200/40 dark:border-[#1c223c]/85 rounded-[24px] p-6 shadow-[0_8px_30px_rgba(0,0,0,0.01)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.2)] flex flex-col justify-between snap-start transition-transform duration-300 hover:scale-[1.01]">
-              <p className="text-slate-600 dark:text-slate-300 text-xs md:text-sm italic leading-relaxed mb-6">
-                "CareerIQ allowed me to skip the entry-level resume screening completely. My verified profile got me interviews at top startups in less than a week."
-              </p>
-              <div className="flex items-center gap-3">
-                <img
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuD-B8mvhqHGrNfNMVLzUiNGmhtihHv76-LQTL0C9pKXHm_0-yNwFy1BMykSer7gHnrjJI8so2pST2ny7xJdmRLCBJIKE-4U5zOr2XTlmbOhwm9nd1aqXGF13g6k9Eh7xvQAo-DZ2QrANSK7AX3IUfdqdJvAbvpDPw9zZhRp3xdHu_hii4otDnFDIfIRvZfKGYr2EDSwIm992hLnbv47NsNTxanYmc9EmCE5pSb7ypwJmj5CS6YYTKH8wFOX5MWyKv3MH5WVcTqFtA"
-                  alt="Alex Rivera Avatar"
-                  className="w-10 h-10 rounded-full object-cover border border-[#4b61eb]/25"
-                />
+            {reviews.length === 0 ? (
+              // Fallback cards with Indian names and no AI images (initials instead)
+              [
+                { fullName: 'Aarav Patel', role: 'Software Engineer', comment: 'CareerIQ allowed me to skip the entry-level resume screening completely. My verified profile got me interviews at top startups in Bangalore within a week.', rating: 5 },
+                { fullName: 'Priya Sharma', role: 'Technical Recruiter', comment: 'We saved dozens of sourcing hours by filtering for verified candidate portfolios. It cuts out the noise completely.', rating: 5 },
+                { fullName: 'Rohan Gupta', role: 'Frontend Developer', comment: 'The personalized learning path helped me focus on what counted. Within 3 weeks I had my first engineering job in Mumbai.', rating: 4 }
+              ].map((item, idx) => (
+                <div key={idx} className="min-w-[280px] md:min-w-[350px] max-w-[370px] bg-white dark:bg-[#121526] border border-slate-200/40 dark:border-[#1c223c]/85 rounded-[24px] p-6 shadow-[0_8px_30px_rgba(0,0,0,0.01)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.2)] flex flex-col justify-between snap-start transition-transform duration-300 hover:scale-[1.01]">
+                  <div>
+                    <div className="flex gap-1 mb-4 text-amber-500">
+                      {Array.from({ length: item.rating }).map((_, i) => (
+                        <span key={i}>⭐</span>
+                      ))}
+                    </div>
+                    <p className="text-slate-600 dark:text-slate-300 text-xs md:text-sm italic leading-relaxed mb-6">
+                      "{item.comment}"
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-extrabold text-sm flex items-center justify-center">
+                      {item.fullName.split(' ').map(n => n[0]).join('').toUpperCase()}
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-slate-800 dark:text-white text-xs md:text-sm">{item.fullName}</h4>
+                      <p className="text-slate-500 dark:text-slate-400 text-[10px] md:text-xs">{item.role}</p>
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              reviews.map((item) => (
+                <div key={item.id} className="min-w-[280px] md:min-w-[350px] max-w-[370px] bg-white dark:bg-[#121526] border border-slate-200/40 dark:border-[#1c223c]/85 rounded-[24px] p-6 shadow-[0_8px_30px_rgba(0,0,0,0.01)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.2)] flex flex-col justify-between snap-start transition-transform duration-300 hover:scale-[1.01]">
+                  <div>
+                    <div className="flex gap-1 mb-4 text-amber-500">
+                      {Array.from({ length: item.rating || 5 }).map((_, i) => (
+                        <span key={i}>⭐</span>
+                      ))}
+                    </div>
+                    <p className="text-slate-600 dark:text-slate-300 text-xs md:text-sm italic leading-relaxed mb-6">
+                      "{item.comment}"
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white font-extrabold text-sm flex items-center justify-center">
+                      {item.full_name ? item.full_name.split(' ').map((n: string) => n[0]).join('').toUpperCase() : 'UI'}
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-slate-800 dark:text-white text-xs md:text-sm">{item.full_name || 'Anonymous User'}</h4>
+                      <p className="text-slate-500 dark:text-slate-400 text-[10px] md:text-xs">{item.role}</p>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+
+          {/* Write a Review Section */}
+          <div className="mt-16 bg-white/40 dark:bg-[#121526]/40 border border-slate-200/30 dark:border-[#1c223c]/60 rounded-3xl p-8 backdrop-blur-sm max-w-2xl mx-auto">
+            <h3 className="text-xl font-extrabold text-slate-800 dark:text-white mb-2 text-center">
+              Share Your <span className="text-[#4b61eb] dark:text-[#9bb2ff]">Experience</span>
+            </h3>
+            <p className="text-slate-500 dark:text-slate-400 text-xs text-center mb-6">
+              Let the community know how CareerIQ has helped you verify skills and find opportunities.
+            </p>
+
+            <form onSubmit={handleReviewSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <h4 className="font-bold text-slate-800 dark:text-white text-xs md:text-sm">Alex Rivera</h4>
-                  <p className="text-slate-500 dark:text-slate-400 text-[10px] md:text-xs">Software Engineer</p>
+                  <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Your Name</label>
+                  <input
+                    type="text"
+                    required
+                    value={newReviewName}
+                    onChange={(e) => setNewReviewName(e.target.value)}
+                    placeholder="e.g. Aarav Patel"
+                    className="w-full bg-white dark:bg-[#0f111a] border border-slate-200 dark:border-white/5 rounded-xl px-4 py-2.5 text-xs text-slate-800 dark:text-white outline-none focus:border-[#4b61eb]/50"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Role/Title</label>
+                  <select
+                    value={newReviewRole}
+                    onChange={(e) => setNewReviewRole(e.target.value)}
+                    className="w-full bg-white dark:bg-[#0f111a] border border-slate-200 dark:border-white/5 rounded-xl px-4 py-2.5 text-xs text-slate-800 dark:text-white outline-none focus:border-[#4b61eb]/50"
+                  >
+                    <option value="Software Engineer">Software Engineer</option>
+                    <option value="Frontend Developer">Frontend Developer</option>
+                    <option value="Backend Developer">Backend Developer</option>
+                    <option value="Technical Recruiter">Technical Recruiter</option>
+                    <option value="Product Manager">Product Manager</option>
+                    <option value="Data Scientist">Data Scientist</option>
+                    <option value="Student / Candidate">Student / Candidate</option>
+                  </select>
                 </div>
               </div>
-            </div>
 
-            {/* Testimonial 2 */}
-            <div className="min-w-[280px] md:min-w-[350px] max-w-[370px] bg-white dark:bg-[#121526] border border-slate-200/40 dark:border-[#1c223c]/85 rounded-[24px] p-6 shadow-[0_8px_30px_rgba(0,0,0,0.01)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.2)] flex flex-col justify-between snap-start transition-transform duration-300 hover:scale-[1.01]">
-              <p className="text-slate-600 dark:text-slate-300 text-xs md:text-sm italic leading-relaxed mb-6">
-                "We saved dozens of sourcing hours by filtering for verified candidate portfolios. It cuts out the noise completely."
-              </p>
-              <div className="flex items-center gap-3">
-                <img
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuCYvVmG2UfDSHA0KKqeV2LgmvKtKJOdzUHs3ATRujDANTnyAi6GblYzy5WfcM0CM2TPBP0p100OYRyeXCmwl7XVoPdQzt1yiFZhhpAKt2GZgtVYxYk-GllydCh-HnN6fjIdntfcr1AgCvDzBkfvCMFGfDq34ODsoLXAet5mJw_fiyi1sH1L2HaWDPhghiR2JZna0bN11qObC03VQhI0AB0cR1ly_3TxQZZpS76L2o4zBouuyv2rQOjuXU29yustk9SDfbyLPrcNKQ"
-                  alt="Sarah Jenkins Avatar"
-                  className="w-10 h-10 rounded-full object-cover border border-[#4b61eb]/25"
-                />
-                <div>
-                  <h4 className="font-bold text-slate-800 dark:text-white text-xs md:text-sm">Sarah Jenkins</h4>
-                  <p className="text-slate-500 dark:text-slate-400 text-[10px] md:text-xs">Technical Recruiter</p>
+              <div>
+                <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Rating</label>
+                <div className="flex items-center gap-2">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      type="button"
+                      onClick={() => setNewReviewRating(star)}
+                      className={`text-xl transition-all ${newReviewRating >= star ? 'scale-110 grayscale-0' : 'scale-95 grayscale opacity-40'}`}
+                    >
+                      ⭐
+                    </button>
+                  ))}
                 </div>
               </div>
-            </div>
 
-            {/* Testimonial 3 */}
-            <div className="min-w-[280px] md:min-w-[350px] max-w-[370px] bg-white dark:bg-[#121526] border border-slate-200/40 dark:border-[#1c223c]/85 rounded-[24px] p-6 shadow-[0_8px_30px_rgba(0,0,0,0.01)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.2)] flex flex-col justify-between snap-start transition-transform duration-300 hover:scale-[1.01]">
-              <p className="text-slate-600 dark:text-slate-300 text-xs md:text-sm italic leading-relaxed mb-6">
-                "The personalized learning path helped me focus on what counted. Within 3 weeks I had my first engineering job."
-              </p>
-              <div className="flex items-center gap-3">
-                <img
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuBhE4awAotIqNGnXOYgfjiyghzCdvkclhztsy648spMzK0TE1huuQBxSVRc8SwKon5VHCflD4339jah5aohhiF43Nx_fJc60xkSwjm8_nzlWRs-kg6TsIubeVzWFfUw6PABtQbyiyDaVas5zCCHBbB-SvEmUxDgwXPe4oO0pRA3UIk1GRaMVJsi048wIcZWrzoTTCiJiKUpT85OMMccXleiA8OzxGYQ4ihIYDF1pxRl3JNEjc-5DY9qVDwWF25Y9r5A_Tq-3d5Dhw"
-                  alt="Kenji Tanaka Avatar"
-                  className="w-10 h-10 rounded-full object-cover border border-[#4b61eb]/25"
+              <div>
+                <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Your Review</label>
+                <textarea
+                  required
+                  rows={3}
+                  value={newReviewComment}
+                  onChange={(e) => setNewReviewComment(e.target.value)}
+                  placeholder="Tell us what you liked, how your profile rating helped you, etc..."
+                  className="w-full bg-white dark:bg-[#0f111a] border border-slate-200 dark:border-white/5 rounded-xl px-4 py-2.5 text-xs text-slate-800 dark:text-white outline-none focus:border-[#4b61eb]/50 resize-none"
                 />
-                <div>
-                  <h4 className="font-bold text-slate-800 dark:text-white text-xs md:text-sm">Kenji Tanaka</h4>
-                  <p className="text-slate-500 dark:text-slate-400 text-[10px] md:text-xs">Frontend Developer</p>
-                </div>
               </div>
-            </div>
 
+              {reviewSubmitSuccess && (
+                <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-xs py-2 px-4 rounded-xl text-center font-semibold animate-pulse">
+                  ✓ Review submitted successfully! Thank you for your feedback.
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={isSubmittingReview}
+                className="w-full bg-[#4b61eb] hover:bg-[#3b51e6] disabled:opacity-50 text-white font-bold text-xs py-3 rounded-xl transition-all active:scale-[0.98]"
+              >
+                {isSubmittingReview ? 'Submitting...' : 'Submit Review'}
+              </button>
+            </form>
           </div>
         </section>
 

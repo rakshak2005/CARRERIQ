@@ -272,6 +272,24 @@ const AIRecommendationLocalSchema = new Schema<IAIRecommendationLocal>({
 }, { _id: false });
 const AIRecommendationLocalModel = mongoose.models.LocalAIRecommendation || model<IAIRecommendationLocal>('LocalAIRecommendation', AIRecommendationLocalSchema);
 
+// LocalReview Schema
+interface IReviewLocal {
+  _id: number;
+  fullName: string;
+  role: string;
+  comment: string;
+  rating: number;
+  createdAt?: Date;
+}
+const ReviewLocalSchema = new Schema<IReviewLocal>({
+  _id: { type: Number, required: true },
+  fullName: { type: String, required: true },
+  role: { type: String, required: true },
+  comment: { type: String, required: true },
+  rating: { type: Number, required: true, min: 1, max: 5 },
+}, { _id: false, timestamps: { createdAt: true, updatedAt: false } });
+const ReviewLocalModel = mongoose.models.LocalReview || model<IReviewLocal>('LocalReview', ReviewLocalSchema);
+
 // --- Mapping Helper Functions (ensures compatibility with existing interfaces) ---
 
 const mapUser = (doc: any) => {
@@ -416,6 +434,18 @@ const mapAIRecommendation = (doc: any) => {
   };
 };
 
+const mapReview = (doc: any) => {
+  if (!doc) return null;
+  return {
+    id: doc._id,
+    full_name: doc.fullName,
+    role: doc.role,
+    comment: doc.comment,
+    rating: doc.rating,
+    created_at: doc.createdAt
+  };
+};
+
 // --- In-Memory Mock Database Fallback (for offline/disconnected state) ---
 
 let useMockDb = false;
@@ -428,6 +458,7 @@ const mockDb = {
   certificates: [] as any[],
   categoryScores: [] as any[],
   aiRecommendations: [] as any[],
+  reviews: [] as any[],
   userIdCounter: 1,
   profileIdCounter: 1,
   recruiterIdCounter: 1,
@@ -435,6 +466,7 @@ const mockDb = {
   certificateIdCounter: 1,
   categoryScoreIdCounter: 1,
   aiRecommendationIdCounter: 1,
+  reviewIdCounter: 1,
 };
 
 const seedMockData = () => {
@@ -551,11 +583,61 @@ const seedMockData = () => {
     industry: 'Technology',
     created_at: new Date()
   });
+
+  mockDb.reviews = [
+    { id: 1, full_name: 'Aarav Patel', role: 'Software Engineer', comment: 'CareerIQ allowed me to skip the entry-level resume screening completely. My verified profile got me interviews at top startups in Bangalore within a week.', rating: 5, created_at: new Date() },
+    { id: 2, full_name: 'Priya Sharma', role: 'Technical Recruiter', comment: 'We saved dozens of sourcing hours by filtering for verified candidate portfolios. It cuts out the noise completely.', rating: 5, created_at: new Date() },
+    { id: 3, full_name: 'Rohan Gupta', role: 'Frontend Developer', comment: 'The personalized learning path helped me focus on what counted. Within 3 weeks I had my first engineering job in Mumbai.', rating: 4, created_at: new Date() }
+  ];
+  mockDb.reviewIdCounter = 4;
+};
+
+const seedReviewsIfNeeded = async () => {
+  try {
+    const count = await ReviewLocalModel.countDocuments();
+    if (count === 0) {
+      console.log('[INFO] Seeding initial reviews into MongoDB...');
+      const initialReviews = [
+        {
+          _id: 1,
+          fullName: 'Aarav Patel',
+          role: 'Software Engineer',
+          comment: 'CareerIQ allowed me to skip the entry-level resume screening completely. My verified profile got me interviews at top startups in Bangalore within a week.',
+          rating: 5
+        },
+        {
+          _id: 2,
+          fullName: 'Priya Sharma',
+          role: 'Technical Recruiter',
+          comment: 'We saved dozens of sourcing hours by filtering for verified candidate portfolios. It cuts out the noise completely.',
+          rating: 5
+        },
+        {
+          _id: 3,
+          fullName: 'Rohan Gupta',
+          role: 'Frontend Developer',
+          comment: 'The personalized learning path helped me focus on what counted. Within 3 weeks I had my first engineering job in Mumbai.',
+          rating: 4
+        }
+      ];
+      for (const rev of initialReviews) {
+        await new ReviewLocalModel(rev).save();
+      }
+      await CounterModel.findOneAndUpdate(
+        { _id: 'reviewId' },
+        { $max: { seq: 3 } },
+        { upsert: true }
+      );
+    }
+  } catch (err) {
+    console.error('Error seeding reviews:', err);
+  }
 };
 
 const checkDbState = async () => {
   // We assume MongoDB connects correctly because index.ts handles failures
   useMockDb = false;
+  await seedReviewsIfNeeded();
 };
 
 checkDbState();
@@ -586,6 +668,34 @@ export const db = {
       recruiters,
       admins
     };
+  },
+
+  getFeaturedProfiles: async () => {
+    if (useMockDb) {
+      return mockDb.studentProfiles.map(p => ({
+        id: p.id,
+        fullName: p.full_name,
+        targetRole: p.target_role,
+        overallScore: p.overall_score,
+        githubScore: p.github_score,
+        resumeScore: p.resume_score || 0,
+        techStacks: p.github_tech_stacks || [],
+        githubUsername: p.github_username
+      })).sort((a,b) => b.overallScore - a.overallScore).slice(0, 3);
+    }
+    const profiles = await StudentProfileLocalModel.find()
+      .sort({ overallScore: -1 })
+      .limit(3);
+    return profiles.map(p => ({
+      id: p._id,
+      fullName: p.fullName,
+      targetRole: p.targetRole,
+      overallScore: p.overallScore,
+      githubScore: p.githubScore,
+      resumeScore: p.resumeScore || 0,
+      techStacks: p.githubTechStacks || [],
+      githubUsername: p.githubUsername
+    }));
   },
 
   getAllUsers: async () => {
@@ -1291,5 +1401,38 @@ export const db = {
       categoryScores,
       recommendations
     };
+  },
+
+  getReviews: async () => {
+    if (useMockDb) {
+      return [...mockDb.reviews].sort((a, b) => b.created_at.getTime() - a.created_at.getTime());
+    }
+    const reviews = await ReviewLocalModel.find({}).sort({ createdAt: -1 });
+    return reviews.map(mapReview);
+  },
+
+  createReview: async (fullName: string, role: string, comment: string, rating: number) => {
+    if (useMockDb) {
+      const review = {
+        id: mockDb.reviewIdCounter++,
+        full_name: fullName,
+        role,
+        comment,
+        rating,
+        created_at: new Date()
+      };
+      mockDb.reviews.push(review);
+      return review;
+    }
+    const id = await getNextSequenceValue('reviewId');
+    const review = new ReviewLocalModel({
+      _id: id,
+      fullName,
+      role,
+      comment,
+      rating
+    });
+    await review.save();
+    return mapReview(review);
   }
 };
