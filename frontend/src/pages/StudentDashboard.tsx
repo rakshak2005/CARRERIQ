@@ -602,7 +602,7 @@ export const StudentDashboard: React.FC = () => {
 
       {/* HERO SECTION */}
       <section id="dashboard" style={{ marginBottom: '3rem', paddingTop: '1rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem' }}>
+        <div className="dashboard-header-flex" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem' }}>
           <div>
             <h1 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '0.5rem', color: '#fff' }}>
               Welcome back, {fullName || 'Student'}
@@ -619,7 +619,7 @@ export const StudentDashboard: React.FC = () => {
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+        <div className="dashboard-hero-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
           
           {/* Main Score Card */}
           <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', position: 'relative', overflow: 'hidden' }}>
@@ -688,7 +688,7 @@ export const StudentDashboard: React.FC = () => {
 
       {/* MODULES GRID */}
       <h2 style={{ fontSize: '1.25rem', marginBottom: '1rem', marginTop: '3rem' }}>Profile Management & Analysis</h2>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '1.5rem', marginBottom: '3rem' }}>
+      <div className="dashboard-modules-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '1.5rem', marginBottom: '3rem' }}>
         
         {/* NEW GITHUB ANALYTICS DASHBOARD */}
         <section id="github" style={{ gridColumn: '1 / -1', background: 'linear-gradient(135deg, rgba(36, 41, 47, 0.4) 0%, rgba(20, 22, 25, 0.6) 100%)', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.05)', padding: '2rem' }}>
@@ -733,7 +733,7 @@ export const StudentDashboard: React.FC = () => {
           </div>
 
           {/* Quick Stats Grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '1rem', marginBottom: '2.5rem' }}>
+          <div className="github-stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '1rem', marginBottom: '2.5rem' }}>
             {[
               { label: 'Repositories', value: githubRepos, icon: '📦' },
               { label: 'Total Stars', value: githubStars, icon: '⭐' },
@@ -751,7 +751,7 @@ export const StudentDashboard: React.FC = () => {
           </div>
 
           {/* Breakdown & Technologies */}
-          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1.5rem', marginBottom: '2rem' }}>
+          <div className="github-breakdown-grid" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1.5rem', marginBottom: '2rem' }}>
             {/* Tech Stack Distribution */}
             <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '16px', padding: '1.5rem' }}>
               <h4 style={{ color: '#fff', marginBottom: '1rem', fontSize: '1.1rem' }}>Technology Distribution</h4>
@@ -905,7 +905,7 @@ export const StudentDashboard: React.FC = () => {
           {/* AI Insights (Only if resume exists) */}
           {resumeUrl && (
             <div className="animate-fade-in">
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 3fr', gap: '2rem' }}>
+              <div className="resume-analysis-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 3fr', gap: '2rem' }}>
                 
                 {/* Score Breakdown Vertical */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -945,7 +945,7 @@ export const StudentDashboard: React.FC = () => {
                     </div>
                   )}
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                  <div className="resume-strengths-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
                     <div style={{ background: 'rgba(16, 185, 129, 0.05)', border: '1px solid rgba(16, 185, 129, 0.1)', borderRadius: '16px', padding: '1.5rem' }}>
                       <h4 style={{ color: '#10b981', fontSize: '1.05rem', margin: '0 0 1rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12"></polyline></svg>

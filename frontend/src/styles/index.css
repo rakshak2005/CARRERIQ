@@ -690,3 +690,181 @@ input[type="checkbox"] {
 .glow-orb-ambient {
   display: none;
 }
+
+/* ==========================================================================
+   RESPONSIVE DESIGN OVERRIDES (Mobile & Tablets)
+   ========================================================================== */
+
+/* Universal Header Responsiveness */
+@media (max-width: 768px) {
+  header div[style*="maxWidth"] {
+    padding: 0.75rem 1rem !important;
+  }
+  
+  /* Hide search bar on mobile headers */
+  header input, 
+  header svg.lucide-search,
+  header div[style*="maxWidth: '500px'"] {
+    display: none !important;
+  }
+
+  /* Adjust buttons font size */
+  header button {
+    font-size: 0.75rem !important;
+    padding: 0.4rem 0.8rem !important;
+  }
+}
+
+/* Home Landing Page Navigation Pill */
+@media (max-width: 768px) {
+  header.fixed {
+    top: 10px !important;
+    width: 95% !important;
+    padding: 0.5rem 1rem !important;
+    border-radius: 24px !important;
+  }
+  
+  /* Hide Central Role Switch on Mobile */
+  header.fixed > div:nth-of-type(2) {
+    display: none !important;
+  }
+}
+
+/* Dashboard Sidebar & Container Responsiveness */
+@media (max-width: 1024px) {
+  aside {
+    display: none !important;
+    width: 0 !important;
+  }
+  
+  .dashboard-container {
+    flex-direction: column !important;
+  }
+  
+  main, 
+  .dashboard-container > main {
+    padding: 1.5rem !important;
+    width: 100% !important;
+  }
+}
+
+/* Dashboard Grids & Layouts */
+@media (max-width: 768px) {
+  /* Hero Welcome header buttons wrap */
+  .dashboard-header-flex {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 1.25rem !important;
+  }
+  
+  .dashboard-header-flex > div:last-of-type {
+    justify-content: flex-start !important;
+    flex-wrap: wrap !important;
+    gap: 0.75rem !important;
+  }
+
+  /* Overall rating meter & radar chart grid */
+  .dashboard-hero-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1.5rem !important;
+  }
+
+  /* GitHub Quick Stats metrics cards grid */
+  .github-stats-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+
+  /* GitHub technology distribution & quality grid */
+  .github-breakdown-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1.5rem !important;
+  }
+
+  /* Resume AI analysis layout grid */
+  .resume-analysis-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1.5rem !important;
+  }
+
+  /* Resume strengths/weaknesses grid */
+  .resume-strengths-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1.25rem !important;
+  }
+}
+
+@media (max-width: 640px) {
+  /* GitHub Quick Stats to 2 columns */
+  .github-stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  
+  /* Modules grid to 1 column */
+  .dashboard-modules-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 480px) {
+  /* GitHub Quick Stats to 1 column */
+  .github-stats-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Candidate Detail View Grid */
+@media (max-width: 900px) {
+  .student-grid-responsive {
+    grid-template-columns: 1fr !important;
+    gap: 2rem !important;
+  }
+}
+
+/* Grid helper for details (Repos quality cards, certificates, etc.) */
+@media (max-width: 600px) {
+  .grid-responsive-2 {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+}
+
+/* Recruiter Filters Bar & Candidates Row Table List */
+@media (max-width: 1024px) {
+  .recruiter-filters-responsive {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 1.25rem !important;
+  }
+  
+  .table-header-responsive {
+    display: none !important;
+  }
+  
+  .cand-row-responsive {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 1.25rem !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .recruiter-filters-responsive {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .cand-row-responsive {
+    grid-template-columns: 1fr !important;
+    text-align: center !important;
+    justify-items: center !important;
+    gap: 1rem !important;
+  }
+  
+  .cand-row-responsive > div {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  
+  .cand-row-responsive div:last-of-type {
+    justify-content: center !important;
+  }
+}
