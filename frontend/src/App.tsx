@@ -12,9 +12,10 @@ import { RecruiterDashboard } from './pages/RecruiterDashboard';
 import { CandidateDetail } from './pages/CandidateDetail';
 import { GitHubReport } from './pages/GitHubReport';
 import { GitHubAnalysisReport } from './pages/GitHubAnalysisReport';
+import { AdminDashboard } from './pages/AdminDashboard';
 
 // Route Guard for Authenticated Users with Specific Role
-const ProtectedRoute: React.FC<{ children: React.ReactNode; allowedRole: 'student' | 'recruiter' }> = ({ children, allowedRole }) => {
+const ProtectedRoute: React.FC<{ children: React.ReactNode; allowedRole: 'student' | 'recruiter' | 'admin' }> = ({ children, allowedRole }) => {
   const { isAuthenticated, user, loading } = useAuth();
 
   if (loading) {
@@ -31,6 +32,9 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode; allowedRole: 'studen
 
   if (user.role !== allowedRole) {
     // Redirect unauthorized users to their proper dashboard
+    if (user.role === 'admin') {
+      return <Navigate to="/admin-dashboard" replace />;
+    }
     return <Navigate to={user.role === 'recruiter' ? '/recruiter-dashboard' : '/student-dashboard'} replace />;
   }
 
@@ -42,7 +46,7 @@ function App() {
     <ThemeProvider>
       <AuthProvider>
         <BrowserRouter>
-          <div className="min-h-screen relative overflow-x-hidden bg-[#faf8f5] dark:bg-[#0d0f14] text-slate-800 dark:text-slate-100 transition-colors duration-500 font-sans flex flex-col">
+          <div className="min-h-screen relative bg-[#faf8f5] dark:bg-[#0d0f14] text-slate-800 dark:text-slate-100 transition-colors duration-500 font-sans flex flex-col">
             <BackgroundBlobs />
             <Header />
             <main style={{ flex: 1, position: 'relative', zIndex: 10 }}>
@@ -55,47 +59,57 @@ function App() {
                 <Route path="/register" element={<Register />} />
 
                 {/* Student Routes */}
-                <Route 
-                  path="/student-dashboard" 
+                <Route
+                  path="/student-dashboard"
                   element={
                     <ProtectedRoute allowedRole="student">
                       <StudentDashboard />
                     </ProtectedRoute>
-                  } 
+                  }
                 />
-                <Route 
-                  path="/github-analysis/report" 
+                <Route
+                  path="/github-analysis/report"
                   element={
                     <ProtectedRoute allowedRole="student">
                       <GitHubAnalysisReport />
                     </ProtectedRoute>
-                  } 
+                  }
                 />
-                <Route 
-                  path="/github-analysis/report" 
+                <Route
+                  path="/github-analysis/report"
                   element={
                     <ProtectedRoute allowedRole="student">
                       <GitHubReport />
                     </ProtectedRoute>
-                  } 
+                  }
                 />
 
                 {/* Recruiter Routes */}
-                <Route 
-                  path="/recruiter-dashboard" 
+                <Route
+                  path="/recruiter-dashboard"
                   element={
                     <ProtectedRoute allowedRole="recruiter">
                       <RecruiterDashboard />
                     </ProtectedRoute>
-                  } 
+                  }
                 />
-                <Route 
-                  path="/candidates/:id" 
+                <Route
+                  path="/candidates/:id"
                   element={
                     <ProtectedRoute allowedRole="recruiter">
                       <CandidateDetail />
                     </ProtectedRoute>
-                  } 
+                  }
+                />
+
+                {/* Admin Routes */}
+                <Route
+                  path="/admin-dashboard"
+                  element={
+                    <ProtectedRoute allowedRole="admin">
+                      <AdminDashboard />
+                    </ProtectedRoute>
+                  }
                 />
 
                 {/* Redirect any other paths to Home */}

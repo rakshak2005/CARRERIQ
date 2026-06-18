@@ -166,7 +166,8 @@ export const generateAIEvaluation = async (
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'deepseek/deepseek-chat',
+        model: 'google/gemini-2.5-flash',
+        max_tokens: 3000,
         messages: [
           {
             role: 'user',
@@ -342,7 +343,8 @@ export const generateWowProjects = async (targetRole: string, currentSkills: str
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'deepseek/deepseek-chat',
+        model: 'google/gemini-2.5-flash',
+        max_tokens: 2000,
         messages: [
           {
             role: 'user',
@@ -434,7 +436,8 @@ export const generateGitHubImprovementReport = async (
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'deepseek/deepseek-chat',
+        model: 'google/gemini-2.5-flash',
+        max_tokens: 3000,
         messages: [
           {
             role: 'user',
@@ -518,7 +521,8 @@ export const generateDetailedCareerReview = async (
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'deepseek/deepseek-chat',
+        model: 'google/gemini-2.5-flash',
+        max_tokens: 3000,
         messages: [
           {
             role: 'user',

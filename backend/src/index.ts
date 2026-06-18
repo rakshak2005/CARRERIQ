@@ -9,6 +9,7 @@ import analysisRoutes from './routes/analysis';
 import githubRoutes from './routes/github';
 import githubReportRoutes from './routes/githubReport';
 import resumeRoutes from './routes/resume';
+import adminRoutes from './routes/admin';
 import { connectMongoDB } from './db/mongo';
 import { startWorker } from './services/worker';
 
@@ -44,6 +45,7 @@ app.use('/api/analysis', analysisRoutes);
 app.use('/api/github', githubRoutes);
 app.use('/api/github/report', githubReportRoutes);
 app.use('/api/resume', resumeRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Root health check endpoint
 app.get('/', (req, res) => {

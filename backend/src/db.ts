@@ -30,7 +30,7 @@ interface IUser {
   _id: number;
   email: string;
   passwordHash: string;
-  role: 'student' | 'recruiter';
+  role: 'student' | 'recruiter' | 'admin';
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -38,7 +38,7 @@ const UserSchema = new Schema<IUser>({
   _id: { type: Number, required: true },
   email: { type: String, required: true, unique: true },
   passwordHash: { type: String, required: true },
-  role: { type: String, enum: ['student', 'recruiter'], required: true },
+  role: { type: String, enum: ['student', 'recruiter', 'admin'], required: true },
 }, { _id: false, timestamps: true });
 const UserModel = mongoose.models.LocalUser || model<IUser>('LocalUser', UserSchema);
 
@@ -567,7 +567,95 @@ export const db = {
     throw new Error('Direct SQL queries are not supported on MongoDB db layer. Use high-level db methods.');
   },
 
-  createUser: async (email: string, passwordHash: string, role: 'student' | 'recruiter') => {
+  getUserStats: async () => {
+    if (useMockDb) {
+      const studentCount = mockDb.users.filter(u => u.role === 'student').length;
+      const recruiterCount = mockDb.users.filter(u => u.role === 'recruiter').length;
+      const adminCount = mockDb.users.filter(u => u.role === 'admin').length;
+      return {
+        students: studentCount,
+        recruiters: recruiterCount,
+        admins: adminCount
+      };
+    }
+    const students = await UserModel.countDocuments({ role: 'student' });
+    const recruiters = await UserModel.countDocuments({ role: 'recruiter' });
+    const admins = await UserModel.countDocuments({ role: 'admin' });
+    return {
+      students,
+      recruiters,
+      admins
+    };
+  },
+
+  getAllUsers: async () => {
+    if (useMockDb) {
+      return mockDb.users.map(u => {
+        const profile = u.role === 'student'
+          ? mockDb.studentProfiles.find(p => p.user_id === u.id)
+          : mockDb.recruiterProfiles.find(p => p.user_id === u.id);
+        return {
+          id: u.id,
+          email: u.email,
+          role: u.role,
+          fullName: profile ? profile.full_name : 'No Name',
+          createdAt: u.created_at
+        };
+      });
+    }
+
+    const users = await UserModel.find().sort({ createdAt: -1 });
+    const mapped = [];
+    for (const u of users) {
+      let fullName = 'N/A';
+      if (u.role === 'student') {
+        const prof = await StudentProfileLocalModel.findOne({ userId: u._id });
+        if (prof) fullName = prof.fullName;
+      } else if (u.role === 'recruiter') {
+        const prof = await RecruiterProfileLocalModel.findOne({ userId: u._id });
+        if (prof) fullName = prof.fullName;
+      }
+      mapped.push({
+        id: u._id,
+        email: u.email,
+        role: u.role,
+        fullName,
+        createdAt: u.createdAt
+      });
+    }
+    return mapped;
+  },
+
+  deleteUser: async (id: number) => {
+    if (useMockDb) {
+      mockDb.users = mockDb.users.filter(u => u.id !== id);
+      const studentProfile = mockDb.studentProfiles.find(p => p.user_id === id);
+      if (studentProfile) {
+        mockDb.studentProfiles = mockDb.studentProfiles.filter(p => p.user_id !== id);
+        mockDb.projects = mockDb.projects.filter(p => p.student_id !== studentProfile.id);
+        mockDb.certificates = mockDb.certificates.filter(c => c.student_id !== studentProfile.id);
+        mockDb.categoryScores = mockDb.categoryScores.filter(s => s.student_id !== studentProfile.id);
+        mockDb.aiRecommendations = mockDb.aiRecommendations.filter(r => r.student_id !== studentProfile.id);
+      }
+      mockDb.recruiterProfiles = mockDb.recruiterProfiles.filter(p => p.user_id !== id);
+      return true;
+    }
+
+    await UserModel.deleteOne({ _id: id });
+    const studentProfile = await StudentProfileLocalModel.findOne({ userId: id });
+    if (studentProfile) {
+      const studentId = studentProfile._id;
+      await StudentProfileLocalModel.deleteOne({ userId: id });
+      await ProjectLocalModel.deleteMany({ studentId });
+      await CertificateLocalModel.deleteMany({ studentId });
+      await CategoryScoreLocalModel.deleteMany({ studentId });
+      await AIRecommendationLocalModel.deleteMany({ studentId });
+    }
+    await RecruiterProfileLocalModel.deleteOne({ userId: id });
+    return true;
+  },
+
+  createUser: async (email: string, passwordHash: string, role: 'student' | 'recruiter' | 'admin') => {
     if (useMockDb) {
       const existingUser = mockDb.users.find(u => u.email === email);
       if (existingUser) throw new Error('duplicate key value violates unique constraint');

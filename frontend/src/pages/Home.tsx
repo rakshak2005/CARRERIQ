@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 import logoImg from '../assets/logo.png';
 import heroImg from '../assets/hero.png';
+import { api } from '../services/api';
 
 export const Home: React.FC = () => {
   const navigate = useNavigate();
@@ -10,6 +11,23 @@ export const Home: React.FC = () => {
 
   // Tracking active header role indicator ('students' or 'recruiters')
   const [activeRole, setActiveRole] = useState<'students' | 'recruiters'>('students');
+
+  // Stats state for dynamic count
+  const [stats, setStats] = useState({ students: 0, recruiters: 0, admins: 0 });
+
+  useEffect(() => {
+    api.auth.getStats()
+      .then(res => {
+        setStats({
+          students: res.students || 0,
+          recruiters: res.recruiters || 0,
+          admins: res.admins || 0
+        });
+      })
+      .catch(err => {
+        console.error('Error fetching live stats:', err);
+      });
+  }, []);
 
   // Carousel ref for scroll behavior
   const carouselRef = useRef<HTMLDivElement>(null);
@@ -133,22 +151,7 @@ export const Home: React.FC = () => {
 
         {/* Action Buttons */}
         <div className="flex items-center gap-3">
-          {/* Theme switcher button */}
-          <button
-            onClick={toggleTheme}
-            className="p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 transition-colors duration-300 text-slate-600 dark:text-slate-300"
-            title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-          >
-            {theme === 'dark' ? (
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.2} stroke="currentColor" className="w-4 h-4">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" />
-              </svg>
-            ) : (
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.2} stroke="currentColor" className="w-4 h-4">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
-              </svg>
-            )}
-          </button>
+
 
           <button
             onClick={() => navigate('/login')}
@@ -223,22 +226,30 @@ export const Home: React.FC = () => {
         </section>
 
         {/* 3b. Stats Bar Section */}
-        <section className="py-12 px-6 max-w-[1100px] mx-auto border-t border-slate-200/50 dark:border-white/5 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-          <div className="bg-white/40 dark:bg-[#121526]/40 border border-slate-200/30 dark:border-[#1c223c]/40 rounded-2xl p-6 backdrop-blur-sm">
-            <h3 className="text-3xl font-extrabold text-[#4b61eb] dark:text-[#9bb2ff] mb-1">50K+</h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider">Candidates Verified</p>
+        <section className="py-12 px-6 max-w-[1100px] mx-auto border-t border-slate-200/50 dark:border-white/5 relative">
+          <div className="flex items-center justify-center gap-2 mb-6">
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+            </span>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-emerald-400/90">
+              Live Database Status
+            </span>
           </div>
-          <div className="bg-white/40 dark:bg-[#121526]/40 border border-slate-200/30 dark:border-[#1c223c]/40 rounded-2xl p-6 backdrop-blur-sm">
-            <h3 className="text-3xl font-extrabold text-[#4b61eb] dark:text-[#9bb2ff] mb-1">2K+</h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider">Partner Recruiters</p>
-          </div>
-          <div className="bg-white/40 dark:bg-[#121526]/40 border border-slate-200/30 dark:border-[#1c223c]/40 rounded-2xl p-6 backdrop-blur-sm">
-            <h3 className="text-3xl font-extrabold text-[#4b61eb] dark:text-[#9bb2ff] mb-1">10K+</h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider">Successful Matches</p>
-          </div>
-          <div className="bg-white/40 dark:bg-[#121526]/40 border border-slate-200/30 dark:border-[#1c223c]/40 rounded-2xl p-6 backdrop-blur-sm">
-            <h3 className="text-3xl font-extrabold text-[#4b61eb] dark:text-[#9bb2ff] mb-1">+24%</h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider">Avg. Salary Growth</p>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+            <div className="bg-white/40 dark:bg-[#121526]/40 border border-slate-200/30 dark:border-[#1c223c]/40 rounded-2xl p-6 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] hover:border-[#4b61eb]/30">
+              <h3 className="text-4xl font-extrabold text-[#4b61eb] dark:text-[#9bb2ff] mb-1">{stats.students}</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider">Candidates</p>
+            </div>
+            <div className="bg-white/40 dark:bg-[#121526]/40 border border-slate-200/30 dark:border-[#1c223c]/40 rounded-2xl p-6 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] hover:border-[#4b61eb]/30">
+              <h3 className="text-4xl font-extrabold text-[#4b61eb] dark:text-[#9bb2ff] mb-1">{stats.recruiters}</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider">Recruiters</p>
+            </div>
+            <div className="bg-white/40 dark:bg-[#121526]/40 border border-slate-200/30 dark:border-[#1c223c]/40 rounded-2xl p-6 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] hover:border-[#4b61eb]/30">
+              <h3 className="text-4xl font-extrabold text-[#4b61eb] dark:text-[#9bb2ff] mb-1">{stats.admins}</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider">Admins</p>
+            </div>
           </div>
         </section>
 

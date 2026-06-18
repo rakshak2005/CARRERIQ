@@ -108,8 +108,8 @@ router.post('/register', async (req: Request, res: Response) => {
       return res.status(401).json({ error: 'Firebase authentication token is required' });
     }
 
-    if (!role || (role !== 'student' && role !== 'recruiter')) {
-      return res.status(400).json({ error: 'Role must be student or recruiter' });
+    if (!role || (role !== 'student' && role !== 'recruiter' && role !== 'admin')) {
+      return res.status(400).json({ error: 'Role must be student, recruiter, or admin' });
     }
 
     if (!fullName) {
@@ -143,7 +143,7 @@ router.post('/register', async (req: Request, res: Response) => {
         true, // certificatesIncluded
         false // dsaIncluded
       );
-    } else {
+    } else if (role === 'recruiter') {
       await db.createOrUpdateRecruiterProfile(
         user.id,
         fullName,
@@ -255,6 +255,18 @@ router.post('/login', async (req: Request, res: Response) => {
   } catch (error: any) {
     console.error('Error during login placeholder:', error);
     res.status(500).json({ error: 'Server error during login' });
+  }
+});
+
+// GET /api/auth/stats
+// Public endpoint to get live count of students, recruiters, and admins from MongoDB
+router.get('/stats', async (req: Request, res: Response) => {
+  try {
+    const stats = await db.getUserStats();
+    res.json(stats);
+  } catch (error: any) {
+    console.error('Error fetching stats:', error);
+    res.status(500).json({ error: 'Server error fetching user stats' });
   }
 });
 

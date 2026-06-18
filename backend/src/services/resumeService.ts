@@ -248,7 +248,8 @@ ${text.substring(0, 8000)}
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'deepseek/deepseek-chat',
+        model: 'google/gemini-2.5-flash',
+        max_tokens: 3000,
         messages: [
           {
             role: 'user',

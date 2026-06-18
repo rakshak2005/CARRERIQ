@@ -1,4 +1,5 @@
 import { db } from '../db';
+import { generateGitHubImprovementReport, generateWowProjects } from './aiService';
 
 export class GithubAnalysisService {
   private static extractUsername(url: string): string {
@@ -341,11 +342,65 @@ export class GithubAnalysisService {
         recommendedImprovements.push({ description: 'Improve README structure.', difficulty: 'Easy', expectedScoreGain: 5, estimatedTime: '1 hour' });
       }
       const potentialScore = Math.min(100, finalTotalScore + recommendedImprovements.reduce((a, c) => a + c.expectedScoreGain, 0));
-      const githubImprovementReport = {
+      
+      let githubImprovementReport: any = {
         drawbacksAndIssues, recommendedImprovements,
         growthPotential: { currentScore: finalTotalScore, potentialScore, improvementPercentage: Math.round(((potentialScore - finalTotalScore) / Math.max(1, finalTotalScore)) * 100) },
         aiReview: { strengths: ['Consistent commit contributions', 'Good use of core languages'], weaknesses: ['Lack of automated testing', 'Light containerization presence'], hiringImpact: ['Demonstrates active coding engagement'], overallVerdict: 'A solid portfolio showing good technical progression.' }
       };
+
+      let detailedIssuesFinal = detailedIssues;
+      let detailedRecsFinal = detailedRecs;
+      let growthPlanFinal = growthPlan;
+      let wowProjects: any[] = [];
+
+      if (process.env.OPENROUTER_API_KEY) {
+        try {
+          const aiReport = await generateGitHubImprovementReport(
+            username,
+            'Software Engineer',
+            Array.from(technologies),
+            parsedRepos,
+            finalTotalScore
+          );
+          if (aiReport) {
+            githubImprovementReport = aiReport;
+            if (aiReport.drawbacksAndIssues) {
+              detailedIssuesFinal = {
+                documentation: aiReport.drawbacksAndIssues.filter((i: any) => (i.issue || '').toLowerCase().includes('doc') || (i.issue || '').toLowerCase().includes('readme')),
+                engineering: aiReport.drawbacksAndIssues.filter((i: any) => !(i.issue || '').toLowerCase().includes('doc') && !(i.issue || '').toLowerCase().includes('readme') && !(i.issue || '').toLowerCase().includes('portfolio')),
+                portfolio: aiReport.drawbacksAndIssues.filter((i: any) => (i.issue || '').toLowerCase().includes('portfolio') || (i.issue || '').toLowerCase().includes('diverse'))
+              };
+            }
+            if (aiReport.recommendedImprovements) {
+              detailedRecsFinal = aiReport.recommendedImprovements.map((r: any) => ({
+                priority: r.expectedScoreGain > 8 ? 'Critical' : r.expectedScoreGain > 5 ? 'High' : 'Medium',
+                action: r.description || r.action,
+                difficulty: r.difficulty || 'Medium',
+                expectedScoreGain: r.expectedScoreGain || 5,
+                estimatedTime: r.estimatedTime || '2 hours',
+                rationale: r.description || r.action
+              }));
+            }
+            if (aiReport.growthPotential) {
+              growthPlanFinal = {
+                currentScore: aiReport.growthPotential.currentScore || finalTotalScore,
+                potentialScore: aiReport.growthPotential.potentialScore || (finalTotalScore + 20),
+                phases: [
+                  { phase: 1, name: 'Documentation & Testing', description: 'Address critical testing and docs.', projectedScore: (aiReport.growthPotential.currentScore || finalTotalScore) + 8 },
+                  { phase: 2, name: 'CI/CD & Containers', description: 'Setup pipelines and packaging.', projectedScore: (aiReport.growthPotential.currentScore || finalTotalScore) + 15 },
+                  { phase: 3, name: 'Scalability & Design', description: 'Implement microservices & patterns.', projectedScore: aiReport.growthPotential.potentialScore || (finalTotalScore + 20) }
+                ]
+              };
+            }
+          }
+
+          // Generate WOW projects too
+          wowProjects = await generateWowProjects('Software Engineer', Array.from(technologies));
+        } catch (e) {
+          console.error('[GitHub Analysis] AI analysis error:', e);
+        }
+      }
 
       return {
         success: true,
@@ -359,7 +414,11 @@ export class GithubAnalysisService {
           recommendations, repositories: parsedRepos, technologies: Array.from(technologies),
           lastActivity: lastActivity.getTime() > 0 ? lastActivity.toISOString() : null,
           aiProjectComplexityScore: 0, githubImprovementReport,
-          healthMetrics, portfolioGaps, detailedIssues, growthPlan, detailedRecs,
+          healthMetrics, portfolioGaps, 
+          detailedIssues: detailedIssuesFinal, 
+          growthPlan: growthPlanFinal, 
+          detailedRecs: detailedRecsFinal,
+          wowProjects
         }
       };
     } catch (error: any) {

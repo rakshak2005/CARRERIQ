@@ -33,6 +33,11 @@ export const ProjectsPortfolio: React.FC<ProjectsPortfolioProps> = ({
     }
   };
 
+  const [extended, setExtended] = useState(false);
+
+  const sortedProjects = [...portfolioProjects].sort((a, b) => (b.projectScore || 0) - (a.projectScore || 0));
+  const displayedProjects = extended ? sortedProjects : sortedProjects.slice(0, 3);
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       {/* Header & Sync */}
@@ -181,51 +186,60 @@ export const ProjectsPortfolio: React.FC<ProjectsPortfolioProps> = ({
           {(!portfolioProjects || portfolioProjects.length === 0) ? (
             <div style={{ padding: '3rem', textAlign: 'center', color: '#64748b', fontStyle: 'italic', fontSize: '0.9rem' }}>No projects found. Sync portfolio to evaluate existing projects.</div>
           ) : (
-            [...portfolioProjects]
-              .sort((a, b) => (b.projectScore || 0) - (a.projectScore || 0))
-              .map((p, idx) => (
-                <div key={idx} style={{ padding: '1.5rem', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', gap: '1rem', transition: 'background 0.2s', background: 'transparent' }} onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.02)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', gap: '1.5rem' }}>
-                    <div style={{ flex: '1 1 300px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
-                        <span style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)', color: '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.85rem', fontWeight: 700, border: '1px solid rgba(255,255,255,0.1)' }}>
-                          #{idx + 1}
-                        </span>
-                        <h4 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#f8fafc', margin: 0 }}>{p.title}</h4>
-                        {p.source === 'resume' && (
-                          <span style={{ padding: '0.2rem 0.6rem', borderRadius: '20px', background: 'rgba(99, 102, 241, 0.1)', border: '1px solid rgba(99, 102, 241, 0.2)', color: '#818cf8', fontSize: '0.7rem', fontWeight: 600 }}>Extracted from Resume</span>
-                        )}
-                      </div>
-                      <p style={{ color: '#94a3b8', fontSize: '0.9rem', marginBottom: '1rem', lineHeight: 1.6, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{p.description}</p>
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                        {p.technologies?.slice(0, 8).map((tech: string, i: number) => (
-                          <span key={i} style={{ padding: '0.25rem 0.6rem', background: 'rgba(0,0,0,0.3)', color: '#cbd5e1', fontSize: '0.75rem', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.05)' }}>{tech}</span>
-                        ))}
-                      </div>
+            displayedProjects.map((p, idx) => (
+              <div key={idx} style={{ padding: '1.5rem', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', gap: '1rem', transition: 'background 0.2s', background: 'transparent' }} onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.02)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', gap: '1.5rem' }}>
+                  <div style={{ flex: '1 1 300px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
+                      <span style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)', color: '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.85rem', fontWeight: 700, border: '1px solid rgba(255,255,255,0.1)' }}>
+                        #{idx + 1}
+                      </span>
+                      <h4 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#f8fafc', margin: 0 }}>{p.title}</h4>
+                      {p.source === 'resume' && (
+                        <span style={{ padding: '0.2rem 0.6rem', borderRadius: '20px', background: 'rgba(99, 102, 241, 0.1)', border: '1px solid rgba(99, 102, 241, 0.2)', color: '#818cf8', fontSize: '0.7rem', fontWeight: 600 }}>Extracted from Resume</span>
+                      )}
                     </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(80px, 1fr))', gap: '0.75rem', flex: '1 1 300px' }}>
-                      <div style={{ background: 'rgba(0,0,0,0.15)', padding: '0.75rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
-                        <div style={{ fontSize: '0.7rem', color: '#64748b', marginBottom: '0.25rem', textTransform: 'uppercase' }}>Complexity</div>
-                        <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#60a5fa' }}>{p.complexityScore || 0}<span style={{ fontSize: '0.7rem', color: '#475569' }}>/40</span></div>
-                      </div>
-                      <div style={{ background: 'rgba(0,0,0,0.15)', padding: '0.75rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
-                        <div style={{ fontSize: '0.7rem', color: '#64748b', marginBottom: '0.25rem', textTransform: 'uppercase' }}>Tech Score</div>
-                        <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#34d399' }}>{p.technologyScore || 0}<span style={{ fontSize: '0.7rem', color: '#475569' }}>/20</span></div>
-                      </div>
-                      <div style={{ background: 'rgba(0,0,0,0.15)', padding: '0.75rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
-                        <div style={{ fontSize: '0.7rem', color: '#64748b', marginBottom: '0.25rem', textTransform: 'uppercase' }}>Role Match</div>
-                        <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#c084fc' }}>{p.roleRelevanceScore || 0}<span style={{ fontSize: '0.7rem', color: '#475569' }}>/25</span></div>
-                      </div>
-                      <div style={{ background: 'rgba(255,255,255,0.03)', padding: '0.75rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
-                        <div style={{ fontSize: '0.65rem', color: '#94a3b8', marginBottom: '0.25rem', textTransform: 'uppercase', fontWeight: 600 }}>Total</div>
-                        <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#fff' }}>{p.projectScore || 0}</div>
-                      </div>
+                    <p style={{ color: '#94a3b8', fontSize: '0.9rem', marginBottom: '1rem', lineHeight: 1.6, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{p.description}</p>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                      {p.technologies?.slice(0, 8).map((tech: string, i: number) => (
+                        <span key={i} style={{ padding: '0.25rem 0.6rem', background: 'rgba(0,0,0,0.3)', color: '#cbd5e1', fontSize: '0.75rem', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.05)' }}>{tech}</span>
+                      ))}
+                    </div>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(80px, 1fr))', gap: '0.75rem', flex: '1 1 300px' }}>
+                    <div style={{ background: 'rgba(0,0,0,0.15)', padding: '0.75rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
+                      <div style={{ fontSize: '0.7rem', color: '#64748b', marginBottom: '0.25rem', textTransform: 'uppercase' }}>Complexity</div>
+                      <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#60a5fa' }}>{p.complexityScore || 0}<span style={{ fontSize: '0.7rem', color: '#475569' }}>/40</span></div>
+                    </div>
+                    <div style={{ background: 'rgba(0,0,0,0.15)', padding: '0.75rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
+                      <div style={{ fontSize: '0.7rem', color: '#64748b', marginBottom: '0.25rem', textTransform: 'uppercase' }}>Tech Score</div>
+                      <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#34d399' }}>{p.technologyScore || 0}<span style={{ fontSize: '0.7rem', color: '#475569' }}>/20</span></div>
+                    </div>
+                    <div style={{ background: 'rgba(0,0,0,0.15)', padding: '0.75rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
+                      <div style={{ fontSize: '0.7rem', color: '#64748b', marginBottom: '0.25rem', textTransform: 'uppercase' }}>Role Match</div>
+                      <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#c084fc' }}>{p.roleRelevanceScore || 0}<span style={{ fontSize: '0.7rem', color: '#475569' }}>/25</span></div>
+                    </div>
+                    <div style={{ background: 'rgba(255,255,255,0.03)', padding: '0.75rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
+                      <div style={{ fontSize: '0.65rem', color: '#94a3b8', marginBottom: '0.25rem', textTransform: 'uppercase', fontWeight: 600 }}>Total</div>
+                      <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#fff' }}>{p.projectScore || 0}</div>
                     </div>
                   </div>
                 </div>
-              ))
+              </div>
+            ))
           )}
         </div>
+        {portfolioProjects && portfolioProjects.length > 3 && (
+          <div style={{ padding: '1rem', display: 'flex', justifyContent: 'center', borderTop: '1px solid rgba(255,255,255,0.05)', background: 'rgba(255,255,255,0.01)' }}>
+            <button
+              onClick={() => setExtended(!extended)}
+              className="btn-ghost-premium"
+              style={{ padding: '0.4rem 1.2rem', fontSize: '0.85rem' }}
+            >
+              {extended ? 'Unextend Option' : 'Extend Option'}
+            </button>
+          </div>
+        )}
       </div>
 
       {/* AI WOW Project Recommendations */}

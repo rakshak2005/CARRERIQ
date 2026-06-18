@@ -68,14 +68,7 @@ export const Header: React.FC = () => {
             <span style={{ position: 'absolute', top: '6px', right: '8px', width: '8px', height: '8px', background: '#3b82f6', borderRadius: '50%', border: '2px solid #050816' }}></span>
           </button>
 
-          {/* Theme Toggle */}
-          <button
-            onClick={toggleTheme}
-            style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '36px', height: '36px', borderRadius: '50%' }}
-            title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-          >
-            {theme === 'dark' ? '🌙' : '☀️'}
-          </button>
+
 
           {isAuthenticated && user && (
             <>
@@ -140,6 +133,17 @@ export const Header: React.FC = () => {
                         <div style={{ fontSize: '0.75rem', color: '#94a3b8', textTransform: 'capitalize' }}>{user.role} Account</div>
                       </div>
                       <div style={{ height: '1px', background: 'rgba(255,255,255,0.1)', margin: '0.5rem -1rem 0.5rem -1rem' }}></div>
+                      <button 
+                        style={{ width: '100%', background: 'transparent', border: 'none', color: '#3b82f6', textAlign: 'left', padding: '0.5rem 0', fontSize: '0.85rem', cursor: 'pointer', fontWeight: 500 }}
+                        onClick={() => {
+                          setShowUserMenu(false);
+                          if (user.role === 'admin') navigate('/admin-dashboard');
+                          else if (user.role === 'recruiter') navigate('/recruiter-dashboard');
+                          else navigate('/student-dashboard');
+                        }}
+                      >
+                        Go to Dashboard
+                      </button>
                       <button 
                         style={{ width: '100%', background: 'transparent', border: 'none', color: '#ef4444', textAlign: 'left', padding: '0.5rem 0', fontSize: '0.85rem', cursor: 'pointer', fontWeight: 500 }}
                         onClick={logout}

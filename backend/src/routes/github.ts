@@ -55,7 +55,17 @@ router.post('/analyze', authenticateToken, async (req: AuthenticatedRequest, res
       avatar: githubData.avatar,
       lastActivity: githubData.lastActivity,
       aiProjectComplexityScore: githubData.aiProjectComplexityScore || 0,
-      githubImprovementReport: githubData.githubImprovementReport
+    });
+
+    // Save detailed report fields to DB
+    await db.updateStudentGitHubDetailedReport(profile.id, {
+      githubHealthMetrics: githubData.healthMetrics,
+      githubPortfolioGaps: githubData.portfolioGaps,
+      githubCareerReview: githubData.detailedIssues,
+      githubWowProjects: githubData.wowProjects || [],
+      githubGrowthPlan: githubData.growthPlan,
+      githubDetailedIssues: githubData.detailedIssues,
+      githubDetailedRecs: githubData.detailedRecs || []
     });
 
     // Recalculate everything

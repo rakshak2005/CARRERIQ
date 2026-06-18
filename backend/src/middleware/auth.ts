@@ -40,7 +40,7 @@ export interface AuthenticatedRequest extends Request {
   user?: {
     id: number;
     email: string;
-    role: 'student' | 'recruiter';
+    role: 'student' | 'recruiter' | 'admin';
   };
 }
 
@@ -103,7 +103,7 @@ export const authenticateToken = async (req: AuthenticatedRequest, res: Response
     req.user = {
       id: user.id,
       email: user.email,
-      role: user.role as 'student' | 'recruiter',
+      role: user.role as 'student' | 'recruiter' | 'admin',
     };
     next();
   } catch (error: any) {
@@ -112,7 +112,7 @@ export const authenticateToken = async (req: AuthenticatedRequest, res: Response
   }
 };
 
-export const requireRole = (role: 'student' | 'recruiter') => {
+export const requireRole = (role: 'student' | 'recruiter' | 'admin') => {
   return (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     if (!req.user) {
       return res.status(401).json({ error: 'Unauthorized' });

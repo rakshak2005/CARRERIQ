@@ -43,6 +43,7 @@ export const api = {
   auth: {
     register: (body: any) => request('/auth/register', { method: 'POST', body: JSON.stringify(body) }),
     login: (body: any) => request('/auth/login', { method: 'POST', body: JSON.stringify(body) }),
+    getStats: () => request('/auth/stats'),
   },
 
   // Student Profile
@@ -108,5 +109,12 @@ export const api = {
     getCandidateDetail: (id: number) => request(`/recruiter/candidates/${id}`),
     updateProfile: (body: any) => request('/recruiter/profile', { method: 'POST', body: JSON.stringify(body) }),
     getProfile: () => request('/recruiter/profile'),
+  },
+
+  // Admin Actions
+  admin: {
+    getUsers: () => request('/admin/users'),
+    createUser: (body: any) => request('/admin/users', { method: 'POST', body: JSON.stringify(body) }),
+    deleteUser: (id: number) => request(`/admin/users/${id}`, { method: 'DELETE' }),
   },
 };

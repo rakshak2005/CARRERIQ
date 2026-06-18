@@ -24,7 +24,7 @@ export const GitHubAnalysisReport: React.FC = () => {
         if (githubUsername) {
           try {
             const dashRes = await api.analysis.dashboard(githubUsername);
-            setData({ profile: { ...res.profile, ...dashRes.profile }, repositories: dashRes.repositories || [] });
+            setData({ profile: { ...dashRes.profile, ...res.profile }, repositories: dashRes.repositories || [] });
           } catch (e) {
             setData({ profile: res.profile, repositories: res.repositories || [] });
           }

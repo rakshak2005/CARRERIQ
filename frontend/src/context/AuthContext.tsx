@@ -4,7 +4,7 @@ import { subscribeToAuthChanges, getCurrentUserToken, logoutUser } from '../serv
 export interface User {
   id: number;
   email: string;
-  role: 'student' | 'recruiter';
+  role: 'student' | 'recruiter' | 'admin';
 }
 
 interface AuthContextType {

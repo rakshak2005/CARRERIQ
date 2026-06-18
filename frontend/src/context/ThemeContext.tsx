@@ -10,31 +10,21 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [theme, setTheme] = useState<Theme>(() => {
-    const saved = localStorage.getItem('careeriq_theme');
-    return (saved as Theme) || 'light';
-  });
+  const theme: Theme = 'dark';
 
   useEffect(() => {
     const root = document.documentElement;
     const body = document.body;
 
-    if (theme === 'dark') {
-      root.classList.add('dark');
-      root.classList.remove('light');
-      body.classList.add('dark-theme');
-      body.classList.remove('light-theme');
-    } else {
-      root.classList.add('light');
-      root.classList.remove('dark');
-      body.classList.add('light-theme');
-      body.classList.remove('dark-theme');
-    }
-    localStorage.setItem('careeriq_theme', theme);
-  }, [theme]);
+    root.classList.add('dark');
+    root.classList.remove('light');
+    body.classList.add('dark-theme');
+    body.classList.remove('light-theme');
+    localStorage.setItem('careeriq_theme', 'dark');
+  }, []);
 
   const toggleTheme = () => {
-    setTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
+    // Force dark mode, do nothing
   };
 
   return (
