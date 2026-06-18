@@ -10,12 +10,16 @@ async function checkRepos() {
   // Wait 3 seconds for checkDbState to flip useMockDb to false!
   await new Promise(resolve => setTimeout(resolve, 3000));
 
-  const profile = await db.getStudentProfileByUserId(1); // the mock user id used in JWT is 1
-  if (profile) {
-    console.log('githubRepositories length:', profile.github_repositories ? JSON.parse(profile.github_repositories).length : 0);
-    console.log('githubRepositories:', profile.github_repositories);
-  } else {
-    console.log('Profile not found for ID 1');
+  for (const userId of [1, 2, 3]) {
+    const p = await db.getStudentProfileByUserId(userId);
+    if (p) {
+      console.log(`- ID: ${p.id}, UserID: ${p.user_id}, Name: ${p.full_name}, Username: ${p.github_username}, Onboard: ${p.onboarding_completed}`);
+      console.log(`  githubRepositories length: ${p.github_repositories ? p.github_repositories.length : 0}`);
+      console.log(`  portfolioProjects length: ${p.portfolio_projects ? p.portfolio_projects.length : 0}`);
+      console.log(`  portfolioRecommendations length: ${p.portfolio_recommendations ? p.portfolio_recommendations.length : 0}`);
+    } else {
+      console.log(`- UserID: ${userId} not found`);
+    }
   }
 
   await mongoose.disconnect();

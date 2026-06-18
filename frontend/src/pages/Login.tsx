@@ -22,7 +22,7 @@ export const Login: React.FC = () => {
         await loginWithEmail(email, password);
       } catch (err: any) {
         // If sign-in fails, check if this is one of our sample users with the correct demo password
-        const isSampleUser = (email === 'alex.coder@example.com' || email === 'hr@google.com') && password === 'password123';
+        const isSampleUser = (email === 'alex.coder@example.com' || email === 'hr@google.com' || email === 'rakshakpatel2005@gmail.com') && password === 'password123';
         const isNotFoundError = err.code === 'auth/user-not-found' || 
                               err.code === 'auth/invalid-credential' || 
                               err.message?.includes('not-found') || 
@@ -36,7 +36,7 @@ export const Login: React.FC = () => {
           
           const fbToken = await getCurrentUserToken();
           if (fbToken) {
-            const role = email === 'alex.coder@example.com' ? 'student' : 'recruiter';
+            const role = (email === 'alex.coder@example.com' || email === 'rakshakpatel2005@gmail.com') ? 'student' : 'recruiter';
             const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
             const regResponse = await fetch(`${backendUrl}/api/auth/register`, {
               method: 'POST',
@@ -210,6 +210,34 @@ export const Login: React.FC = () => {
             >
               <span style={{ fontWeight: 700, fontSize: '0.85rem', color: 'var(--color-primary)' }}>Alex Rivera (Student)</span>
               <span style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>alex.coder@example.com</span>
+            </button>
+
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={() => {
+                setEmail('rakshakpatel2005@gmail.com');
+                setPassword('password123');
+                setTimeout(() => {
+                  const form = document.querySelector('form');
+                  if (form) form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+                }, 100);
+              }}
+              style={{ 
+                display: 'flex', 
+                flexDirection: 'column', 
+                alignItems: 'flex-start',
+                padding: '0.85rem',
+                borderRadius: '8px',
+                textAlign: 'left',
+                width: '100%',
+                background: 'rgba(255, 255, 255, 0.02)',
+                border: '1px solid var(--border-subcard)',
+                cursor: 'pointer'
+              }}
+            >
+              <span style={{ fontWeight: 700, fontSize: '0.85rem', color: 'var(--color-primary)' }}>Rakshak Patel (User 1)</span>
+              <span style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>rakshakpatel2005@gmail.com</span>
             </button>
 
             <button

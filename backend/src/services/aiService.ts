@@ -1,10 +1,34 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import { ScoreOutput } from './scoreEngine';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || process.env.GEMINI_KEY || '';
+const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || '';
+
+export const cleanAndParseJSON = (text: string): any => {
+  let cleanText = text.trim();
+  if (cleanText.startsWith('```')) {
+    const lines = cleanText.split('\n');
+    if (lines[0].startsWith('```')) lines.shift();
+    if (lines[lines.length - 1].startsWith('```')) lines.pop();
+    cleanText = lines.join('\n').trim();
+  }
+  const firstBrace = cleanText.indexOf('{');
+  const firstBracket = cleanText.indexOf('[');
+  let startIdx = -1;
+  let endIdx = -1;
+  if (firstBrace !== -1 && (firstBracket === -1 || firstBrace < firstBracket)) {
+    startIdx = firstBrace;
+    endIdx = cleanText.lastIndexOf('}');
+  } else if (firstBracket !== -1) {
+    startIdx = firstBracket;
+    endIdx = cleanText.lastIndexOf(']');
+  }
+  if (startIdx !== -1 && endIdx !== -1 && endIdx >= startIdx) {
+    cleanText = cleanText.substring(startIdx, endIdx + 1);
+  }
+  return JSON.parse(cleanText);
+};
 
 export interface AIRecommendation {
   category: string;
@@ -77,18 +101,15 @@ export const generateAIEvaluation = async (
   repositories: any[],
   consistencyScore: number
 ): Promise<any> => {
-  if (!GEMINI_API_KEY) {
-    console.log('[INFO] GEMINI_API_KEY not set. Using simulated evaluations.');
+  if (!OPENROUTER_API_KEY) {
+    console.log('[INFO] OPENROUTER_API_KEY not set. Using simulated evaluations.');
     return getSimulatedAIEvaluation(username, techStack);
   }
 
-  try {
-    const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ 
-      model: 'gemini-2.0-flash',
-      generationConfig: { responseMimeType: 'application/json' },
-    });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 60000);
 
+  try {
     const prompt = `
       You are a Technical Director and expert Recruiter. Evaluate this developer's GitHub presence:
       - Username: ${username}
@@ -138,12 +159,39 @@ export const generateAIEvaluation = async (
       }
     `;
 
-    const result = await model.generateContent(prompt);
-    const responseText = result.response.text();
-    return JSON.parse(responseText);
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'deepseek/deepseek-chat',
+        messages: [
+          {
+            role: 'user',
+            content: prompt
+          }
+        ],
+        response_format: { type: 'json_object' }
+      }),
+      signal: controller.signal
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`OpenRouter API error (${response.status}): ${errorText}`);
+    }
+
+    const responseData = await response.json() as any;
+    const responseText = responseData.choices?.[0]?.message?.content || '';
+    return cleanAndParseJSON(responseText);
 
   } catch (err: any) {
-    console.warn('[WARNING] Gemini career evaluation query failed:', err.message);
+    clearTimeout(timeoutId);
+    console.warn('[WARNING] OpenRouter career evaluation query failed:', err.message);
     return getSimulatedAIEvaluation(username, techStack);
   }
 };
@@ -223,30 +271,53 @@ export interface WowProjectRecommendation {
 }
 
 export const generateWowProjects = async (targetRole: string, currentSkills: string[]): Promise<WowProjectRecommendation[]> => {
-  if (!GEMINI_API_KEY) {
-    return [
-      {
-        difficulty: 'WOW',
-        title: 'Full Stack SaaS Dashboard',
-        description: 'Build a multi-tenant B2B dashboard with authentication, subscriptions, and complex data visualization.',
-        skillsLearned: ['React', 'Node.js', 'PostgreSQL', 'Stripe', 'Chart.js'],
-        resumeImpact: 'Demonstrates ability to ship end-to-end products.',
-        hiringImpact: 'High signal for product-minded engineering roles.'
-      }
-    ];
+  const fallback: WowProjectRecommendation[] = [
+    {
+      difficulty: 'Easy',
+      title: 'Responsive Developer Portfolio',
+      description: 'Create a clean, responsive portfolio website showcasing your skills and projects.',
+      skillsLearned: ['HTML', 'CSS', 'JavaScript', 'Responsive Design'],
+      resumeImpact: 'Establishes a professional web presence.',
+      hiringImpact: 'Demonstrates front-end styling capabilities.'
+    },
+    {
+      difficulty: 'Medium',
+      title: 'Real-Time Chat Application',
+      description: 'Build a real-time messaging application with private rooms and message history.',
+      skillsLearned: ['React', 'Node.js', 'Express', 'Socket.io', 'MongoDB'],
+      resumeImpact: 'Demonstrates websocket integration and real-time data handling.',
+      hiringImpact: 'Signals competency in real-time communication patterns.'
+    },
+    {
+      difficulty: 'Advanced',
+      title: 'RESTful E-Commerce API',
+      description: 'Design and implement a secure RESTful API for an e-commerce platform with stripe payment integration.',
+      skillsLearned: ['Node.js', 'Express', 'PostgreSQL', 'Sequelize', 'Stripe API', 'Docker'],
+      resumeImpact: 'Showcases database design, payment flows, and microservice containerization.',
+      hiringImpact: 'Strong signal for backend API development and third-party integrations.'
+    },
+    {
+      difficulty: 'WOW',
+      title: 'Multi-Tenant SaaS Analytics Dashboard',
+      description: 'Build a complex multi-tenant analytics platform with real-time tracking, customizable reporting, and subscription tier access.',
+      skillsLearned: ['Next.js', 'TypeScript', 'Node.js', 'Redis', 'PostgreSQL', 'TailwindCSS', 'ClerkAuth'],
+      resumeImpact: 'Shows enterprise-level SaaS architecture capability and high performance caching.',
+      hiringImpact: 'Top-tier signal for senior frontend and fullstack developer positions.'
+    }
+  ];
+
+  if (!OPENROUTER_API_KEY) {
+    return fallback;
   }
 
-  try {
-    const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ 
-      model: 'gemini-2.0-flash',
-      generationConfig: { responseMimeType: 'application/json' },
-    });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 60000);
 
+  try {
     const prompt = `
       You are an elite career coach and technical recruiter. 
-      Generate 4 highly specific project recommendations for a \${targetRole} developer.
-      Their current skills: \${currentSkills.join(', ')}.
+      Generate 4 highly specific project recommendations for a ${targetRole} developer.
+      Their current skills: ${currentSkills.join(', ')}.
 
       The projects MUST be separated into these 4 difficulties: 'Easy', 'Medium', 'Advanced', 'WOW'.
       The 'WOW' project must be an exceptionally impressive, portfolio-defining project (like an AI tool, an analytics platform, a real-time collaborative tool, etc) that would blow a recruiter away.
@@ -264,11 +335,39 @@ export const generateWowProjects = async (targetRole: string, currentSkills: str
       ]
     `;
 
-    const result = await model.generateContent(prompt);
-    return JSON.parse(result.response.text());
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'deepseek/deepseek-chat',
+        messages: [
+          {
+            role: 'user',
+            content: prompt
+          }
+        ],
+        response_format: { type: 'json_object' }
+      }),
+      signal: controller.signal
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`OpenRouter API error (${response.status}): ${errorText}`);
+    }
+
+    const responseData = await response.json() as any;
+    const responseText = responseData.choices?.[0]?.message?.content || '';
+    return cleanAndParseJSON(responseText);
   } catch (err: any) {
-    console.warn('[WARNING] Gemini WOW project generation failed:', err.message);
-    return [];
+    clearTimeout(timeoutId);
+    console.warn('[WARNING] OpenRouter WOW project generation failed:', err.message);
+    return fallback;
   }
 };
 
@@ -279,26 +378,23 @@ export const generateGitHubImprovementReport = async (
   repos: any[],
   currentScore: number
 ): Promise<any> => {
-  if (!GEMINI_API_KEY) {
+  if (!OPENROUTER_API_KEY) {
     return null;
   }
 
-  try {
-    const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ 
-      model: 'gemini-2.0-flash',
-      generationConfig: { responseMimeType: 'application/json' },
-    });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 60000);
 
+  try {
     const prompt = `
       You are an elite Senior Staff Engineer and Technical Recruiter.
-      Evaluate the GitHub profile and repositories for candidate "\${username}" aiming for "\${targetRole}".
+      Evaluate the GitHub profile and repositories for candidate "${username}" aiming for "${targetRole}".
       
       Repositories Data:
-      \${JSON.stringify(repos.map(r => ({ name: r.name, description: r.description, languages: r.languages, complexityScore: r.complexityScore, docScore: r.documentationScore, prodScore: r.productionReadinessScore, fileStructure: r.fileStructureAnalysis })), null, 2)}
+      ${JSON.stringify(repos.map(r => ({ name: r.name, description: r.description, languages: r.languages, complexityScore: r.complexityScore, docScore: r.documentationScore, prodScore: r.productionReadinessScore, fileStructure: r.fileStructureAnalysis })), null, 2)}
       
-      Detected Tech Stack: \${techStack.join(', ')}
-      Current Employability Score: \${currentScore}/100
+      Detected Tech Stack: ${techStack.join(', ')}
+      Current Employability Score: ${currentScore}/100
 
       Return a comprehensive GitHub Improvement Report strictly matching this JSON schema:
       {
@@ -331,16 +427,39 @@ export const generateGitHubImprovementReport = async (
       }
     `;
 
-    const result = await model.generateContent(prompt);
-    let jsonStr = result.response.text().trim();
-    const firstBrace = jsonStr.indexOf('{');
-    const lastBrace = jsonStr.lastIndexOf('}');
-    if (firstBrace !== -1 && lastBrace !== -1 && lastBrace >= firstBrace) {
-      jsonStr = jsonStr.substring(firstBrace, lastBrace + 1);
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'deepseek/deepseek-chat',
+        messages: [
+          {
+            role: 'user',
+            content: prompt
+          }
+        ],
+        response_format: { type: 'json_object' }
+      }),
+      signal: controller.signal
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`OpenRouter API error (${response.status}): ${errorText}`);
     }
-    return JSON.parse(jsonStr);
+
+    const responseData = await response.json() as any;
+    const responseText = responseData.choices?.[0]?.message?.content || '';
+
+    return cleanAndParseJSON(responseText);
   } catch (err: any) {
-    console.warn('[WARNING] Gemini GitHub Improvement Report failed:', err.message);
+    clearTimeout(timeoutId);
+    console.warn('[WARNING] OpenRouter GitHub Improvement Report failed:', err.message);
     return null;
   }
 };
@@ -362,17 +481,14 @@ export const generateDetailedCareerReview = async (
     overallVerdict: 'A solid portfolio showing good technical progression. Enhancing DevOps and testing will maximize employability.'
   };
 
-  if (!GEMINI_API_KEY) {
+  if (!OPENROUTER_API_KEY) {
     return fallback;
   }
 
-  try {
-    const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ 
-      model: 'gemini-2.0-flash',
-      generationConfig: { responseMimeType: 'application/json' },
-    });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 60000);
 
+  try {
     const prompt = `
       You are an elite Senior Staff Engineer and Technical Recruiter.
       Evaluate the GitHub profile and repositories for candidate "${username}" aiming for "${targetRole}".
@@ -395,16 +511,39 @@ export const generateDetailedCareerReview = async (
       }
     `;
 
-    const result = await model.generateContent(prompt);
-    let jsonStr = result.response.text().trim();
-    const firstBrace = jsonStr.indexOf('{');
-    const lastBrace = jsonStr.lastIndexOf('}');
-    if (firstBrace !== -1 && lastBrace !== -1 && lastBrace >= firstBrace) {
-      jsonStr = jsonStr.substring(firstBrace, lastBrace + 1);
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'deepseek/deepseek-chat',
+        messages: [
+          {
+            role: 'user',
+            content: prompt
+          }
+        ],
+        response_format: { type: 'json_object' }
+      }),
+      signal: controller.signal
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`OpenRouter API error (${response.status}): ${errorText}`);
     }
-    return JSON.parse(jsonStr);
+
+    const responseData = await response.json() as any;
+    const responseText = responseData.choices?.[0]?.message?.content || '';
+
+    return cleanAndParseJSON(responseText);
   } catch (err: any) {
-    console.warn('[WARNING] Gemini Detailed Career Review failed:', err.message);
+    clearTimeout(timeoutId);
+    console.warn('[WARNING] OpenRouter Detailed Career Review failed:', err.message);
     return fallback;
   }
 };

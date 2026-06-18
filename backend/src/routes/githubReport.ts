@@ -96,7 +96,7 @@ async function regenerateReportForProfile(profile: any, res: Response) {
     ]);
 
     // 3. Save core stats
-    await db.updateStudentGitHubStats(profile.user_id, {
+    await db.updateStudentGitHubStats(profile.id, {
       username: d.username,
       repos: d.repositories.length,
       followers: d.followers,
@@ -116,7 +116,7 @@ async function regenerateReportForProfile(profile: any, res: Response) {
     });
 
     // 4. Save new detailed report fields
-    const updatedProfile = await db.updateStudentGitHubDetailedReport(profile.user_id, {
+    const updatedProfile = await db.updateStudentGitHubDetailedReport(profile.id, {
       githubHealthMetrics: d.healthMetrics,
       githubPortfolioGaps: d.portfolioGaps,
       githubGrowthPlan: d.growthPlan,

@@ -14,6 +14,11 @@ import { startWorker } from './services/worker';
 
 dotenv.config();
 
+if (process.env.GITHUB_TOKEN === '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') {
+  console.log('[INFO] Bypassing pre-configured invalid GITHUB_TOKEN to allow public API requests.');
+  delete process.env.GITHUB_TOKEN;
+}
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 

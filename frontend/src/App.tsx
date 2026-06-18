@@ -42,7 +42,7 @@ function App() {
     <ThemeProvider>
       <AuthProvider>
         <BrowserRouter>
-          <div className="min-h-screen relative overflow-hidden bg-[#faf8f5] dark:bg-[#0d0f14] text-slate-800 dark:text-slate-100 transition-colors duration-500 font-sans flex flex-col">
+          <div className="min-h-screen relative overflow-x-hidden bg-[#faf8f5] dark:bg-[#0d0f14] text-slate-800 dark:text-slate-100 transition-colors duration-500 font-sans flex flex-col">
             <BackgroundBlobs />
             <Header />
             <main style={{ flex: 1, position: 'relative', zIndex: 10 }}>

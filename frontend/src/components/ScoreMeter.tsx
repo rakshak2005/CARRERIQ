@@ -11,17 +11,16 @@ export const ScoreMeter: React.FC<ScoreMeterProps> = ({ score = 0, size = 180 })
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (score / 100) * circumference;
 
-  // Determine color theme based on score value
-  let scoreColor = '#ef4444'; // Red (Default low)
-  let glowColor = 'rgba(239, 68, 68, 0.4)';
+  let scoreColor = '#f43f5e';
+  let glowColor = 'rgba(244, 63, 94, 0.4)';
   let gradientId = 'scoreGradLow';
 
   if (score >= 80) {
-    scoreColor = '#10b981'; // Green
+    scoreColor = '#10b981';
     glowColor = 'rgba(16, 185, 129, 0.4)';
     gradientId = 'scoreGradHigh';
   } else if (score >= 50) {
-    scoreColor = '#f59e0b'; // Amber
+    scoreColor = '#f59e0b';
     glowColor = 'rgba(245, 158, 11, 0.4)';
     gradientId = 'scoreGradMid';
   }
@@ -49,10 +48,10 @@ export const ScoreMeter: React.FC<ScoreMeterProps> = ({ score = 0, size = 180 })
             <stop offset="100%" stopColor="#d97706" />
           </linearGradient>
           <linearGradient id="scoreGradLow" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#ef4444" />
-            <stop offset="100%" stopColor="#dc2626" />
+            <stop offset="0%" stopColor="#f43f5e" />
+            <stop offset="100%" stopColor="#e11d48" />
           </linearGradient>
-          {/* Shadow Filter */}
+          {/* Premium Shadow Filter */}
           <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
             <feGaussianBlur stdDeviation="6" result="blur" />
             <feComposite in="SourceGraphic" in2="blur" operator="over" />
@@ -65,7 +64,7 @@ export const ScoreMeter: React.FC<ScoreMeterProps> = ({ score = 0, size = 180 })
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke="var(--border-subcard)"
+          stroke="rgba(255, 255, 255, 0.05)"
           strokeWidth={strokeWidth}
         />
 
@@ -81,8 +80,8 @@ export const ScoreMeter: React.FC<ScoreMeterProps> = ({ score = 0, size = 180 })
           strokeDashoffset={strokeDashoffset}
           strokeLinecap="round"
           style={{
-            transition: 'stroke-dashoffset 1s cubic-bezier(0.4, 0, 0.2, 1)',
-            filter: `drop-shadow(0 0 8px ${glowColor})`
+            transition: 'stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1)',
+            filter: `drop-shadow(0 0 12px ${glowColor})`
           }}
         />
       </svg>
@@ -99,17 +98,17 @@ export const ScoreMeter: React.FC<ScoreMeterProps> = ({ score = 0, size = 180 })
       >
         <span 
           style={{
-            fontSize: `${size * 0.22}px`,
+            fontSize: `${size * 0.25}px`,
             fontWeight: 800,
-            color: 'var(--color-text-title)',
+            color: '#fff',
             lineHeight: 1
           }}
         >
-          {score}
+          {Math.round(score)}
         </span>
         <span 
           style={{
-            fontSize: `${size * 0.06}px`,
+            fontSize: `${size * 0.065}px`,
             fontWeight: 600,
             color: scoreColor,
             textTransform: 'uppercase',

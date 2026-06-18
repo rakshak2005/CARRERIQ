@@ -271,8 +271,11 @@ router.post('/portfolio/sync', authenticateToken, async (req: AuthenticatedReque
     
     // 2. Gather Resume Projects
     const resumeProjects = profile.resume_projects || [];
+
+    // 3. Gather GitHub Projects
+    const githubProjects = profile.github_repositories || [];
     
-    // 3. Map into unified format
+    // 4. Map into unified format
     const unifiedProjects: any[] = [];
     
     manualProjects.forEach(p => {
@@ -291,6 +294,16 @@ router.post('/portfolio/sync', authenticateToken, async (req: AuthenticatedReque
         description: p.description,
         technologies: p.technologies || [],
         source: 'resume',
+      });
+    });
+
+    githubProjects.forEach((p: any) => {
+      unifiedProjects.push({
+        title: p.name,
+        description: p.description || '',
+        technologies: p.detectedTechnologies || [],
+        source: 'github',
+        liveUrl: p.url || '',
       });
     });
 

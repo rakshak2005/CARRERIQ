@@ -69,6 +69,7 @@ export const api = {
         return data;
       });
     },
+    reanalyzeResume: () => request('/resume/reanalyze', { method: 'POST' }),
     addProject: (body: any) => request('/student/projects', { method: 'POST', body: JSON.stringify(body) }),
     deleteProject: (id: number) => request(`/student/projects/${id}`, { method: 'DELETE' }),
     addCertificate: (body: any) => request('/student/certificates', { method: 'POST', body: JSON.stringify(body) }),

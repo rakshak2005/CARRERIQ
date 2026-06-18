@@ -70,11 +70,11 @@
   --blob-color-4: rgba(37, 99, 235, 0.02);
 }
 
-/* DARK MODE OVERRIDES (Polished Slate Dark Theme) */
+/* DARK MODE OVERRIDES (Premium SaaS Deep Navy Theme) */
 :root.dark {
-  --bg-dark: #0f172a;             /* Slate 900 */
-  --bg-card: #1e293b;             /* Slate 800 */
-  --bg-card-hover: #1e293b;
+  --bg-dark: #050816;             /* Deep Navy */
+  --bg-card: rgba(15, 23, 42, 0.6); /* Glassmorphism dark */
+  --bg-card-hover: rgba(15, 23, 42, 0.8);
   
   --color-primary: #3b82f6;       /* Lighter blue for dark contrast */
   --color-primary-glow: rgba(59, 130, 246, 0.15);
@@ -88,21 +88,21 @@
   --color-text-dark: #ffffff;
   --color-text-title: #ffffff;
   
-  --glass-border: #334155;        /* Slate 700 */
-  --glass-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  --glass-border: rgba(255, 255, 255, 0.08); /* Clean glass border */
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
   
-  --bg-input: #0f172a;
+  --bg-input: rgba(15, 23, 42, 0.5);
   --color-input-text: #ffffff;
-  --border-input: #475569;
+  --border-input: rgba(255, 255, 255, 0.1);
   
-  --bg-subcard: #1e293b;
-  --border-subcard: #334155;
+  --bg-subcard: rgba(255, 255, 255, 0.03);
+  --border-subcard: rgba(255, 255, 255, 0.05);
   
-  --bg-modal-overlay: rgba(0, 0, 0, 0.7);
-  --bg-gradient: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+  --bg-modal-overlay: rgba(5, 8, 22, 0.8);
+  --bg-gradient: linear-gradient(180deg, #050816 0%, #0a0f25 100%);
 
-  --blob-color-1: rgba(59, 130, 246, 0.05);
-  --blob-color-2: rgba(16, 185, 129, 0.03);
-  --blob-color-3: rgba(245, 158, 11, 0.03);
-  --blob-color-4: rgba(59, 130, 246, 0.03);
+  --blob-color-1: rgba(59, 130, 246, 0.08);
+  --blob-color-2: rgba(16, 185, 129, 0.05);
+  --blob-color-3: rgba(245, 158, 11, 0.05);
+  --blob-color-4: rgba(59, 130, 246, 0.05);
 }

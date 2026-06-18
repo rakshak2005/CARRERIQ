@@ -104,4 +104,71 @@ router.post(
   }
 );
 
+// POST /api/resume/reanalyze - Reanalyze existing resume
+router.post('/reanalyze', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    if (!req.user || req.user.role !== 'student') {
+      return res.status(403).json({ error: 'Requires student role' });
+    }
+
+    const profile = await db.getStudentProfileByUserId(req.user.id);
+    if (!profile || !profile.resume_url) {
+      return res.status(400).json({ error: 'No resume file uploaded yet' });
+    }
+
+    // 1. Extract Text
+    let text = '';
+    try {
+      text = await extractTextFromFile(profile.resume_url, profile.resume_url.endsWith('.docx') ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' : 'application/pdf');
+    } catch (err: any) {
+      console.error('Extraction Error:', err);
+      return res.status(400).json({ error: err.message || 'Error extracting text from file' });
+    }
+
+    // 2. Guaranteed Rule-Based Analysis
+    const ruleBasedResults = analyzeResumeRuleBased(text, profile.target_role);
+
+    // 3. Fallback AI Analysis
+    const finalAnalysis = await analyzeResumeWithAI(text, profile.target_role, ruleBasedResults);
+
+    // 4. Update name in profile if valid
+    if (finalAnalysis.fullName && finalAnalysis.fullName !== 'Candidate') {
+      await db.updateStudentOnboardingFields(profile.id, {
+        fullName: finalAnalysis.fullName
+      });
+    }
+
+    // 5. Update stats
+    await db.updateStudentResumeAnalysis(profile.id, {
+      resumeScore: finalAnalysis.score,
+      resumeATSScore: finalAnalysis.atsScore,
+      resumeSkillsScore: finalAnalysis.skillsScore,
+      resumeProjectsScore: finalAnalysis.projectsScore,
+      resumeExperienceScore: finalAnalysis.experienceScore,
+      resumeCertificationScore: finalAnalysis.certificationScore,
+      resumeProfessionalPresenceScore: finalAnalysis.professionalPresenceScore,
+      resumeRoleMatchScore: finalAnalysis.roleMatchScore,
+      resumeStrengths: finalAnalysis.strengths,
+      resumeWeaknesses: finalAnalysis.weaknesses,
+      resumeMissingKeywords: finalAnalysis.missingKeywords,
+      resumeRecommendedSkills: finalAnalysis.recommendedSkills,
+      resumeSummary: finalAnalysis.summary,
+      resumeProjects: finalAnalysis.extractedProjects,
+      resumeSkills: finalAnalysis.extractedSkills,
+      resumeLastAnalyzed: new Date(),
+      resumeText: text.substring(0, 50000)
+    });
+
+    // 6. Recalculate
+    const details = await recalculateStudentProfile(profile.id);
+    res.json({
+      message: 'Resume reanalyzed successfully',
+      ...details
+    });
+  } catch (error: any) {
+    console.error('Error reanalyzing resume:', error);
+    res.status(500).json({ error: error.message || 'Server error reanalyzing resume' });
+  }
+});
+
 export default router;

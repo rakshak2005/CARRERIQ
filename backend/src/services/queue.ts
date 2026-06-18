@@ -44,9 +44,14 @@ analysisQueue.on('error', (err: any) => {
 });
 
 let jobProcessor: ((jobId: string, githubUrl: string) => Promise<void>) | null = null;
+let onboardingJobProcessor: ((jobId: string, userId: number, resumeUrl: string, githubUrl: string, targetRole: string) => Promise<void>) | null = null;
 
 export const registerJobProcessor = (processor: (jobId: string, githubUrl: string) => Promise<void>) => {
   jobProcessor = processor;
+};
+
+export const registerOnboardingJobProcessor = (processor: (jobId: string, userId: number, resumeUrl: string, githubUrl: string, targetRole: string) => Promise<void>) => {
+  onboardingJobProcessor = processor;
 };
 
 export const triggerGitHubAnalysis = async (userId: number, githubUrl: string, jobId: string): Promise<string> => {
@@ -72,6 +77,46 @@ export const triggerGitHubAnalysis = async (userId: number, githubUrl: string, j
   const job = await analysisQueue.add(
     'analyze-profile',
     { userId, githubUrl },
+    {
+      jobId,
+      attempts: 2,
+      backoff: {
+        type: 'exponential',
+        delay: 5000,
+      },
+    }
+  );
+  return job.id || '';
+};
+
+export const triggerOnboardingAnalysis = async (
+  userId: number,
+  resumeUrl: string,
+  githubUrl: string,
+  targetRole: string,
+  jobId: string
+): Promise<string> => {
+  if (useMockQueue) {
+    console.log(`[Queue Mock] Enqueued onboarding analysis job ${jobId} for user ${userId}`);
+    
+    setTimeout(async () => {
+      if (onboardingJobProcessor) {
+        try {
+          await onboardingJobProcessor(jobId, userId, resumeUrl, githubUrl, targetRole);
+        } catch (err: any) {
+          console.error(`[Queue Mock ERROR] Simulated worker failed for onboarding job ${jobId}:`, err.message);
+        }
+      } else {
+        console.error(`[Queue Mock ERROR] No onboarding job processor registered!`);
+      }
+    }, 2000);
+    
+    return jobId;
+  }
+
+  const job = await analysisQueue.add(
+    'onboard-profile',
+    { userId, resumeUrl, githubUrl, targetRole },
     {
       jobId,
       attempts: 2,

@@ -2,14 +2,15 @@ import fs from 'fs';
 import path from 'path';
 const pdfParse = require('pdf-parse');
 import * as mammoth from 'mammoth';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import dotenv from 'dotenv';
+import { cleanAndParseJSON } from './aiService';
 
 dotenv.config();
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 
 export interface ResumeAnalysisResult {
+  fullName?: string;
   text: string;
   score: number;
   atsScore: number;
@@ -166,6 +167,7 @@ export const analyzeResumeRuleBased = (text: string, targetRole: string): Partia
 
 export const analyzeResumeWithAI = async (text: string, targetRole: string, ruleBasedFallback: Partial<ResumeAnalysisResult>): Promise<ResumeAnalysisResult> => {
   const finalResult: ResumeAnalysisResult = {
+    fullName: '',
     text,
     score: ruleBasedFallback.score || 0,
     atsScore: ruleBasedFallback.atsScore || 0,
@@ -184,21 +186,34 @@ export const analyzeResumeWithAI = async (text: string, targetRole: string, rule
     extractedProjects: []
   };
 
-  if (!GEMINI_API_KEY) {
-    console.warn("No GEMINI_API_KEY, falling back to rule-based ATS analysis");
+  // Heuristic fallback name parsing
+  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+  let fallbackName = '';
+  for (let i = 0; i < Math.min(5, lines.length); i++) {
+    const line = lines[i];
+    if (/^[A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)+$/.test(line) && line.split(' ').length <= 4) {
+      fallbackName = line;
+      break;
+    }
+  }
+  finalResult.fullName = fallbackName || 'Candidate';
+
+  if (!OPENROUTER_API_KEY) {
+    console.warn("No OPENROUTER_API_KEY, falling back to rule-based ATS analysis");
     return finalResult;
   }
 
-  try {
-    const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: 'gemini-robotics-er-1.6-preview', generationConfig: { responseMimeType: "application/json" } });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 60000);
 
+  try {
     const prompt = `You are a senior ATS reviewer and technical recruiter.
 Target Role: ${targetRole || 'Software Engineer'}
 
 Analyze this resume.
 Return JSON EXACTLY matching this structure, with no markdown, just the raw JSON object:
 {
+  "fullName": "string",
   "atsScore": 0,
   "strengths": ["string"],
   "weaknesses": ["string"],
@@ -226,17 +241,39 @@ Resume Text:
 ${text.substring(0, 8000)}
 """`;
 
-    const result = await model.generateContent(prompt);
-    const responseText = result.response.text();
-    let jsonStr = responseText.trim();
-    const firstBrace = jsonStr.indexOf('{');
-    const lastBrace = jsonStr.lastIndexOf('}');
-    if (firstBrace !== -1 && lastBrace !== -1 && lastBrace >= firstBrace) {
-      jsonStr = jsonStr.substring(firstBrace, lastBrace + 1);
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'deepseek/deepseek-chat',
+        messages: [
+          {
+            role: 'user',
+            content: prompt
+          }
+        ],
+        response_format: { type: 'json_object' }
+      }),
+      signal: controller.signal
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`OpenRouter API error (${response.status}): ${errorText}`);
     }
-    const aiData = JSON.parse(jsonStr);
+
+    const responseData = await response.json() as any;
+    const responseText = responseData.choices?.[0]?.message?.content || '';
+
+    const aiData = cleanAndParseJSON(responseText);
 
     // Merge AI insights with the guaranteed ATS scores
+    if (aiData.fullName) finalResult.fullName = aiData.fullName;
     finalResult.strengths = aiData.strengths || finalResult.strengths;
     finalResult.weaknesses = aiData.weaknesses || finalResult.weaknesses;
     finalResult.missingKeywords = aiData.missingKeywords || finalResult.missingKeywords;
@@ -257,7 +294,8 @@ ${text.substring(0, 8000)}
 
     return finalResult;
   } catch (error: any) {
-    console.error('Error analyzing resume with Gemini, falling back to rule-based logic:', error);
+    clearTimeout(timeoutId);
+    console.error('Error analyzing resume with OpenRouter, falling back to rule-based logic:', error);
     finalResult.summary = 'AI analysis unavailable due to an error: ' + (error.message || 'Unknown Error') + '. Generated score based purely on rule-based ATS checks.';
     finalResult.weaknesses = [ 'Could not generate AI insights: ' + (error.message || 'Unknown Error') ];
     return finalResult;

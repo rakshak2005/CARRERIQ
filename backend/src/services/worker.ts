@@ -1,8 +1,13 @@
 import { Worker } from 'bullmq';
-import { redisConnection, registerJobProcessor, getUseMockQueue } from './queue';
+import { redisConnection, registerJobProcessor, registerOnboardingJobProcessor, getUseMockQueue } from './queue';
 import { fetchGitHubStats, parseGitHubUsername } from './githubService';
-import { generateAIEvaluation, generateGitHubImprovementReport } from './aiService';
+import { generateAIEvaluation, generateGitHubImprovementReport, generateWowProjects } from './aiService';
 import { analysisDb } from '../db/mongoService';
+import { extractTextFromFile, analyzeResumeRuleBased, analyzeResumeWithAI } from './resumeService';
+import { db } from '../db';
+import { recalculateStudentProfile } from '../routes/student';
+import { GithubAnalysisService } from './githubAnalysisService';
+import { evaluateProject, generatePortfolioInsights, calculatePortfolioScore } from './projectScoringService';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -252,9 +257,200 @@ export const processAnalysisJob = async (jobId: string, githubUrl: string): Prom
   }
 };
 
+export const processOnboardingJob = async (
+  jobId: string,
+  userId: number,
+  resumeUrl: string,
+  githubUrl: string,
+  targetRole: string
+): Promise<void> => {
+  console.log(`[Worker] Started processing onboarding job ${jobId} for user ${userId}`);
+
+  const updateJobStatus = async (progress: number, message: string) => {
+    await analysisDb.updateJob(jobId, { progress, progressMessage: message, status: 'active' });
+  };
+
+  try {
+    // Get profile first
+    let profile = await db.getStudentProfileByUserId(userId);
+    if (!profile) {
+      throw new Error(`Profile not found for user ${userId}`);
+    }
+
+    // Step 1: Parse and Analyze Resume
+    await updateJobStatus(15, 'Parsing resume text and extracting profile details...');
+    let text = '';
+    try {
+      text = await extractTextFromFile(resumeUrl, resumeUrl.endsWith('.docx') ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' : 'application/pdf');
+    } catch (err: any) {
+      console.error('[Onboarding Worker] Error reading resume file:', err.message);
+      text = 'Empty Resume Text';
+    }
+
+    const ruleBasedResults = analyzeResumeRuleBased(text, targetRole);
+    const finalResumeAnalysis = await analyzeResumeWithAI(text, targetRole, ruleBasedResults);
+
+    // Update name and base details in database
+    await db.updateStudentOnboardingFields(profile.id, {
+      fullName: finalResumeAnalysis.fullName || profile.full_name,
+      resumeUrl,
+      resumeUploaded: true,
+      resumeLastUploaded: new Date(),
+    });
+
+    await db.updateStudentResumeAnalysis(profile.id, {
+      resumeScore: finalResumeAnalysis.score,
+      resumeATSScore: finalResumeAnalysis.atsScore,
+      resumeSkillsScore: finalResumeAnalysis.skillsScore,
+      resumeProjectsScore: finalResumeAnalysis.projectsScore,
+      resumeExperienceScore: finalResumeAnalysis.experienceScore,
+      resumeCertificationScore: finalResumeAnalysis.certificationScore,
+      resumeProfessionalPresenceScore: finalResumeAnalysis.professionalPresenceScore,
+      resumeRoleMatchScore: finalResumeAnalysis.roleMatchScore,
+      resumeStrengths: finalResumeAnalysis.strengths,
+      resumeWeaknesses: finalResumeAnalysis.weaknesses,
+      resumeMissingKeywords: finalResumeAnalysis.missingKeywords,
+      resumeRecommendedSkills: finalResumeAnalysis.recommendedSkills,
+      resumeSummary: finalResumeAnalysis.summary,
+      resumeProjects: finalResumeAnalysis.extractedProjects,
+      resumeSkills: finalResumeAnalysis.extractedSkills,
+      resumeLastAnalyzed: new Date(),
+      resumeFileName: resumeUrl.split('-').slice(1).join('-') || 'resume.pdf',
+      resumeText: text.substring(0, 50000)
+    });
+
+    // Step 2: Fetch and Analyze GitHub profile
+    await updateJobStatus(45, 'Fetching GitHub repositories and activity logs...');
+    
+    // We update the github url first
+    await db.updateStudentOnboardingFields(profile.id, {
+      githubConnected: true
+    });
+
+    const analysisResult = await GithubAnalysisService.analyze(githubUrl);
+    if (analysisResult.success && analysisResult.data) {
+      const githubData = analysisResult.data;
+      await db.updateStudentGitHubStats(profile.id, {
+        username: githubData.username,
+        repos: githubData.publicRepos || 0,
+        followers: githubData.followers || 0,
+        stars: githubData.repositories.reduce((acc: number, curr: any) => acc + (curr.stars || 0), 0),
+        score: githubData.githubScore || 0,
+        accountAgeYears: githubData.accountCreatedAt ? Math.max(1, new Date().getFullYear() - new Date(githubData.accountCreatedAt).getFullYear()) : 1,
+        breakdown: githubData.breakdown,
+        repositories: githubData.repositories,
+        techStacks: githubData.technologies,
+        recommendations: githubData.recommendations,
+        following: githubData.following || 0,
+        publicRepos: githubData.publicRepos || 0,
+        avatar: githubData.avatar,
+        lastActivity: githubData.lastActivity,
+        aiProjectComplexityScore: githubData.aiProjectComplexityScore || 0,
+        githubImprovementReport: githubData.githubImprovementReport
+      });
+      // also save additional detailed analysis reports
+      await db.updateStudentGitHubDetailedReport(profile.id, {
+        githubHealthMetrics: githubData.healthMetrics,
+        githubPortfolioGaps: githubData.portfolioGaps,
+        githubCareerReview: githubData.detailedIssues,
+        githubWowProjects: [],
+        githubGrowthPlan: githubData.growthPlan,
+        githubDetailedIssues: githubData.detailedIssues,
+        githubDetailedRecs: githubData.detailedRecs
+      });
+    } else {
+      console.warn('[Onboarding Worker] GitHub analysis failed, continuing with partial data...');
+    }
+
+    // Step 3: Portfolio Sync & Merge
+    await updateJobStatus(75, 'Syncing projects from resume & GitHub...');
+    profile = await db.getStudentProfileById(profile.id); // Reload profile to get new resume & github stats
+    const manualProjects = await db.getProjectsByStudentId(profile.id);
+    const resumeProjects = profile.resume_projects || [];
+    const githubProjects = profile.github_repositories || [];
+
+    const unifiedProjects: any[] = [];
+    manualProjects.forEach((p: any) => {
+      unifiedProjects.push({
+        title: p.title,
+        description: p.description,
+        technologies: typeof p.technologies === 'string' ? p.technologies.split(',').map((t: string) => t.trim()) : p.technologies,
+        source: 'manual',
+        liveUrl: p.projectUrl || '',
+      });
+    });
+    resumeProjects.forEach((p: any) => {
+      unifiedProjects.push({
+        title: p.name || p.title,
+        description: p.description,
+        technologies: p.technologies || [],
+        source: 'resume',
+      });
+    });
+    githubProjects.forEach((p: any) => {
+      unifiedProjects.push({
+        title: p.name,
+        description: p.description || '',
+        technologies: p.detectedTechnologies || [],
+        source: 'github',
+        liveUrl: p.url || '',
+      });
+    });
+
+    const evaluatedProjects = unifiedProjects.map((p: any) => evaluateProject(p, targetRole));
+    const insights = generatePortfolioInsights(evaluatedProjects, targetRole);
+    const portfolioScore = calculatePortfolioScore(evaluatedProjects);
+
+    // Save WOW Projects
+    const wowProjects = await generateWowProjects(targetRole, Object.keys(insights.technologyCoverage));
+
+    // Save directly using Mongoose Model
+    const mongoose = require('mongoose');
+    const LocalStudentProfile = mongoose.models.LocalStudentProfile;
+    await LocalStudentProfile.findByIdAndUpdate(profile.id, {
+      portfolioProjects: evaluatedProjects,
+      portfolioScore: portfolioScore,
+      portfolioInsights: insights,
+      portfolioRecommendations: wowProjects
+    });
+
+    // Step 4: Final recalculate & update onboardingCompleted
+    await updateJobStatus(90, 'Calculating final readiness score...');
+    await recalculateStudentProfile(profile.id);
+
+    // Set onboarding completed
+    await db.updateStudentOnboardingFields(profile.id, {
+      onboardingCompleted: true,
+      profileAutoGenerated: true,
+      githubLastAnalyzed: new Date()
+    });
+
+    console.log(`[Worker] Onboarding job ${jobId} completed successfully!`);
+    await analysisDb.updateJob(jobId, {
+      status: 'completed',
+      progress: 100,
+      progressMessage: 'Analysis Completed Successfully',
+      result: {
+        userId,
+        fullName: finalResumeAnalysis.fullName || profile.fullName
+      }
+    });
+
+  } catch (err: any) {
+    console.error(`[Worker ERROR] Failed to process onboarding job ${jobId}:`, err);
+    await analysisDb.updateJob(jobId, {
+      status: 'failed',
+      progress: 100,
+      progressMessage: `Error: ${err.message || 'Unknown onboarding failure'}`,
+      error: err.message || 'Unknown onboarding error'
+    });
+  }
+};
+
 export const startWorker = (): void => {
   // Register the processing callback to the queue service
   registerJobProcessor(processAnalysisJob);
+  registerOnboardingJobProcessor(processOnboardingJob);
 
   if (getUseMockQueue()) {
     console.log('[INFO] Skipping BullMQ Worker initialization because Redis is down.');
@@ -262,11 +458,16 @@ export const startWorker = (): void => {
   }
 
   const worker = new Worker('github-analysis', async job => {
-    const { githubUrl } = job.data;
     const jobId = job.id;
     if (!jobId) return;
 
-    await processAnalysisJob(jobId, githubUrl);
+    if (job.name === 'onboard-profile') {
+      const { userId, resumeUrl, githubUrl, targetRole } = job.data;
+      await processOnboardingJob(jobId, userId, resumeUrl, githubUrl, targetRole);
+    } else {
+      const { githubUrl } = job.data;
+      await processAnalysisJob(jobId, githubUrl);
+    }
   }, {
     connection: redisConnection as any,
     concurrency: 2
