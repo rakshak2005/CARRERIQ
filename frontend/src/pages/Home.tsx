@@ -566,7 +566,7 @@ export const Home: React.FC = () => {
           {/* Testimonial slider / horizontal list */}
           <div
             ref={carouselRef}
-            className="flex gap-6 overflow-x-auto pb-6 scrollbar-none snap-x snap-mandatory"
+            className="flex gap-6 overflow-x-auto pb-6 scrollbar-none snap-x snap-mandatory px-4 -mx-4"
           >
             {reviews.length === 0 ? (
               // Fallback cards with Indian names and no AI images (initials instead)

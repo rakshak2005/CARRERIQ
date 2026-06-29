@@ -17,6 +17,7 @@ export const FloatingCopilot: React.FC = () => {
     <>
       {/* Copilot Button */}
       <motion.button
+        className="copilot-button"
         onClick={() => setIsOpen(!isOpen)}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
@@ -48,6 +49,7 @@ export const FloatingCopilot: React.FC = () => {
       <AnimatePresence>
         {isOpen && (
           <motion.div
+            className="copilot-window"
             initial={{ opacity: 0, y: 20, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.9 }}

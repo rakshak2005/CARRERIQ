@@ -20,6 +20,11 @@ export const recalculateStudentProfile = async (studentId: number) => {
   let githubScore = profile.github_score || 0;
   let updatedProfile = profile;
 
+  // Use evaluated portfolio projects if they exist, otherwise fallback to raw manual projects
+  const projectsToCalculate = (updatedProfile.portfolio_projects && updatedProfile.portfolio_projects.length > 0)
+    ? updatedProfile.portfolio_projects
+    : projects;
+
   // Compute scores
   const scoreInput = {
     targetRole: updatedProfile.target_role,
@@ -28,10 +33,11 @@ export const recalculateStudentProfile = async (studentId: number) => {
     linkedinUrl: updatedProfile.linkedin_url,
     dsaIncluded: updatedProfile.dsa_included,
     certificatesIncluded: updatedProfile.certificates_included !== undefined ? updatedProfile.certificates_included : true,
-    projects,
+    projects: projectsToCalculate,
     certificates,
     githubScore,
-    resumeScore: updatedProfile.resume_score
+    resumeScore: updatedProfile.resume_score,
+    portfolioScore: updatedProfile.portfolio_score
   };
 
   const scores = calculateScores(scoreInput);

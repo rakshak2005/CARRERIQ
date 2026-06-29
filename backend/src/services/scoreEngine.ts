@@ -9,6 +9,7 @@ export interface ScoreInput {
   certificates: any[];
   githubScore?: number;
   resumeScore?: number;
+  portfolioScore?: number;
 }
 
 export interface ScoreOutput {
@@ -16,7 +17,7 @@ export interface ScoreOutput {
   categoryScores: {
     resumeScore: number;
     projectsScore: number;
-    experienceScore: number; // calculated proxy for profile completeness/projects
+    experienceScore: number;
     onlinePresenceScore: number;
     dsaScore: number;
   };
@@ -28,27 +29,30 @@ export const calculateScores = (input: ScoreInput): ScoreOutput => {
   if (input.resumeScore !== undefined && input.resumeScore > 0) {
     resumeScore = input.resumeScore;
   } else if (input.resumeUrl) {
-    resumeScore = 75; // Legacy Base for upload
+    resumeScore = 75;
     if (input.resumeUrl.endsWith('.pdf')) {
-      resumeScore += 15; // PDF bonus
+      resumeScore += 15;
     } else {
       resumeScore += 10;
     }
     if (input.targetRole && input.targetRole.length > 3) {
-      resumeScore += 10; // Profile aligned
+      resumeScore += 10;
     }
   }
   resumeScore = Math.min(100, resumeScore);
 
   // 2. Projects Score (0-100)
   let projectsScore = 0;
-  const projectCount = input.projects.length;
-  if (projectCount > 0) {
-    projectsScore = Math.min(100, projectCount * 30); // 30 points per project
-    // Tech stack bonus
-    const allHaveTech = input.projects.every(p => p.technologies && p.technologies.trim().length > 0);
-    if (allHaveTech && projectCount >= 2) {
-      projectsScore += 10;
+  if (input.portfolioScore !== undefined && input.portfolioScore > 0) {
+    projectsScore = input.portfolioScore;
+  } else {
+    const projectCount = input.projects.length;
+    if (projectCount > 0) {
+      projectsScore = Math.min(100, projectCount * 30);
+      const allHaveTech = input.projects.every(p => p.technologies && p.technologies.trim().length > 0);
+      if (allHaveTech && projectCount >= 2) {
+        projectsScore += 10;
+      }
     }
   }
   projectsScore = Math.min(100, projectsScore);
@@ -57,7 +61,7 @@ export const calculateScores = (input: ScoreInput): ScoreOutput => {
   let experienceScore = 0;
   const certCount = input.certificates.length;
   if (certCount > 0) {
-    experienceScore = Math.min(100, certCount * 25); // +25 per certificate
+    experienceScore = Math.min(100, certCount * 25);
   } else {
     experienceScore = 0;
   }
@@ -72,34 +76,36 @@ export const calculateScores = (input: ScoreInput): ScoreOutput => {
   // 5. DSA Score (0-100)
   let dsaScore = 0;
   if (input.dsaIncluded) {
-    dsaScore = 80; // Base score when enabled
+    dsaScore = 80;
     if (input.githubUrl) {
-      dsaScore += 10; // GitHub linked bonus
+      dsaScore += 10;
     }
-    if (projectCount >= 2) {
-      dsaScore += 10; // Complex projects build algorithms bonus
+    if (input.projects.length >= 2) {
+      dsaScore += 10;
     }
   } else {
-    dsaScore = 0; // Excluded/Not included
+    dsaScore = 0;
   }
   dsaScore = Math.min(100, dsaScore);
 
   // 6. Overall Weighted Score (0-100)
   let overallScore: number;
+  const activeGithubScore = input.githubScore || 0;
+
   if (input.certificatesIncluded) {
-    // Weights (100% Total): Resume 35%, GitHub 30%, Projects 25%, Certifications 10%
+    // Weights (100% Total): Resume 40%, GitHub 30%, Projects 20%, Certifications 10%
     overallScore = Math.round(
-      (resumeScore * 0.35) +
-      ((input.githubScore || 0) * 0.30) +
-      (projectsScore * 0.25) +
+      (resumeScore * 0.40) +
+      (activeGithubScore * 0.30) +
+      (projectsScore * 0.20) +
       (experienceScore * 0.10)
     );
   } else {
-    // Certificates excluded — redistribute: Resume 39%, GitHub 33%, Projects 28%
+    // Certificates excluded — redistribute: Resume 44.44%, GitHub 33.33%, Projects 22.22%
     overallScore = Math.round(
-      (resumeScore * 0.39) +
-      ((input.githubScore || 0) * 0.33) +
-      (projectsScore * 0.28)
+      ((resumeScore * 0.40) +
+      (activeGithubScore * 0.30) +
+      (projectsScore * 0.20)) / 0.90
     );
   }
 

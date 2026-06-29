@@ -697,21 +697,33 @@ input[type="checkbox"] {
 
 /* Universal Header Responsiveness */
 @media (max-width: 768px) {
-  header div[style*="maxWidth"] {
-    padding: 0.75rem 1rem !important;
+  .header-container {
+    padding: 0.5rem 0.75rem !important;
+    gap: 0.5rem !important;
   }
-  
+
   /* Hide search bar on mobile headers */
-  header input, 
-  header svg.lucide-search,
-  header div[style*="maxWidth: '500px'"] {
+  .header-search {
     display: none !important;
   }
 
-  /* Adjust buttons font size */
+  /* Adjust header buttons and actions gap */
+  .header-actions {
+    gap: 0.5rem !important;
+  }
+
   header button {
     font-size: 0.75rem !important;
-    padding: 0.4rem 0.8rem !important;
+    padding: 0.35rem 0.65rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-title {
+    display: none !important;
+  }
+  .header-container {
+    padding: 0.5rem 0.5rem !important;
   }
 }
 
@@ -723,9 +735,9 @@ input[type="checkbox"] {
     padding: 0.5rem 1rem !important;
     border-radius: 24px !important;
   }
-  
+
   /* Hide Central Role Switch on Mobile */
-  header.fixed > div:nth-of-type(2) {
+  header.fixed>div:nth-of-type(2) {
     display: none !important;
   }
 }
@@ -736,28 +748,48 @@ input[type="checkbox"] {
     display: none !important;
     width: 0 !important;
   }
-  
-  .dashboard-container {
+
+  .dashboard-container,
+  .screen-only-container {
     flex-direction: column !important;
   }
-  
-  main, 
-  .dashboard-container > main {
-    padding: 1.5rem !important;
+
+  main,
+  .dashboard-container>main,
+  .screen-only-container > .container {
+    padding: 1.5rem 1rem !important;
+    padding-left: 1rem !important;
     width: 100% !important;
   }
 }
 
 /* Dashboard Grids & Layouts */
 @media (max-width: 768px) {
+
+  /* Enforce exact same margin, padding, border-radius and width alignment for all dashboard blocks on mobile */
+  .glass-card,
+  #github,
+  #resume,
+  #projects,
+  #certificates,
+  #career-match,
+  #roadmap {
+    padding: 1.25rem !important;
+    border-radius: 20px !important;
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    box-sizing: border-box !important;
+  }
+
   /* Hero Welcome header buttons wrap */
   .dashboard-header-flex {
     flex-direction: column !important;
     align-items: stretch !important;
     gap: 1.25rem !important;
   }
-  
-  .dashboard-header-flex > div:last-of-type {
+
+  .dashboard-header-flex>div:last-of-type {
     justify-content: flex-start !important;
     flex-wrap: wrap !important;
     gap: 0.75rem !important;
@@ -794,11 +826,12 @@ input[type="checkbox"] {
 }
 
 @media (max-width: 640px) {
+
   /* GitHub Quick Stats to 2 columns */
   .github-stats-grid {
     grid-template-columns: repeat(2, 1fr) !important;
   }
-  
+
   /* Modules grid to 1 column */
   .dashboard-modules-grid {
     grid-template-columns: 1fr !important;
@@ -806,6 +839,7 @@ input[type="checkbox"] {
 }
 
 @media (max-width: 480px) {
+
   /* GitHub Quick Stats to 1 column */
   .github-stats-grid {
     grid-template-columns: 1fr !important;
@@ -834,11 +868,11 @@ input[type="checkbox"] {
     grid-template-columns: repeat(2, 1fr) !important;
     gap: 1.25rem !important;
   }
-  
+
   .table-header-responsive {
     display: none !important;
   }
-  
+
   .cand-row-responsive {
     grid-template-columns: 1fr 1fr !important;
     gap: 1.25rem !important;
@@ -849,22 +883,65 @@ input[type="checkbox"] {
   .recruiter-filters-responsive {
     grid-template-columns: 1fr !important;
   }
-  
+
   .cand-row-responsive {
     grid-template-columns: 1fr !important;
     text-align: center !important;
     justify-items: center !important;
     gap: 1rem !important;
   }
-  
-  .cand-row-responsive > div {
+
+  .cand-row-responsive>div {
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
     justify-content: center !important;
   }
-  
+
   .cand-row-responsive div:last-of-type {
     justify-content: center !important;
+  }
+}
+
+/* Responsive overrides for subgrid on mobile */
+@media (max-width: 550px) {
+  .dashboard-score-subgrid {
+    grid-template-columns: 1fr !important;
+    gap: 0.75rem !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .github-url-config-row {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.75rem !important;
+  }
+  .github-url-config-row > div {
+    margin-left: 0 !important;
+    width: 100% !important;
+    justify-content: flex-start !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .copilot-window {
+    width: calc(100vw - 2rem) !important;
+    right: 1rem !important;
+    left: 1rem !important;
+    bottom: 5.5rem !important;
+    height: 70vh !important;
+    max-height: 480px !important;
+  }
+  .copilot-button {
+    bottom: 1rem !important;
+    right: 1rem !important;
+  }
+  .github-url-buttons {
+    flex-direction: column !important;
+    width: 100% !important;
+  }
+  .github-url-buttons button {
+    width: 100% !important;
   }
 }

@@ -54,7 +54,7 @@ export const parseGitHubUsername = (url: string | null | undefined): string | nu
 // Returns realistic mock data for default seed users when offline/rate-limited
 const getMockGitHubStats = (username: string): GitHubStats | null => {
   const lower = username.toLowerCase();
-  
+
   const defaultRepos = [
     {
       name: 'portfolio-website',
@@ -187,7 +187,7 @@ const detectTechStack = (files: string[], description: string, readme: string): 
   if (content.includes('next.js') || content.includes('nextjs')) stack.push('Next.js');
   if (content.includes('angular') || files.some(f => f.includes('angular'))) stack.push('Angular');
   if (content.includes('vue') || files.some(f => f.includes('vue'))) stack.push('Vue');
-  
+
   // Backend
   if (content.includes('node.js') || content.includes('nodejs') || files.includes('package.json')) stack.push('Node.js');
   if (content.includes('express') || content.includes('expressjs')) stack.push('Express');
@@ -244,7 +244,7 @@ export const fetchGitHubStats = async (githubUrl: string): Promise<GitHubStats> 
   try {
     // Fetch profile info
     const userRes = await fetch(`https://api.github.com/users/${username}`, { headers });
-    
+
     if (!userRes.ok) {
       if (userRes.status === 404) {
         throw new Error(`GitHub user '${username}' not found`);
@@ -286,7 +286,7 @@ export const fetchGitHubStats = async (githubUrl: string): Promise<GitHubStats> 
     // Analyze each repository
     for (const r of rawRepos) {
       totalStars += r.stargazers_count ?? 0;
-      
+
       const files: string[] = ['README.md'];
       let readmeSize = 500;
       let readmeContent = `# ${r.name}\n${r.description || ''}`;
@@ -377,7 +377,7 @@ export const fetchGitHubStats = async (githubUrl: string): Promise<GitHubStats> 
 
   } catch (err: any) {
     console.error(`[WARNING] GitHub fetch failed for '${username}':`, err.message);
-    
+
     if (mockStats) {
       return mockStats;
     }

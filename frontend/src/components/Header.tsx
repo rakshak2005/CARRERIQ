@@ -21,17 +21,17 @@ export const Header: React.FC = () => {
 
   return (
     <header className="sticky top-0 z-50" style={{ background: 'rgba(5, 8, 22, 0.8)', backdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}>
-      <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '0.75rem 2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div className="header-container" style={{ maxWidth: '1440px', margin: '0 auto', padding: '0.75rem 2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         
         {/* Left: Logo */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', cursor: 'pointer' }} onClick={() => navigate('/')}>
           <img src={logoImg} alt="CareerIQ Logo" style={{ width: '32px', height: '32px', objectFit: 'contain' }} />
-          <span style={{ fontWeight: 700, fontSize: '1.2rem', background: 'linear-gradient(90deg, #fff, #94a3b8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>CareerIQ</span>
+          <span className="header-title" style={{ fontWeight: 700, fontSize: '1.2rem', background: 'linear-gradient(90deg, #fff, #94a3b8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>CareerIQ</span>
         </div>
 
         {/* Center: Universal Search */}
         {isAuthenticated && user && user.role !== 'recruiter' && (
-          <div style={{ flex: 1, maxWidth: '500px', margin: '0 2rem' }}>
+          <div className="header-search" style={{ flex: 1, maxWidth: '500px', margin: '0 2rem' }}>
             <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
               <Search style={{ position: 'absolute', left: '12px', color: '#94a3b8' }} size={18} />
               <input 
@@ -60,10 +60,10 @@ export const Header: React.FC = () => {
         )}
 
         {/* Right: Actions */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        <div className="header-actions" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           
           {/* Notifications */}
-          <button style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '36px', height: '36px', borderRadius: '50%' }}>
+          <button className="header-bell" style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '36px', height: '36px', borderRadius: '50%' }}>
             <Bell size={20} />
             <span style={{ position: 'absolute', top: '6px', right: '8px', width: '8px', height: '8px', background: '#3b82f6', borderRadius: '50%', border: '2px solid #050816' }}></span>
           </button>

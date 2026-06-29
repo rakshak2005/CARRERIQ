@@ -10,7 +10,7 @@ const getAuthHeaders = (): Record<string, string> => {
 // Generic request wrapper
 async function request(endpoint: string, options: RequestInit = {}) {
   const url = `${API_BASE_URL}${endpoint}`;
-  
+
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...getAuthHeaders(),
@@ -56,7 +56,7 @@ export const api = {
     uploadResume: (file: File) => {
       const formData = new FormData();
       formData.append('resume', file);
-      
+
       const token = localStorage.getItem('careeriq_token');
       const headers: any = {};
       if (token) {

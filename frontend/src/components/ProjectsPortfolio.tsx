@@ -244,7 +244,7 @@ export const ProjectsPortfolio: React.FC<ProjectsPortfolioProps> = ({
 
       {/* AI WOW Project Recommendations */}
       {portfolioRecommendations && portfolioRecommendations.length > 0 && (
-        <div>
+        <div id="project-recommendations">
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
             <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#fff', margin: 0 }}>AI Recommended Next Projects</h3>
             <span style={{ padding: '0.25rem 0.75rem', background: 'linear-gradient(90deg, rgba(236, 72, 153, 0.2), rgba(168, 85, 247, 0.2))', color: '#f472b6', fontSize: '0.75rem', fontWeight: 700, borderRadius: '20px', border: '1px solid rgba(236, 72, 153, 0.3)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>

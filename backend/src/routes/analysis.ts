@@ -62,7 +62,7 @@ router.post('/trigger', authenticateToken, async (req: AuthenticatedRequest, res
 router.get('/status/:jobId', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { jobId } = req.params;
-    
+
     // Check if it was cached
     if (jobId === 'cached') {
       return res.status(400).json({ error: 'Cannot query cached job ID status' });
