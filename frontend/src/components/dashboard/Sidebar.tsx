@@ -83,6 +83,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ onReplayTour, projectCount = 3
           -ms-overflow-style: none;
           scrollbar-width: none;
         }
+        @media (max-width: 900px) {
+          aside.sidebar-scrollable {
+            display: none !important;
+          }
+        }
       `}</style>
 
       <div style={{ marginBottom: '0.4rem', paddingLeft: '0.85rem', fontSize: '0.7rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.1em' }}>

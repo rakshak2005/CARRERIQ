@@ -88,6 +88,19 @@ export const StudentDashboard: React.FC = () => {
     dsaScore: 0,
   });
 
+  // Mobile responsiveness & expansion states
+  const [isMobile, setIsMobile] = useState(false);
+  const [expandedGithubTable, setExpandedGithubTable] = useState(false);
+  const [expandedResumeDetails, setExpandedResumeDetails] = useState(false);
+  const [expandedRoadmapList, setExpandedRoadmapList] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 900);
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   // Recommendations state
   const [recommendations, setRecommendations] = useState<any[]>([]);
 
@@ -804,6 +817,43 @@ export const StudentDashboard: React.FC = () => {
         .glass-card {
           padding: 1.5rem !important;
         }
+        @media (max-width: 900px) {
+          .dashboard-header-flex {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 1.25rem !important;
+          }
+          .dashboard-header-buttons {
+            width: 100% !important;
+            flex-wrap: wrap !important;
+          }
+          .dashboard-header-buttons button {
+            flex: 1 1 140px !important;
+            width: 100% !important;
+          }
+          .dashboard-hero-grid {
+            grid-template-columns: 1fr !important;
+          }
+          .container {
+            padding: 1.5rem 1rem !important;
+          }
+          .resume-analysis-grid {
+            grid-template-columns: 1fr !important;
+            gap: 1.5rem !important;
+          }
+          .resume-strengths-grid {
+            grid-template-columns: 1fr !important;
+            gap: 1.25rem !important;
+          }
+        }
+        @media (max-width: 480px) {
+          .container {
+            padding: 1rem !important;
+          }
+          .glass-card {
+            padding: 1.25rem !important;
+          }
+        }
       `}</style>
 
           {/* Banner Message */}
@@ -832,15 +882,23 @@ export const StudentDashboard: React.FC = () => {
                 <h1 style={{ fontSize: '1.8rem', fontWeight: 800, marginBottom: '0.25rem', color: '#fff' }}>
                   Welcome back, {fullName || 'Student'}
                 </h1>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  <span className="badge badge-primary" style={{ padding: '0.3rem 0.8rem', fontSize: '0.8rem' }}>{targetRole || 'Target Role'}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+                  <span className="badge badge-primary" style={{ padding: '0.3rem 0.8rem', fontSize: '0.8rem', whiteSpace: 'nowrap' }}>{targetRole || 'Target Role'}</span>
                   <span style={{ color: '#94a3b8', fontSize: '0.85rem' }}>Here is your career readiness overview</span>
                 </div>
               </div>
-              <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-                <button className="btn-ghost-premium" onClick={() => document.getElementById('roadmap')?.scrollIntoView({ behavior: 'smooth' })} style={{ height: '36px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '0 1.25rem', margin: 0, fontSize: '0.8rem' }}>View Roadmap</button>
-                <button className="btn-ghost-premium" onClick={() => window.print()} style={{ height: '36px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '0 1.25rem', margin: 0, fontSize: '0.8rem' }}>Export Report</button>
-                <button className="btn-cta-premium" onClick={handleDownloadCertificate} style={{ height: '36px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '0 1.25rem', margin: 0, fontSize: '0.8rem' }}>Download Certificate</button>
+              <div className="dashboard-header-buttons" style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', width: isMobile ? '100%' : 'auto' }}>
+                {!isMobile ? (
+                  <>
+                    <button className="btn-ghost-premium" onClick={() => document.getElementById('roadmap')?.scrollIntoView({ behavior: 'smooth' })} style={{ height: '36px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '0 1.25rem', margin: 0, fontSize: '0.8rem' }}>View Roadmap</button>
+                    <button className="btn-ghost-premium" onClick={() => window.print()} style={{ height: '36px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '0 1.25rem', margin: 0, fontSize: '0.8rem' }}>Export Report</button>
+                    <button className="btn-cta-premium" onClick={handleDownloadCertificate} style={{ height: '36px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '0 1.25rem', margin: 0, fontSize: '0.8rem' }}>Download Certificate</button>
+                  </>
+                ) : (
+                  <button className="btn-cta-premium" onClick={handleDownloadCertificate} style={{ width: '100%', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.85rem', fontWeight: 700, borderRadius: '10px' }}>
+                    Download Certificate
+                  </button>
+                )}
               </div>
             </div>
 
@@ -901,19 +959,19 @@ export const StudentDashboard: React.FC = () => {
                     <div style={{ position: 'absolute', bottom: '-10%', right: '-10%', width: '150px', height: '150px', background: 'rgba(56, 189, 248, 0.15)', filter: 'blur(55px)', borderRadius: '50%', pointerEvents: 'none' }} />
 
                     {/* Header */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', width: '100%', zIndex: 1 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', width: '100%', zIndex: 1, flexWrap: 'wrap', gap: '0.75rem' }}>
                       <div>
                         <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fff', margin: 0, letterSpacing: '-0.02em' }}>Career Readiness</h2>
                         <span style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: 500 }}>Industry Readiness Assessment</span>
                       </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'rgba(16, 185, 129, 0.06)', border: '1px solid rgba(16, 185, 129, 0.12)', padding: '0.3rem 0.6rem', borderRadius: '20px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'rgba(16, 185, 129, 0.06)', border: '1px solid rgba(16, 185, 129, 0.12)', padding: '0.3rem 0.6rem', borderRadius: '20px', whiteSpace: 'nowrap', flexShrink: 0 }}>
                         <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10b981', display: 'inline-block', boxShadow: '0 0 8px #10b981' }} />
                         <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#10b981', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Verified Assessment</span>
                       </div>
                     </div>
 
                     {/* Center Section: Circular Progress and Score */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '2rem', margin: '1.25rem 0', zIndex: 1 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '2rem', margin: '1.25rem 0', zIndex: 1, flexWrap: 'wrap' }}>
                       {/* Premium Radial Progress */}
                       <div style={{ position: 'relative', width: '140px', height: '140px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                         {/* Glow Layer */}
@@ -938,7 +996,7 @@ export const StudentDashboard: React.FC = () => {
                       </div>
 
                       {/* Info Panel Right */}
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', flex: 1 }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', flex: 1, minWidth: '150px' }}>
                         <div>
                           <div style={{ fontSize: '0.7rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.25rem', fontWeight: 600 }}>Current Standing</div>
                           <div style={{
@@ -953,7 +1011,8 @@ export const StudentDashboard: React.FC = () => {
                             background: tierBg,
                             padding: '0.3rem 0.75rem',
                             borderRadius: '20px',
-                            border: `1px solid ${tierBorder}`
+                            border: `1px solid ${tierBorder}`,
+                            whiteSpace: 'nowrap'
                           }}>
                             <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: tierColor }} />
                             {tierLabel}
@@ -965,7 +1024,7 @@ export const StudentDashboard: React.FC = () => {
                     {/* Skill Coverage Section */}
                     <div className="dashboard-score-subgrid" style={{
                       display: 'grid',
-                      gridTemplateColumns: '1.2fr 1fr',
+                      gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 150px), 1fr))',
                       gap: '0.75rem',
                       margin: '0.25rem 0 1rem 0',
                       zIndex: 1,
@@ -1275,7 +1334,7 @@ export const StudentDashboard: React.FC = () => {
 
           {/* MODULES GRID */}
           <h2 style={{ fontSize: '1.25rem', marginBottom: '1rem', marginTop: '3rem' }}>Profile Management & Analysis</h2>
-          <div className="dashboard-modules-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '1.5rem', marginBottom: '3rem' }}>
+          <div className="dashboard-modules-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '1.5rem', marginBottom: '3rem', width: '100%', boxSizing: 'border-box' }}>
 
             {/* NEW GITHUB ANALYTICS DASHBOARD - Flagship Redesign */}
             <section id="github" style={{
@@ -1286,24 +1345,26 @@ export const StudentDashboard: React.FC = () => {
               padding: '2.25rem',
               position: 'relative',
               overflow: 'hidden',
-              boxShadow: '0 20px 40px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.05)'
+              boxShadow: '0 20px 40px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
+              width: '100%',
+              boxSizing: 'border-box'
             }}>
               {/* Subtle Ambient Background Glows */}
               <div style={{ position: 'absolute', top: '-10%', right: '-10%', width: '350px', height: '350px', background: 'radial-gradient(circle, rgba(16, 185, 129, 0.06) 0%, transparent 70%)', filter: 'blur(50px)', pointerEvents: 'none' }} />
               <div style={{ position: 'absolute', bottom: '-20%', left: '-10%', width: '300px', height: '300px', background: 'radial-gradient(circle, rgba(99, 102, 241, 0.05) 0%, transparent 70%)', filter: 'blur(55px)', pointerEvents: 'none' }} />
 
               {/* Header area */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', zIndex: 1, position: 'relative' }}>
+              <div className="github-section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', zIndex: 1, position: 'relative' }}>
                 <div>
-                  <h3 style={{ margin: 0, fontSize: '1.6rem', fontWeight: 800, color: '#fff', display: 'flex', alignItems: 'center', gap: '0.75rem', letterSpacing: '-0.02em' }}>
+                  <h3 className="github-title" style={{ margin: 0, fontSize: '1.6rem', fontWeight: 800, color: '#fff', display: 'flex', alignItems: 'center', gap: '0.75rem', letterSpacing: '-0.02em' }}>
                     <svg height="28" viewBox="0 0 16 16" width="28" style={{ fill: '#fff', filter: 'drop-shadow(0 0 4px rgba(255,255,255,0.2))' }}>
                       <path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.35 3.12.9 0 .64.01 1.25.01 1.42 0 .21-.15.47-.55.38A8.006 8.006 0 0 1 0 8c0-4.42 3.58-8 8-8z" />
                     </svg>
                     GitHub Code Quality Analytics
                   </h3>
-                  <p style={{ margin: '0.35rem 0 0', color: '#94a3b8', fontSize: '0.9rem', fontWeight: 500 }}>Real-time repository telemetry, complexity modeling, and algorithmic quality indexing</p>
+                  <p className="github-subtitle" style={{ margin: '0.35rem 0 0', color: '#94a3b8', fontSize: '0.9rem', fontWeight: 500 }}>Real-time repository telemetry, complexity modeling, and algorithmic quality indexing</p>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
                   <span style={{
                     display: 'inline-flex',
                     alignItems: 'center',
@@ -1355,7 +1416,8 @@ export const StudentDashboard: React.FC = () => {
                     borderRadius: '16px',
                     width: '100%',
                     border: '1px solid rgba(255, 255, 255, 0.05)',
-                    boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.02)'
+                    boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.02)',
+                    boxSizing: 'border-box'
                   }}>
                     <span style={{ color: '#64748b', fontSize: '0.85rem', fontWeight: 600 }}>Linked Repository Source:</span>
                     <a href={githubUrl} target="_blank" rel="noreferrer" style={{
@@ -1368,13 +1430,14 @@ export const StudentDashboard: React.FC = () => {
                       borderRadius: '8px',
                       border: '1px solid rgba(59, 130, 246, 0.1)',
                       textDecoration: 'none',
-                      transition: 'color 0.2s'
+                      transition: 'color 0.2s',
+                      wordBreak: 'break-all'
                     }}
                       onMouseEnter={(e) => e.currentTarget.style.color = '#38bdf8'}
                       onMouseLeave={(e) => e.currentTarget.style.color = '#60a5fa'}>
                       {githubUrl || 'No source account linked'}
                     </a>
-                    <div className="github-url-buttons" style={{ marginLeft: 'auto', display: 'flex', gap: '0.5rem' }}>
+                    <div className="github-url-buttons" style={{ marginLeft: 'auto', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                       <button className="btn-ghost-premium" onClick={() => setEditingGithubUrl(true)} style={{ padding: '0.45rem 1rem', fontSize: '0.75rem', borderRadius: '10px', height: '32px' }}>Change Account</button>
                       <button className="btn-ghost-premium" onClick={handleReanalyzeGithub} style={{ padding: '0.45rem 1rem', fontSize: '0.75rem', borderRadius: '10px', height: '32px', border: '1px solid rgba(16, 185, 129, 0.2)', color: '#10b981' }}>Refresh Sync</button>
                     </div>
@@ -1510,60 +1573,70 @@ export const StudentDashboard: React.FC = () => {
               {/* Repositories Table */}
               {githubRepositories && githubRepositories.length > 0 && (
                 <div style={{ zIndex: 1, position: 'relative' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.5rem' }}>
                     <h4 style={{ color: '#fff', fontSize: '1.2rem', fontWeight: 800, margin: 0, letterSpacing: '-0.01em' }}>Telemetry per Repository</h4>
-                    <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600 }}>Top {Math.min(5, githubRepositories.length)} Repositories Sorted by Index</span>
+                    {isMobile && (
+                      <button
+                        className="btn-ghost-premium"
+                        onClick={() => setExpandedGithubTable(!expandedGithubTable)}
+                        style={{ padding: '0.25rem 0.75rem', fontSize: '0.75rem' }}
+                      >
+                        {expandedGithubTable ? 'Collapse Table ✕' : 'Expand Table ＋'}
+                      </button>
+                    )}
                   </div>
-                  <div style={{ overflowX: 'auto', background: 'rgba(0,0,0,0.15)', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.06)', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
-                      <thead>
-                        <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', textAlign: 'left', color: '#64748b' }}>
-                          <th style={{ padding: '1.1rem 1.5rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', fontSize: '0.7rem' }}>Repository Name</th>
-                          <th style={{ padding: '1.1rem 1.5rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', fontSize: '0.7rem' }}>Impact Rating</th>
-                          <th style={{ padding: '1.1rem 1.5rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', fontSize: '0.7rem' }}>Complexity Tier</th>
-                          <th style={{ padding: '1.1rem 1.5rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', fontSize: '0.7rem' }}>Detected Stacks</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {[...githubRepositories].sort((a, b) => (b.repositoryScore || b.complexityScore || 0) - (a.repositoryScore || a.complexityScore || 0)).slice(0, 5).map(repo => {
-                          const score = repo.repositoryScore || repo.complexityScore || 0;
-                          const level = repo.complexityLevel || (score > 80 ? 'Advanced' : score > 50 ? 'Intermediate' : 'Basic');
-                          return (
-                            <tr key={repo.name} style={{ borderBottom: '1px solid rgba(255,255,255,0.03)', transition: 'background 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.02)'} onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}>
-                              <td style={{ padding: '1.1rem 1.5rem' }}>
-                                <a href={repo.url || repo.html_url} target="_blank" rel="noreferrer" style={{ color: '#fff', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.6rem', textDecoration: 'none', transition: 'color 0.2s' }}
-                                  onMouseEnter={(e) => e.currentTarget.style.color = '#60a5fa'}
-                                  onMouseLeave={(e) => e.currentTarget.style.color = '#fff'}>
-                                  <svg viewBox="0 0 16 16" width="16" height="16" fill="#94a3b8" style={{ flexShrink: 0 }}><path d="M2 2.5A2.5 2.5 0 014.5 0h8.75a.75.75 0 01.75.75v12.5a.75.75 0 01-.75.75h-2.5a.75.75 0 110-1.5h1.75v-2h-8a1 1 0 00-.714 1.7.75.75 0 01-1.072 1.05A2.495 2.495 0 012 11.5v-9zm10.5-1V9h-8c-.356 0-.694.074-1 .208V2.5a1 1 0 011-1h8zM5 12.25v3.25a.25.25 0 00.4.2l1.45-1.087a.25.25 0 01.3 0L8.6 15.7a.25.25 0 00.4-.2v-3.25a.25.25 0 00-.25-.25h-3.5a.25.25 0 00-.25.25z"></path></svg>
-                                  {repo.name}
-                                </a>
-                              </td>
-                              <td style={{ padding: '1.1rem 1.5rem' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: score > 80 ? '#10b981' : score > 50 ? '#3b82f6' : '#f59e0b' }} />
-                                  <span style={{ color: score > 80 ? '#10b981' : score > 50 ? '#60a5fa' : '#fbbf24', fontWeight: 800 }}>{score}</span>
-                                </div>
-                              </td>
-                              <td style={{ padding: '1.1rem 1.5rem' }}>
-                                <span style={{
-                                  background: level === 'Advanced' ? 'rgba(168, 85, 247, 0.08)' : level === 'Intermediate' ? 'rgba(59, 130, 246, 0.08)' : 'rgba(255,255,255,0.04)',
-                                  color: level === 'Advanced' ? '#c084fc' : level === 'Intermediate' ? '#60a5fa' : '#e2e8f0',
-                                  border: `1px solid ${level === 'Advanced' ? 'rgba(168, 85, 247, 0.15)' : level === 'Intermediate' ? 'rgba(59, 130, 246, 0.15)' : 'rgba(255,255,255,0.06)'}`,
-                                  padding: '0.2rem 0.6rem',
-                                  borderRadius: '8px',
-                                  fontSize: '0.75rem',
-                                  fontWeight: 700
-                                }}>{level}</span>
-                              </td>
-                              <td style={{ padding: '1.1rem 1.5rem', color: '#94a3b8', fontWeight: 500 }}>
-                                {Array.isArray(repo.detectedTechnologies) ? repo.detectedTechnologies.join(', ') : (repo.detectedTechnologies || repo.primaryLanguage || 'Unknown')}
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-                  </div>
+                  {(!isMobile || expandedGithubTable) && (
+                    <div style={{ overflowX: 'auto', background: 'rgba(0,0,0,0.15)', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.06)', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
+                      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+                        <thead>
+                          <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', textAlign: 'left', color: '#64748b' }}>
+                            <th style={{ padding: '1.1rem 1.5rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', fontSize: '0.7rem', whiteSpace: 'nowrap' }}>Repository Name</th>
+                            <th style={{ padding: '1.1rem 1.5rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', fontSize: '0.7rem', whiteSpace: 'nowrap' }}>Impact Rating</th>
+                            <th style={{ padding: '1.1rem 1.5rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', fontSize: '0.7rem', whiteSpace: 'nowrap' }}>Complexity Tier</th>
+                            <th style={{ padding: '1.1rem 1.5rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', fontSize: '0.7rem', whiteSpace: 'nowrap' }}>Detected Stacks</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {[...githubRepositories].sort((a, b) => (b.repositoryScore || b.complexityScore || 0) - (a.repositoryScore || a.complexityScore || 0)).slice(0, 5).map(repo => {
+                            const score = repo.repositoryScore || repo.complexityScore || 0;
+                            const level = repo.complexityLevel || (score > 80 ? 'Advanced' : score > 50 ? 'Intermediate' : 'Basic');
+                            return (
+                              <tr key={repo.name} style={{ borderBottom: '1px solid rgba(255,255,255,0.03)', transition: 'background 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.02)'} onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}>
+                                <td style={{ padding: '1.1rem 1.5rem', whiteSpace: 'nowrap' }}>
+                                  <a href={repo.url || repo.html_url} target="_blank" rel="noreferrer" style={{ color: '#fff', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.6rem', textDecoration: 'none', transition: 'color 0.2s' }}
+                                    onMouseEnter={(e) => e.currentTarget.style.color = '#60a5fa'}
+                                    onMouseLeave={(e) => e.currentTarget.style.color = '#fff'}>
+                                    <svg viewBox="0 0 16 16" width="16" height="16" fill="#94a3b8" style={{ flexShrink: 0 }}><path d="M2 2.5A2.5 2.5 0 014.5 0h8.75a.75.75 0 01.75.75v12.5a.75.75 0 01-.75.75h-2.5a.75.75 0 110-1.5h1.75v-2h-8a1 1 0 00-.714 1.7.75.75 0 01-1.072 1.05A2.495 2.495 0 012 11.5v-9zm10.5-1V9h-8c-.356 0-.694.074-1 .208V2.5a1 1 0 011-1h8zM5 12.25v3.25a.25.25 0 00.4.2l1.45-1.087a.25.25 0 01.3 0L8.6 15.7a.25.25 0 00.4-.2v-3.25a.25.25 0 00-.25-.25h-3.5a.25.25 0 00-.25.25z"></path></svg>
+                                    {repo.name}
+                                  </a>
+                                </td>
+                                <td style={{ padding: '1.1rem 1.5rem', whiteSpace: 'nowrap' }}>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: score > 80 ? '#10b981' : score > 50 ? '#3b82f6' : '#f59e0b' }} />
+                                    <span style={{ color: score > 80 ? '#10b981' : score > 50 ? '#60a5fa' : '#fbbf24', fontWeight: 800 }}>{score}</span>
+                                  </div>
+                                </td>
+                                <td style={{ padding: '1.1rem 1.5rem', whiteSpace: 'nowrap' }}>
+                                  <span style={{
+                                    background: level === 'Advanced' ? 'rgba(168, 85, 247, 0.08)' : level === 'Intermediate' ? 'rgba(59, 130, 246, 0.08)' : 'rgba(255,255,255,0.04)',
+                                    color: level === 'Advanced' ? '#c084fc' : level === 'Intermediate' ? '#60a5fa' : '#e2e8f0',
+                                    border: `1px solid ${level === 'Advanced' ? 'rgba(168, 85, 247, 0.15)' : level === 'Intermediate' ? 'rgba(59, 130, 246, 0.15)' : 'rgba(255,255,255,0.06)'}`,
+                                    padding: '0.2rem 0.6rem',
+                                    borderRadius: '8px',
+                                    fontSize: '0.75rem',
+                                    fontWeight: 700
+                                  }}>{level}</span>
+                                </td>
+                                <td style={{ padding: '1.1rem 1.5rem', color: '#94a3b8', fontWeight: 500, whiteSpace: 'nowrap' }}>
+                                  {Array.isArray(repo.detectedTechnologies) ? repo.detectedTechnologies.join(', ') : (repo.detectedTechnologies || repo.primaryLanguage || 'Unknown')}
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -1581,20 +1654,20 @@ export const StudentDashboard: React.FC = () => {
 
             {/* NEW RESUME MANAGEMENT CARD */}
             <section id="resume" className="glass-card" style={{ gridColumn: '1 / -1', background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.4) 0%, rgba(30, 41, 59, 0.6) 100%)', borderColor: '#334155', padding: '2rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-                <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
+                <div style={{ minWidth: '200px', flex: '1 1 auto' }}>
                   <h3 style={{ margin: 0, fontSize: '1.5rem', color: '#fff', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                     📄 Resume AI Analysis
                   </h3>
                   <p style={{ margin: '0.25rem 0 0', color: '#94a3b8', fontSize: '0.9rem' }}>Deep NLP parsing against industry standards</p>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                  <span className={`badge ${resumeUrl ? 'badge-success' : 'badge-secondary'}`} style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexShrink: 0, flexWrap: 'wrap' }}>
+                  <span className={`badge ${resumeUrl ? 'badge-success' : 'badge-secondary'}`} style={{ padding: '0.5rem 1rem', fontSize: '0.85rem', whiteSpace: 'nowrap' }}>
                     {uploadingResume ? 'Processing...' : resumeUrl ? 'Uploaded' : 'No Resume'}
                   </span>
-                  <div style={{ background: 'rgba(139, 92, 246, 0.1)', border: '1px solid rgba(139, 92, 246, 0.2)', borderRadius: '12px', padding: '0.5rem 1rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                    <span style={{ fontSize: '0.7rem', color: '#a78bfa', textTransform: 'uppercase', letterSpacing: '0.05em' }}>ATS Score</span>
-                    <span style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fff', lineHeight: 1 }}>{resumeATSScore}<span style={{ fontSize: '0.85rem', color: '#94a3b8', fontWeight: 500 }}>/25</span></span>
+                  <div style={{ background: 'rgba(139, 92, 246, 0.1)', border: '1px solid rgba(139, 92, 246, 0.2)', borderRadius: '12px', padding: '0.5rem 1rem', display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '80px', flexShrink: 0 }}>
+                    <span style={{ fontSize: '0.7rem', color: '#a78bfa', textTransform: 'uppercase', letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>ATS Score</span>
+                    <span style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fff', lineHeight: 1, whiteSpace: 'nowrap' }}>{resumeATSScore}<span style={{ fontSize: '0.85rem', color: '#94a3b8', fontWeight: 500 }}>/25</span></span>
                   </div>
                 </div>
               </div>
@@ -1682,63 +1755,75 @@ export const StudentDashboard: React.FC = () => {
 
                     {/* NLP Analysis Content */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                      {resumeSummary && (
-                        <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '16px', padding: '1.5rem' }}>
-                          <h4 style={{ color: '#fff', fontSize: '1.1rem', margin: '0 0 1rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-                            AI Summary
-                          </h4>
-                          <p style={{ margin: 0, fontSize: '0.95rem', lineHeight: '1.6', color: '#cbd5e1' }}>{resumeSummary}</p>
-                        </div>
+                      {isMobile && (
+                        <button
+                          className="btn-ghost-premium"
+                          onClick={() => setExpandedResumeDetails(!expandedResumeDetails)}
+                          style={{ width: '100%', padding: '0.65rem', marginBottom: '0.5rem', fontSize: '0.85rem' }}
+                        >
+                          {expandedResumeDetails ? 'Hide Detailed AI Insights ✕' : 'Show Detailed AI Insights (Summary & Gaps) ＋'}
+                        </button>
                       )}
+                      {(!isMobile || expandedResumeDetails) && (
+                        <>
+                          {resumeSummary && (
+                            <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '16px', padding: '1.5rem' }}>
+                              <h4 style={{ color: '#fff', fontSize: '1.1rem', margin: '0 0 1rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                                AI Summary
+                              </h4>
+                              <p style={{ margin: 0, fontSize: '0.95rem', lineHeight: '1.6', color: '#cbd5e1' }}>{resumeSummary}</p>
+                            </div>
+                          )}
 
-                      <div className="resume-strengths-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-                        <div style={{ background: 'rgba(16, 185, 129, 0.05)', border: '1px solid rgba(16, 185, 129, 0.1)', borderRadius: '16px', padding: '1.5rem' }}>
-                          <h4 style={{ color: '#10b981', fontSize: '1.05rem', margin: '0 0 1rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                            Key Strengths
-                          </h4>
-                          <ul style={{ paddingLeft: '0', listStyleType: 'none', margin: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                            {resumeStrengths.map((s, i) => (
-                              <li key={i} style={{ fontSize: '0.9rem', color: '#e2e8f0', display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
-                                <span style={{ color: '#10b981', marginTop: '2px' }}>•</span> <span>{s}</span>
-                              </li>
-                            ))}
-                            {resumeStrengths.length === 0 && <span style={{ color: '#94a3b8', fontSize: '0.9rem' }}>No strengths identified.</span>}
-                          </ul>
-                        </div>
+                          <div className="resume-strengths-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                            <div style={{ background: 'rgba(16, 185, 129, 0.05)', border: '1px solid rgba(16, 185, 129, 0.1)', borderRadius: '16px', padding: '1.5rem' }}>
+                              <h4 style={{ color: '#10b981', fontSize: '1.05rem', margin: '0 0 1rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                Key Strengths
+                              </h4>
+                              <ul style={{ paddingLeft: '0', listStyleType: 'none', margin: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                                {resumeStrengths.map((s, i) => (
+                                  <li key={i} style={{ fontSize: '0.9rem', color: '#e2e8f0', display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
+                                    <span style={{ color: '#10b981', marginTop: '2px' }}>•</span> <span>{s}</span>
+                                  </li>
+                                ))}
+                                {resumeStrengths.length === 0 && <span style={{ color: '#94a3b8', fontSize: '0.9rem' }}>No strengths identified.</span>}
+                              </ul>
+                            </div>
 
-                        <div style={{ background: 'rgba(244, 63, 94, 0.05)', border: '1px solid rgba(244, 63, 94, 0.1)', borderRadius: '16px', padding: '1.5rem' }}>
-                          <h4 style={{ color: '#f43f5e', fontSize: '1.05rem', margin: '0 0 1rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-                            Areas to Improve
-                          </h4>
-                          <ul style={{ paddingLeft: '0', listStyleType: 'none', margin: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                            {resumeWeaknesses.map((s, i) => (
-                              <li key={i} style={{ fontSize: '0.9rem', color: '#e2e8f0', display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
-                                <span style={{ color: '#f43f5e', marginTop: '2px' }}>•</span> <span>{s}</span>
-                              </li>
-                            ))}
-                            {resumeWeaknesses.length === 0 && <span style={{ color: '#94a3b8', fontSize: '0.9rem' }}>No weaknesses identified.</span>}
-                          </ul>
-                        </div>
-                      </div>
+                            <div style={{ background: 'rgba(244, 63, 94, 0.05)', border: '1px solid rgba(244, 63, 94, 0.1)', borderRadius: '16px', padding: '1.5rem' }}>
+                              <h4 style={{ color: '#f43f5e', fontSize: '1.05rem', margin: '0 0 1rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                                Areas to Improve
+                              </h4>
+                              <ul style={{ paddingLeft: '0', listStyleType: 'none', margin: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                                {resumeWeaknesses.map((s, i) => (
+                                  <li key={i} style={{ fontSize: '0.9rem', color: '#e2e8f0', display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
+                                    <span style={{ color: '#f43f5e', marginTop: '2px' }}>•</span> <span>{s}</span>
+                                  </li>
+                                ))}
+                                {resumeWeaknesses.length === 0 && <span style={{ color: '#94a3b8', fontSize: '0.9rem' }}>No weaknesses identified.</span>}
+                              </ul>
+                            </div>
+                          </div>
 
-                      <div style={{ background: 'rgba(245, 158, 11, 0.05)', border: '1px solid rgba(245, 158, 11, 0.1)', borderRadius: '16px', padding: '1.5rem' }}>
-                        <h4 style={{ color: '#f59e0b', fontSize: '1.05rem', margin: '0 0 1rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-                          Missing Keywords for {targetRole || 'Your Role'}
-                        </h4>
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                          {resumeMissingKeywords.map((s, i) => (
-                            <span key={i} style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#fbbf24', border: '1px solid rgba(245, 158, 11, 0.2)', padding: '0.4rem 0.85rem', borderRadius: '20px', fontSize: '0.85rem' }}>
-                              {s}
-                            </span>
-                          ))}
-                          {resumeMissingKeywords.length === 0 && <span style={{ color: '#94a3b8', fontSize: '0.9rem' }}>Your resume covers key terms well!</span>}
-                        </div>
-                      </div>
-
+                          <div style={{ background: 'rgba(245, 158, 11, 0.05)', border: '1px solid rgba(245, 158, 11, 0.1)', borderRadius: '16px', padding: '1.5rem' }}>
+                            <h4 style={{ color: '#f59e0b', fontSize: '1.05rem', margin: '0 0 1rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                              Missing Keywords for {targetRole || 'Your Role'}
+                            </h4>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                              {resumeMissingKeywords.map((s, i) => (
+                                <span key={i} style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#fbbf24', border: '1px solid rgba(245, 158, 11, 0.2)', padding: '0.4rem 0.85rem', borderRadius: '20px', fontSize: '0.85rem' }}>
+                                  {s}
+                                </span>
+                              ))}
+                              {resumeMissingKeywords.length === 0 && <span style={{ color: '#94a3b8', fontSize: '0.9rem' }}>Your resume covers key terms well!</span>}
+                            </div>
+                          </div>
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -1810,7 +1895,7 @@ export const StudentDashboard: React.FC = () => {
           </div>
 
           {/* AI RECOMMENDATIONS AND ROADMAP (Bottom Sections) */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '1.5rem', marginBottom: '4rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 400px), 1fr))', gap: '1.5rem', marginBottom: '4rem' }}>
 
             {/* Recruiter Matches */}
             {recRoles.length > 0 && (
@@ -1843,11 +1928,22 @@ export const StudentDashboard: React.FC = () => {
 
             {/* AI Improvement Plan */}
             <section id="roadmap" className="glass-card" style={{ background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.05) 0%, rgba(15, 23, 42, 0.4) 100%)', borderColor: 'rgba(56, 189, 248, 0.2)', padding: '2rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
-                <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(56, 189, 248, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#38bdf8' }}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(56, 189, 248, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#38bdf8' }}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                  </div>
+                  <h3 style={{ margin: 0, fontSize: '1.25rem', color: '#fff' }}>AI Roadmap</h3>
                 </div>
-                <h3 style={{ margin: 0, fontSize: '1.25rem', color: '#fff' }}>AI Roadmap</h3>
+                {isMobile && recommendations.length > 0 && (
+                  <button
+                    className="btn-ghost-premium"
+                    onClick={() => setExpandedRoadmapList(!expandedRoadmapList)}
+                    style={{ padding: '0.25rem 0.75rem', fontSize: '0.75rem' }}
+                  >
+                    {expandedRoadmapList ? 'Collapse Roadmap ✕' : 'Expand Roadmap ＋'}
+                  </button>
+                )}
               </div>
 
               {recommendations.length === 0 ? (
@@ -1856,21 +1952,23 @@ export const StudentDashboard: React.FC = () => {
                   <p style={{ fontSize: '0.9rem', fontStyle: 'italic', margin: 0 }}>Complete module analysis to generate tailored AI tips.</p>
                 </div>
               ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  {recommendations.map((rec, i) => (
-                    <div key={i} style={{ display: 'flex', gap: '1rem', background: 'rgba(255,255,255,0.02)', padding: '1rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '24px', height: '24px', borderRadius: '50%', background: 'rgba(56, 189, 248, 0.2)', color: '#38bdf8', fontSize: '0.75rem', fontWeight: 800, flexShrink: 0 }}>
-                        {i + 1}
+                (!isMobile || expandedRoadmapList) && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    {recommendations.map((rec, i) => (
+                      <div key={i} style={{ display: 'flex', gap: '1rem', background: 'rgba(255,255,255,0.02)', padding: '1rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '24px', height: '24px', borderRadius: '50%', background: 'rgba(56, 189, 248, 0.2)', color: '#38bdf8', fontSize: '0.75rem', fontWeight: 800, flexShrink: 0 }}>
+                          {i + 1}
+                        </div>
+                        <div>
+                          <span style={{ fontWeight: 700, color: '#38bdf8', display: 'block', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.25rem' }}>
+                            {rec.category}
+                          </span>
+                          <p style={{ color: '#e2e8f0', margin: 0, fontSize: '0.9rem', lineHeight: 1.5 }}>{rec.recommendation}</p>
+                        </div>
                       </div>
-                      <div>
-                        <span style={{ fontWeight: 700, color: '#38bdf8', display: 'block', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.25rem' }}>
-                          {rec.category}
-                        </span>
-                        <p style={{ color: '#e2e8f0', margin: 0, fontSize: '0.9rem', lineHeight: 1.5 }}>{rec.recommendation}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )
               )}
             </section>
           </div>

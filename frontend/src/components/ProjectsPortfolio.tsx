@@ -189,14 +189,14 @@ export const ProjectsPortfolio: React.FC<ProjectsPortfolioProps> = ({
             displayedProjects.map((p, idx) => (
               <div key={idx} style={{ padding: '1.5rem', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', gap: '1rem', transition: 'background 0.2s', background: 'transparent' }} onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.02)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
                 <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', gap: '1.5rem' }}>
-                  <div style={{ flex: '1 1 300px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
-                      <span style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)', color: '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.85rem', fontWeight: 700, border: '1px solid rgba(255,255,255,0.1)' }}>
+                  <div style={{ flex: '1 1 300px', minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', marginBottom: '0.5rem', flexWrap: 'wrap' }}>
+                      <span style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)', color: '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.85rem', fontWeight: 700, border: '1px solid rgba(255,255,255,0.1)', flexShrink: 0 }}>
                         #{idx + 1}
                       </span>
-                      <h4 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#f8fafc', margin: 0 }}>{p.title}</h4>
+                      <h4 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#f8fafc', margin: 0, flex: '1 1 200px' }}>{p.title}</h4>
                       {p.source === 'resume' && (
-                        <span style={{ padding: '0.2rem 0.6rem', borderRadius: '20px', background: 'rgba(99, 102, 241, 0.1)', border: '1px solid rgba(99, 102, 241, 0.2)', color: '#818cf8', fontSize: '0.7rem', fontWeight: 600 }}>Extracted from Resume</span>
+                        <span style={{ padding: '0.2rem 0.6rem', borderRadius: '20px', background: 'rgba(99, 102, 241, 0.1)', border: '1px solid rgba(99, 102, 241, 0.2)', color: '#818cf8', fontSize: '0.7rem', fontWeight: 600, whiteSpace: 'nowrap' }}>Extracted from Resume</span>
                       )}
                     </div>
                     <p style={{ color: '#94a3b8', fontSize: '0.9rem', marginBottom: '1rem', lineHeight: 1.6, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{p.description}</p>
@@ -206,22 +206,22 @@ export const ProjectsPortfolio: React.FC<ProjectsPortfolioProps> = ({
                       ))}
                     </div>
                   </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(80px, 1fr))', gap: '0.75rem', flex: '1 1 300px' }}>
-                    <div style={{ background: 'rgba(0,0,0,0.15)', padding: '0.75rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
-                      <div style={{ fontSize: '0.7rem', color: '#64748b', marginBottom: '0.25rem', textTransform: 'uppercase' }}>Complexity</div>
-                      <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#60a5fa' }}>{p.complexityScore || 0}<span style={{ fontSize: '0.7rem', color: '#475569' }}>/40</span></div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.5rem', flex: '1 1 300px', width: '100%' }}>
+                    <div style={{ background: 'rgba(0,0,0,0.15)', padding: '0.5rem 0.25rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', minWidth: 0 }}>
+                      <div style={{ fontSize: '0.6rem', color: '#64748b', marginBottom: '0.25rem', textTransform: 'uppercase', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>Complexity</div>
+                      <div style={{ fontSize: '1rem', fontWeight: 700, color: '#60a5fa' }}>{p.complexityScore || 0}<span style={{ fontSize: '0.65rem', color: '#475569' }}>/40</span></div>
                     </div>
-                    <div style={{ background: 'rgba(0,0,0,0.15)', padding: '0.75rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
-                      <div style={{ fontSize: '0.7rem', color: '#64748b', marginBottom: '0.25rem', textTransform: 'uppercase' }}>Tech Score</div>
-                      <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#34d399' }}>{p.technologyScore || 0}<span style={{ fontSize: '0.7rem', color: '#475569' }}>/20</span></div>
+                    <div style={{ background: 'rgba(0,0,0,0.15)', padding: '0.5rem 0.25rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', minWidth: 0 }}>
+                      <div style={{ fontSize: '0.6rem', color: '#64748b', marginBottom: '0.25rem', textTransform: 'uppercase', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>Tech Score</div>
+                      <div style={{ fontSize: '1rem', fontWeight: 700, color: '#34d399' }}>{p.technologyScore || 0}<span style={{ fontSize: '0.65rem', color: '#475569' }}>/20</span></div>
                     </div>
-                    <div style={{ background: 'rgba(0,0,0,0.15)', padding: '0.75rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
-                      <div style={{ fontSize: '0.7rem', color: '#64748b', marginBottom: '0.25rem', textTransform: 'uppercase' }}>Role Match</div>
-                      <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#c084fc' }}>{p.roleRelevanceScore || 0}<span style={{ fontSize: '0.7rem', color: '#475569' }}>/25</span></div>
+                    <div style={{ background: 'rgba(0,0,0,0.15)', padding: '0.5rem 0.25rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', minWidth: 0 }}>
+                      <div style={{ fontSize: '0.6rem', color: '#64748b', marginBottom: '0.25rem', textTransform: 'uppercase', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>Role Match</div>
+                      <div style={{ fontSize: '1rem', fontWeight: 700, color: '#c084fc' }}>{p.roleRelevanceScore || 0}<span style={{ fontSize: '0.65rem', color: '#475569' }}>/25</span></div>
                     </div>
-                    <div style={{ background: 'rgba(255,255,255,0.03)', padding: '0.75rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
-                      <div style={{ fontSize: '0.65rem', color: '#94a3b8', marginBottom: '0.25rem', textTransform: 'uppercase', fontWeight: 600 }}>Total</div>
-                      <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#fff' }}>{p.projectScore || 0}</div>
+                    <div style={{ background: 'rgba(255,255,255,0.03)', padding: '0.5rem 0.25rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', minWidth: 0 }}>
+                      <div style={{ fontSize: '0.6rem', color: '#94a3b8', marginBottom: '0.25rem', textTransform: 'uppercase', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>Total</div>
+                      <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fff' }}>{p.projectScore || 0}</div>
                     </div>
                   </div>
                 </div>
@@ -245,13 +245,13 @@ export const ProjectsPortfolio: React.FC<ProjectsPortfolioProps> = ({
       {/* AI WOW Project Recommendations */}
       {portfolioRecommendations && portfolioRecommendations.length > 0 && (
         <div id="project-recommendations">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
             <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#fff', margin: 0 }}>AI Recommended Next Projects</h3>
             <span style={{ padding: '0.25rem 0.75rem', background: 'linear-gradient(90deg, rgba(236, 72, 153, 0.2), rgba(168, 85, 247, 0.2))', color: '#f472b6', fontSize: '0.75rem', fontWeight: 700, borderRadius: '20px', border: '1px solid rgba(236, 72, 153, 0.3)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
               Portfolio Builders
             </span>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '1.5rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 400px), 1fr))', gap: '1.5rem' }}>
             {portfolioRecommendations.map((rec: any, idx: number) => {
               const isWow = rec.difficulty === 'WOW';
               return (
