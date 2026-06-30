@@ -219,6 +219,9 @@ router.post('/sync', async (req: Request, res: Response) => {
 // Retained for backward compatibility or simulated API calls
 router.post('/login', async (req: Request, res: Response) => {
   try {
+    if (process.env.NODE_ENV === 'production') {
+      return res.status(403).json({ error: 'Direct local passwordless login is disabled in production.' });
+    }
     const { email } = req.body;
 
     if (!email) {

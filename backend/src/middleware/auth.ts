@@ -46,6 +46,10 @@ export interface AuthenticatedRequest extends Request {
 
 export const verifyFirebaseIdToken = async (token: string): Promise<{ email: string; uid: string } | null> => {
   if (token.startsWith('simulated-token:')) {
+    if (process.env.NODE_ENV === 'production') {
+      console.warn('[SECURITY WARNING] Rejecting mock token in production environment.');
+      return null;
+    }
     const parts = token.split(':');
     const email = parts[1];
     const uid = parts[2] || `simulated-${email}`;
