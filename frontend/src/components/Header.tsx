@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
@@ -13,6 +13,15 @@ export const Header: React.FC = () => {
   const location = useLocation();
   const [showQuickActions, setShowQuickActions] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 900);
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const isDashboard = location.pathname === '/student-dashboard';
 
   // Hide the global dashboard header on the landing page
@@ -21,7 +30,32 @@ export const Header: React.FC = () => {
   }
 
   return (
-    <header className="sticky top-0 z-50" style={{ background: 'rgba(5, 8, 22, 0.8)', backdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}>
+    <header
+      className="sticky top-0 z-50"
+      style={isMobile ? {
+        position: 'fixed',
+        top: '10px',
+        left: '10px',
+        right: '10px',
+        width: 'calc(100% - 20px)',
+        height: '48px',
+        zIndex: 1000,
+        background: 'rgba(10, 15, 30, 0.8)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+        border: '1px solid rgba(255, 255, 255, 0.1)',
+        borderRadius: '24px',
+        boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
+        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+      } : {
+        position: 'sticky',
+        top: 0,
+        zIndex: 1000,
+        background: 'rgba(5, 8, 22, 0.8)',
+        backdropFilter: 'blur(16px)',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.08)'
+      }}
+    >
       <div className="header-container" style={{ maxWidth: '1440px', margin: '0 auto', padding: '0.75rem 2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
 
         {/* Left: Logo */}
@@ -123,43 +157,45 @@ export const Header: React.FC = () => {
           {isAuthenticated && user && (
             <>
               {/* Quick Actions Dropdown */}
-              <div style={{ position: 'relative' }}>
-                <button
-                  className="btn btn-primary"
-                  style={{ padding: '0.4rem 1rem', fontSize: '0.85rem', borderRadius: '8px' }}
-                  onClick={() => setShowQuickActions(!showQuickActions)}
-                >
-                  Quick Actions <ChevronDown size={14} style={{ marginLeft: '4px' }} />
-                </button>
-                <AnimatePresence>
-                  {showQuickActions && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                      transition={{ duration: 0.15 }}
-                      style={{ position: 'absolute', top: 'calc(100% + 10px)', right: 0, width: '220px', background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', padding: '0.5rem', boxShadow: '0 10px 40px rgba(0,0,0,0.5)' }}
-                    >
-                      <div className="quick-action-item" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.5rem 0.75rem', color: '#e2e8f0', fontSize: '0.85rem', cursor: 'pointer', borderRadius: '6px' }}>
-                        <Upload size={16} color="#3b82f6" /> Upload Resume
-                      </div>
-                      <div className="quick-action-item" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.5rem 0.75rem', color: '#e2e8f0', fontSize: '0.85rem', cursor: 'pointer', borderRadius: '6px' }}>
-                        <GitBranch size={16} color="#10b981" /> Reanalyze GitHub
-                      </div>
-                      <div className="quick-action-item" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.5rem 0.75rem', color: '#e2e8f0', fontSize: '0.85rem', cursor: 'pointer', borderRadius: '6px' }}>
-                        <Plus size={16} color="#f59e0b" /> Add Project
-                      </div>
-                      <div className="quick-action-item" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.5rem 0.75rem', color: '#e2e8f0', fontSize: '0.85rem', cursor: 'pointer', borderRadius: '6px' }}>
-                        <Plus size={16} color="#f59e0b" /> Add Certificate
-                      </div>
-                      <div style={{ height: '1px', background: 'rgba(255,255,255,0.1)', margin: '0.5rem 0' }}></div>
-                      <div className="quick-action-item" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.5rem 0.75rem', color: '#e2e8f0', fontSize: '0.85rem', cursor: 'pointer', borderRadius: '6px' }}>
-                        <FileText size={16} color="#8b5cf6" /> Export Report
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
+              {!isMobile && (
+                <div style={{ position: 'relative' }}>
+                  <button
+                    className="btn btn-primary"
+                    style={{ padding: '0.4rem 1rem', fontSize: '0.85rem', borderRadius: '8px' }}
+                    onClick={() => setShowQuickActions(!showQuickActions)}
+                  >
+                    Quick Actions <ChevronDown size={14} style={{ marginLeft: '4px' }} />
+                  </button>
+                  <AnimatePresence>
+                    {showQuickActions && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                        transition={{ duration: 0.15 }}
+                        style={{ position: 'absolute', top: 'calc(100% + 10px)', right: 0, width: '220px', background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', padding: '0.5rem', boxShadow: '0 10px 40px rgba(0,0,0,0.5)' }}
+                      >
+                        <div className="quick-action-item" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.5rem 0.75rem', color: '#e2e8f0', fontSize: '0.85rem', cursor: 'pointer', borderRadius: '6px' }}>
+                          <Upload size={16} color="#3b82f6" /> Upload Resume
+                        </div>
+                        <div className="quick-action-item" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.5rem 0.75rem', color: '#e2e8f0', fontSize: '0.85rem', cursor: 'pointer', borderRadius: '6px' }}>
+                          <GitBranch size={16} color="#10b981" /> Reanalyze GitHub
+                        </div>
+                        <div className="quick-action-item" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.5rem 0.75rem', color: '#e2e8f0', fontSize: '0.85rem', cursor: 'pointer', borderRadius: '6px' }}>
+                          <Plus size={16} color="#f59e0b" /> Add Project
+                        </div>
+                        <div className="quick-action-item" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.5rem 0.75rem', color: '#e2e8f0', fontSize: '0.85rem', cursor: 'pointer', borderRadius: '6px' }}>
+                          <Plus size={16} color="#f59e0b" /> Add Certificate
+                        </div>
+                        <div style={{ height: '1px', background: 'rgba(255,255,255,0.1)', margin: '0.5rem 0' }}></div>
+                        <div className="quick-action-item" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.5rem 0.75rem', color: '#e2e8f0', fontSize: '0.85rem', cursor: 'pointer', borderRadius: '6px' }}>
+                          <FileText size={16} color="#8b5cf6" /> Export Report
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              )}
 
               {/* User Avatar Dropdown */}
               <div style={{ position: 'relative' }}>
@@ -220,7 +256,15 @@ export const Header: React.FC = () => {
             display: none !important;
           }
           .header-container {
-            padding: 0.75rem 1rem !important;
+            padding: 0.25rem 0.75rem !important;
+            height: 100% !important;
+          }
+          .header-title {
+            font-size: 0.95rem !important;
+          }
+          .btn.btn-primary {
+            padding: 0.25rem 0.65rem !important;
+            font-size: 0.7rem !important;
           }
         }
       `}</style>

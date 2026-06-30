@@ -835,7 +835,7 @@ export const StudentDashboard: React.FC = () => {
             grid-template-columns: 1fr !important;
           }
           .container {
-            padding: 1.5rem 1rem !important;
+            padding: 84px 1rem 1.5rem 1rem !important;
           }
           .resume-analysis-grid {
             grid-template-columns: 1fr !important;
@@ -848,10 +848,10 @@ export const StudentDashboard: React.FC = () => {
         }
         @media (max-width: 480px) {
           .container {
-            padding: 1rem !important;
+            padding: 80px 0.75rem 1rem 0.75rem !important;
           }
           .glass-card {
-            padding: 1.25rem !important;
+            padding: 1rem !important;
           }
         }
       `}</style>
@@ -877,30 +877,25 @@ export const StudentDashboard: React.FC = () => {
 
           {/* HERO SECTION */}
           <section id="dashboard" style={{ paddingTop: '0.5rem' }}>
-            <div className="dashboard-header-flex" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
-              <div>
-                <h1 style={{ fontSize: '1.8rem', fontWeight: 800, marginBottom: '0.25rem', color: '#fff' }}>
-                  Welcome back, {fullName || 'Student'}
-                </h1>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-                  <span className="badge badge-primary" style={{ padding: '0.3rem 0.8rem', fontSize: '0.8rem', whiteSpace: 'nowrap' }}>{targetRole || 'Target Role'}</span>
-                  <span style={{ color: '#94a3b8', fontSize: '0.85rem' }}>Here is your career readiness overview</span>
+            {isMobile && <div style={{ height: '20px', width: '100%' }} />}
+            {!isMobile && (
+              <div className="dashboard-header-flex" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+                <div>
+                  <h1 className="welcome-title-gradient" style={{ fontSize: '1.8rem', fontWeight: 800, marginBottom: '0.25rem' }}>
+                    Welcome back, {fullName || 'Student'}
+                  </h1>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+                    <span className="badge badge-primary" style={{ padding: '0.35rem 0.85rem', fontSize: '0.8rem', whiteSpace: 'nowrap', background: 'linear-gradient(90deg, rgba(59, 130, 246, 0.15) 0%, rgba(139, 92, 246, 0.15) 100%)', color: '#60a5fa', border: '1px solid rgba(59, 130, 246, 0.3)', borderRadius: '20px' }}>{targetRole || 'Target Role'}</span>
+                    <span style={{ color: '#94a3b8', fontSize: '0.85rem' }}>Here is your career readiness overview</span>
+                  </div>
+                </div>
+                <div className="dashboard-header-buttons" style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                  <button className="btn-ghost-premium" onClick={() => document.getElementById('roadmap')?.scrollIntoView({ behavior: 'smooth' })} style={{ height: '36px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '0 1.25rem', margin: 0, fontSize: '0.8rem' }}>View Roadmap</button>
+                  <button className="btn-ghost-premium" onClick={() => window.print()} style={{ height: '36px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '0 1.25rem', margin: 0, fontSize: '0.8rem' }}>Export Report</button>
+                  <button className="btn-cta-premium" onClick={handleDownloadCertificate} style={{ height: '36px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '0 1.25rem', margin: 0, fontSize: '0.8rem' }}>Download Certificate</button>
                 </div>
               </div>
-              <div className="dashboard-header-buttons" style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', width: isMobile ? '100%' : 'auto' }}>
-                {!isMobile ? (
-                  <>
-                    <button className="btn-ghost-premium" onClick={() => document.getElementById('roadmap')?.scrollIntoView({ behavior: 'smooth' })} style={{ height: '36px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '0 1.25rem', margin: 0, fontSize: '0.8rem' }}>View Roadmap</button>
-                    <button className="btn-ghost-premium" onClick={() => window.print()} style={{ height: '36px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '0 1.25rem', margin: 0, fontSize: '0.8rem' }}>Export Report</button>
-                    <button className="btn-cta-premium" onClick={handleDownloadCertificate} style={{ height: '36px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '0 1.25rem', margin: 0, fontSize: '0.8rem' }}>Download Certificate</button>
-                  </>
-                ) : (
-                  <button className="btn-cta-premium" onClick={handleDownloadCertificate} style={{ width: '100%', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.85rem', fontWeight: 700, borderRadius: '10px' }}>
-                    Download Certificate
-                  </button>
-                )}
-              </div>
-            </div>
+            )}
 
             <div className="dashboard-hero-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
 
@@ -959,8 +954,35 @@ export const StudentDashboard: React.FC = () => {
                     <div style={{ position: 'absolute', bottom: '-10%', right: '-10%', width: '150px', height: '150px', background: 'rgba(56, 189, 248, 0.15)', filter: 'blur(55px)', borderRadius: '50%', pointerEvents: 'none' }} />
 
                     {/* Header */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', width: '100%', zIndex: 1, flexWrap: 'wrap', gap: '0.75rem' }}>
-                      <div>
+                    {isMobile && (
+                      <div style={{ zIndex: 1, marginBottom: '1.25rem', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', animation: 'fadeInHero 0.8s ease-out forwards' }}>
+                        <div style={{ fontSize: '0.8rem', fontWeight: 500, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.2rem' }}>Welcome back 👋</div>
+                        <h2 className="welcome-title-gradient" style={{ fontSize: '1.6rem', fontWeight: 800, margin: 0, lineHeight: 1.25 }}>
+                          {fullName || 'Student'}
+                        </h2>
+                        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '0.5rem' }}>
+                          <span style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '0.4rem',
+                            padding: '0.3rem 0.75rem',
+                            background: 'rgba(255, 255, 255, 0.03)',
+                            border: '1px solid rgba(255, 255, 255, 0.08)',
+                            borderRadius: '20px',
+                            color: '#60a5fa',
+                            fontSize: '0.75rem',
+                            fontWeight: 600,
+                            backdropFilter: 'blur(10px)',
+                            whiteSpace: 'nowrap'
+                          }}>
+                            💼 {targetRole || 'Full Stack Developer'}
+                          </span>
+                        </div>
+                        <div style={{ height: '1px', background: 'rgba(255,255,255,0.08)', margin: '1rem 0 0.5rem 0', width: '100%' }} />
+                      </div>
+                    )}
+                    <div style={{ display: 'flex', justifyContent: isMobile ? 'center' : 'space-between', alignItems: isMobile ? 'center' : 'flex-start', textAlign: isMobile ? 'center' : 'left', width: '100%', zIndex: 1, flexWrap: 'wrap', gap: '0.75rem', flexDirection: isMobile ? 'column' : 'row' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: isMobile ? 'center' : 'flex-start' }}>
                         <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fff', margin: 0, letterSpacing: '-0.02em' }}>Career Readiness</h2>
                         <span style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: 500 }}>Industry Readiness Assessment</span>
                       </div>
@@ -971,14 +993,14 @@ export const StudentDashboard: React.FC = () => {
                     </div>
 
                     {/* Center Section: Circular Progress and Score */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '2rem', margin: '1.25rem 0', zIndex: 1, flexWrap: 'wrap' }}>
+                    <div className="assessment-score-container" style={{ display: 'flex', alignItems: 'center', justifyContent: isMobile ? 'center' : 'flex-start', flexDirection: isMobile ? 'column' : 'row', gap: '2rem', margin: '1.25rem 0', zIndex: 1, flexWrap: 'wrap', width: '100%' }}>
                       {/* Premium Radial Progress */}
-                      <div style={{ position: 'relative', width: '140px', height: '140px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <div className="premium-circular-progress" style={{ position: 'relative', width: '140px', height: '140px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                         {/* Glow Layer */}
                         <div style={{ position: 'absolute', width: '130px', height: '130px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(99, 102, 241, 0.08) 0%, transparent 70%)', filter: 'blur(5px)' }} />
                         <svg width="140" height="140" viewBox="0 0 140 140" style={{ transform: 'rotate(-90deg)', filter: 'drop-shadow(0 0 6px rgba(59, 130, 246, 0.2))' }}>
                           <circle cx="70" cy="70" r="62" fill="none" stroke="rgba(255,255,255,0.03)" strokeWidth="8" />
-                          <circle cx="70" cy="70" r="62" fill="none" stroke="url(#premiumScoreGrad)" strokeWidth="8" strokeDasharray="389" strokeDashoffset={389 - (389 * roundedScore) / 100} style={{ transition: 'stroke-dashoffset 1.5s ease-out' }} strokeLinecap="round" />
+                          <circle className="score-ring-animate" cx="70" cy="70" r="62" fill="none" stroke="url(#premiumScoreGrad)" strokeWidth="8" strokeDasharray="389" strokeDashoffset={389 - (389 * roundedScore) / 100} style={{ transition: 'stroke-dashoffset 1.5s ease-out' }} strokeLinecap="round" />
                           <defs>
                             <linearGradient id="premiumScoreGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                               <stop offset="0%" stopColor="#3b82f6" />
@@ -989,14 +1011,14 @@ export const StudentDashboard: React.FC = () => {
                         </svg>
                         <div style={{ position: 'absolute', textAlign: 'center', display: 'flex', flexDirection: 'column' }}>
                           <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center' }}>
-                            <span style={{ fontSize: '2.5rem', fontWeight: 900, color: '#fff', lineHeight: 1, letterSpacing: '-0.03em' }}>{roundedScore}</span>
+                            <span className="score-text-inner" style={{ fontSize: '2.5rem', fontWeight: 900, color: '#fff', lineHeight: 1, letterSpacing: '-0.03em' }}>{roundedScore}</span>
                             <span style={{ fontSize: '0.85rem', color: '#64748b', marginLeft: '0.1rem', fontWeight: 600 }}>/100</span>
                           </div>
                         </div>
                       </div>
 
                       {/* Info Panel Right */}
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', flex: 1, minWidth: '150px' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', flex: isMobile ? 'none' : 1, minWidth: '150px', alignItems: isMobile ? 'center' : 'flex-start', textAlign: isMobile ? 'center' : 'left' }}>
                         <div>
                           <div style={{ fontSize: '0.7rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.25rem', fontWeight: 600 }}>Current Standing</div>
                           <div style={{
@@ -1136,6 +1158,15 @@ export const StudentDashboard: React.FC = () => {
                           📈 <strong style={{ color: '#fff' }}>{potentialScore}+</strong> (with tips)
                         </span>
                       </div>
+                      {isMobile && (
+                        <button
+                          className="btn-cta-premium"
+                          onClick={handleDownloadCertificate}
+                          style={{ width: '100%', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.85rem', fontWeight: 700, borderRadius: '10px', marginTop: '1.25rem' }}
+                        >
+                          Download Certificate
+                        </button>
+                      )}
                     </div>
                   </div>
                 );
@@ -1461,6 +1492,8 @@ export const StudentDashboard: React.FC = () => {
                     padding: '1.25rem',
                     display: 'flex',
                     flexDirection: 'column',
+                    alignItems: isMobile ? 'center' : 'flex-start',
+                    textAlign: isMobile ? 'center' : 'left',
                     gap: '0.4rem',
                     boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.02)',
                     transition: 'transform 0.2s, border-color 0.2s, box-shadow 0.2s'
@@ -1476,10 +1509,10 @@ export const StudentDashboard: React.FC = () => {
                       e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.05)';
                       e.currentTarget.style.boxShadow = 'none';
                     }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#94a3b8', fontSize: '0.8rem', fontWeight: 600 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: isMobile ? 'center' : 'flex-start', gap: '0.5rem', color: '#94a3b8', fontSize: '0.8rem', fontWeight: 600, width: '100%' }}>
                       <span style={{ fontSize: '1rem' }}>{stat.icon}</span> {stat.label}
                     </div>
-                    <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#fff', letterSpacing: '-0.02em', marginTop: '0.1rem' }}>{stat.value}</div>
+                    <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#fff', letterSpacing: '-0.02em', marginTop: '0.1rem', width: '100%', textAlign: isMobile ? 'center' : 'left' }}>{stat.value}</div>
                   </div>
                 ))}
               </div>
