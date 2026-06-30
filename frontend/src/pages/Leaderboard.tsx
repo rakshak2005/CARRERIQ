@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../services/api';
-import { Trophy, Search, Award, Star, ArrowLeft, ArrowUpRight, Sparkles } from 'lucide-react';
+import { Search, ArrowLeft, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface CandidateProfile {
