@@ -99,10 +99,10 @@ export const StudentDashboard: React.FC = () => {
     const handleResize = () => setIsMobile(window.innerWidth < 900);
     handleResize();
     window.addEventListener('resize', handleResize);
-    
+
     const handleStartTour = () => setShowTour(true);
     window.addEventListener('start-tour', handleStartTour);
-    
+
     return () => {
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('start-tour', handleStartTour);
@@ -1108,7 +1108,7 @@ export const StudentDashboard: React.FC = () => {
                 </div>
                 <div className="dashboard-header-buttons" style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
                   <button className="btn-ghost-premium" onClick={() => document.getElementById('roadmap')?.scrollIntoView({ behavior: 'smooth' })} style={{ height: '36px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '0 1.25rem', margin: 0, fontSize: '0.8rem' }}>View Roadmap</button>
-                  <button className="btn-ghost-premium" onClick={() => window.print()} style={{ height: '36px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '0 1.25rem', margin: 0, fontSize: '0.8rem' }}>Export Report</button>
+                  {/* <button className="btn-ghost-premium" onClick={() => window.print()} style={{ height: '36px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '0 1.25rem', margin: 0, fontSize: '0.8rem' }}>Export Report</button> */}
                   <button className="btn-cta-premium" onClick={handleDownloadCertificate} style={{ height: '36px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '0 1.25rem', margin: 0, fontSize: '0.8rem' }}>Download Certificate</button>
                 </div>
               </div>
