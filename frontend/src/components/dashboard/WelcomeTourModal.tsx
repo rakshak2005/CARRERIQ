@@ -154,6 +154,24 @@ export const WelcomeTourModal: React.FC<WelcomeTourModalProps> = ({ onClose, rol
       color: "#8b5cf6",
       gradient: "linear-gradient(135deg, #8b5cf6 0%, #c084fc 100%)",
       targetId: "minScore"
+    },
+    {
+      title: "Detailed Candidate Audits",
+      subtitle: "Deep-dive profiles.",
+      description: "Explore the candidate lists below. Click on any candidate profile card to expand their technical capabilities, code repository reports, active resume evaluations, and verified credentials.",
+      icon: Rocket,
+      color: "#10b981",
+      gradient: "linear-gradient(135deg, #10b981 0%, #34d399 100%)",
+      targetId: "candidate-list-section"
+    },
+    {
+      title: "Secure Verification Pipeline",
+      subtitle: "Verified recruiting.",
+      description: "Evaluate candidates based on objective metrics. Direct integration with GitHub API, ATS keywords, and verified certifications guarantees authenticity.",
+      icon: Award,
+      color: "#f59e0b",
+      gradient: "linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%)",
+      targetId: ""
     }
   ];
 
@@ -163,6 +181,8 @@ export const WelcomeTourModal: React.FC<WelcomeTourModalProps> = ({ onClose, rol
 
   // Update rect on step change, resize, or scroll
   useEffect(() => {
+    let animationFrameId: number;
+
     const updateRect = () => {
       if (!step.targetId) {
         setTargetRect(null);
@@ -183,41 +203,46 @@ export const WelcomeTourModal: React.FC<WelcomeTourModalProps> = ({ onClose, rol
       }
     };
 
-    // Scroll the target element into view (align top minus 100px offset for header)
+    // Scroll the target element into view (align top with offset for header)
     if (step.targetId) {
       const element = document.getElementById(step.targetId);
       if (element) {
-        const yOffset = -100; // Leave space for sticky header
+        const yOffset = -110;
         const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
         window.scrollTo({ top: y, behavior: 'smooth' });
       }
     }
 
-    // Run updates
-    updateRect();
-    
-    // Set a timeout to catch the end of smooth scroll
-    const timer = setTimeout(updateRect, 100);
-    const timer2 = setTimeout(updateRect, 300);
-    const timer3 = setTimeout(updateRect, 600);
+    // Continuously update position to track smooth scroll in real time at 60fps
+    const start = Date.now();
+    const track = () => {
+      updateRect();
+      if (Date.now() - start < 1000) {
+        animationFrameId = requestAnimationFrame(track);
+      }
+    };
+    track();
 
     window.addEventListener('resize', updateRect);
     window.addEventListener('scroll', updateRect, { passive: true });
     
     return () => {
-      clearTimeout(timer);
-      clearTimeout(timer2);
-      clearTimeout(timer3);
+      cancelAnimationFrame(animationFrameId);
       window.removeEventListener('resize', updateRect);
       window.removeEventListener('scroll', updateRect);
     };
   }, [currentStep, step.targetId]);
 
+  const handleClose = () => {
+    localStorage.setItem('careeriq_tour_completed', 'true');
+    onClose();
+  };
+
   const handleNext = () => {
     if (currentStep < steps.length - 1) {
       setCurrentStep(prev => prev + 1);
     } else {
-      onClose();
+      handleClose();
     }
   };
 
@@ -336,6 +361,24 @@ export const WelcomeTourModal: React.FC<WelcomeTourModalProps> = ({ onClose, rol
           background: rgba(255, 255, 255, 0.08);
           color: #fff;
         }
+        @media (max-width: 600px) {
+          .tour-modal-floating {
+            position: fixed !important;
+            bottom: 0 !important;
+            right: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            border-radius: 24px 24px 0 0 !important;
+            padding: 1.5rem 1rem !important;
+            box-shadow: 0 -10px 30px rgba(0,0,0,0.95) !important;
+            animation: slideUpMobile 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+          }
+          @keyframes slideUpMobile {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+          }
+        }
       `}</style>
 
       {/* Spotlight highlight overlay */}
@@ -404,7 +447,7 @@ export const WelcomeTourModal: React.FC<WelcomeTourModalProps> = ({ onClose, rol
 
           {/* Close Button */}
           <button 
-            onClick={onClose}
+            onClick={handleClose}
             style={{
               position: 'absolute',
               top: '1rem',
@@ -482,7 +525,7 @@ export const WelcomeTourModal: React.FC<WelcomeTourModalProps> = ({ onClose, rol
                 <ArrowLeft size={16} /> Back
               </button>
             ) : (
-              <button className="btn-tour btn-tour-prev" onClick={onClose}>
+              <button className="btn-tour btn-tour-prev" onClick={handleClose}>
                 Skip
               </button>
             )}

@@ -157,44 +157,15 @@ export const Header: React.FC = () => {
           {isAuthenticated && user && (
             <>
               {/* Quick Actions Dropdown */}
+              {/* Replay Guide Tour Button */}
               {!isMobile && (
-                <div style={{ position: 'relative' }}>
-                  <button
-                    className="btn btn-primary"
-                    style={{ padding: '0.4rem 1rem', fontSize: '0.85rem', borderRadius: '8px' }}
-                    onClick={() => setShowQuickActions(!showQuickActions)}
-                  >
-                    Quick Actions <ChevronDown size={14} style={{ marginLeft: '4px' }} />
-                  </button>
-                  <AnimatePresence>
-                    {showQuickActions && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                        transition={{ duration: 0.15 }}
-                        style={{ position: 'absolute', top: 'calc(100% + 10px)', right: 0, width: '220px', background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', padding: '0.5rem', boxShadow: '0 10px 40px rgba(0,0,0,0.5)' }}
-                      >
-                        <div className="quick-action-item" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.5rem 0.75rem', color: '#e2e8f0', fontSize: '0.85rem', cursor: 'pointer', borderRadius: '6px' }}>
-                          <Upload size={16} color="#3b82f6" /> Upload Resume
-                        </div>
-                        <div className="quick-action-item" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.5rem 0.75rem', color: '#e2e8f0', fontSize: '0.85rem', cursor: 'pointer', borderRadius: '6px' }}>
-                          <GitBranch size={16} color="#10b981" /> Reanalyze GitHub
-                        </div>
-                        <div className="quick-action-item" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.5rem 0.75rem', color: '#e2e8f0', fontSize: '0.85rem', cursor: 'pointer', borderRadius: '6px' }}>
-                          <Plus size={16} color="#f59e0b" /> Add Project
-                        </div>
-                        <div className="quick-action-item" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.5rem 0.75rem', color: '#e2e8f0', fontSize: '0.85rem', cursor: 'pointer', borderRadius: '6px' }}>
-                          <Plus size={16} color="#f59e0b" /> Add Certificate
-                        </div>
-                        <div style={{ height: '1px', background: 'rgba(255,255,255,0.1)', margin: '0.5rem 0' }}></div>
-                        <div className="quick-action-item" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.5rem 0.75rem', color: '#e2e8f0', fontSize: '0.85rem', cursor: 'pointer', borderRadius: '6px' }}>
-                          <FileText size={16} color="#8b5cf6" /> Export Report
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
+                <button
+                  className="btn btn-primary"
+                  style={{ padding: '0.4rem 1rem', fontSize: '0.85rem', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                  onClick={() => window.dispatchEvent(new Event('start-tour'))}
+                >
+                  Replay Guide Tour 🎯
+                </button>
               )}
 
               {/* User Avatar Dropdown */}
@@ -229,6 +200,15 @@ export const Header: React.FC = () => {
                         }}
                       >
                         Go to Dashboard
+                      </button>
+                      <button
+                        style={{ width: '100%', background: 'transparent', border: 'none', color: '#60a5fa', textAlign: 'left', padding: '0.5rem 0', fontSize: '0.85rem', cursor: 'pointer', fontWeight: 500 }}
+                        onClick={() => {
+                          setShowUserMenu(false);
+                          window.dispatchEvent(new Event('start-tour'));
+                        }}
+                      >
+                        Replay Guide Tour 🎯
                       </button>
                       <button
                         style={{ width: '100%', background: 'transparent', border: 'none', color: '#ef4444', textAlign: 'left', padding: '0.5rem 0', fontSize: '0.85rem', cursor: 'pointer', fontWeight: 500 }}

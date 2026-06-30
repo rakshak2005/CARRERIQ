@@ -161,31 +161,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onReplayTour, projectCount = 3
           <div style={{ width: '100%', height: '5px', background: 'rgba(255, 255, 255, 0.1)', borderRadius: '3px', overflow: 'hidden', marginBottom: '0.6rem' }}>
             <div style={{ width: `${completionPercentage}%`, height: '100%', background: 'linear-gradient(90deg, #3b82f6, #8b5cf6)', borderRadius: '3px' }}></div>
           </div>
-          {onReplayTour && (
-            <button
-              onClick={onReplayTour}
-              style={{
-                width: '100%',
-                padding: '0.45rem',
-                background: 'rgba(59, 130, 246, 0.1)',
-                border: '1px dashed rgba(59, 130, 246, 0.3)',
-                borderRadius: '8px',
-                color: '#60a5fa',
-                fontSize: '0.75rem',
-                fontWeight: 600,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '0.4rem',
-                transition: 'all 0.2s'
-              }}
-              onMouseEnter={e => e.currentTarget.style.background = 'rgba(59, 130, 246, 0.2)'}
-              onMouseLeave={e => e.currentTarget.style.background = 'rgba(59, 130, 246, 0.1)'}
-            >
-              Replay Guide Tour 🎯
-            </button>
-          )}
+
         </div>
       </div>
     </aside>

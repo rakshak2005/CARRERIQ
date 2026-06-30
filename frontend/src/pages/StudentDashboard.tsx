@@ -1,6 +1,7 @@
 // @ts-nocheck
 import React, { useState, useEffect } from 'react';
 import { api, BACKEND_URL } from '../services/api';
+import logoImg from '../assets/logo.png';
 import { ScoreMeter } from '../components/ScoreMeter';
 import { ProjectsPortfolio } from '../components/ProjectsPortfolio';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -13,7 +14,7 @@ export const StudentDashboard: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [showTour, setShowTour] = useState(false);
+  const [showTour, setShowTour] = useState(() => !localStorage.getItem('careeriq_tour_completed'));
   const [showOverallBreakdown, setShowOverallBreakdown] = useState(false);
 
   // Profile state
@@ -98,7 +99,14 @@ export const StudentDashboard: React.FC = () => {
     const handleResize = () => setIsMobile(window.innerWidth < 900);
     handleResize();
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    
+    const handleStartTour = () => setShowTour(true);
+    window.addEventListener('start-tour', handleStartTour);
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('start-tour', handleStartTour);
+    };
   }, []);
 
   // Recommendations state
@@ -136,137 +144,346 @@ export const StudentDashboard: React.FC = () => {
   ) || categoryScores.resumeScore || 90;
 
   const handleDownloadCertificate = () => {
-    const canvas = document.createElement('canvas');
-    canvas.width = 1200;
-    canvas.height = 850;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    const logo = new Image();
+    logo.src = logoImg;
+    logo.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = 1200;
+      canvas.height = 850;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
 
-    // Background Gradient (Dark Premium)
-    const bgGrad = ctx.createLinearGradient(0, 0, 1200, 850);
-    bgGrad.addColorStop(0, '#05070f');
-    bgGrad.addColorStop(1, '#080b16');
-    ctx.fillStyle = bgGrad;
-    ctx.fillRect(0, 0, 1200, 850);
+      // 1. Background Gradient (Dark Premium)
+      const bgGrad = ctx.createLinearGradient(0, 0, 1200, 850);
+      bgGrad.addColorStop(0, '#05070f');
+      bgGrad.addColorStop(1, '#080b16');
+      ctx.fillStyle = bgGrad;
+      ctx.fillRect(0, 0, 1200, 850);
 
-    // Radial glows
-    const glow1 = ctx.createRadialGradient(200, 200, 50, 200, 200, 300);
-    glow1.addColorStop(0, 'rgba(99, 102, 241, 0.12)');
-    glow1.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.fillStyle = glow1;
-    ctx.fillRect(0, 0, 1200, 850);
+      // 2. Subtle Background Graphics (Dots Grid & Geometric Lines)
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.012)';
+      for (let dotX = 70; dotX < 1130; dotX += 30) {
+        for (let dotY = 70; dotY < 800; dotY += 30) {
+          ctx.beginPath();
+          ctx.arc(dotX, dotY, 1.2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
 
-    const glow2 = ctx.createRadialGradient(1000, 650, 50, 1000, 650, 300);
-    glow2.addColorStop(0, 'rgba(168, 85, 247, 0.12)');
-    glow2.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.fillStyle = glow2;
-    ctx.fillRect(0, 0, 1200, 850);
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.005)';
+      ctx.lineWidth = 1;
+      for (let gridX = 100; gridX < 1100; gridX += 100) {
+        ctx.beginPath();
+        ctx.moveTo(gridX, 60);
+        ctx.lineTo(gridX, 790);
+        ctx.stroke();
+      }
+      for (let gridY = 100; gridY < 750; gridY += 100) {
+        ctx.beginPath();
+        ctx.moveTo(60, gridY);
+        ctx.lineTo(1140, gridY);
+        ctx.stroke();
+      }
 
-    // Premium Border
-    const borderGrad = ctx.createLinearGradient(0, 0, 1200, 850);
-    borderGrad.addColorStop(0, '#3b82f6');
-    borderGrad.addColorStop(0.5, '#8b5cf6');
-    borderGrad.addColorStop(1, '#f59e0b');
-    ctx.strokeStyle = borderGrad;
-    ctx.lineWidth = 12;
-    ctx.strokeRect(30, 30, 1140, 790);
+      // Radial glows
+      const glow1 = ctx.createRadialGradient(200, 200, 50, 200, 200, 300);
+      glow1.addColorStop(0, 'rgba(99, 102, 241, 0.08)');
+      glow1.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = glow1;
+      ctx.fillRect(0, 0, 1200, 850);
 
-    // Inner border
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(45, 45, 1110, 760);
+      const glow2 = ctx.createRadialGradient(1000, 650, 50, 1000, 650, 300);
+      glow2.addColorStop(0, 'rgba(168, 85, 247, 0.08)');
+      glow2.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = glow2;
+      ctx.fillRect(0, 0, 1200, 850);
 
-    // Logo mockup
-    ctx.fillStyle = '#60a5fa';
-    ctx.beginPath();
-    ctx.arc(600, 100, 24, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 20px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('IQ', 600, 107);
+      // 3. Watermark (Very faint behind text)
+      ctx.save();
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.02)';
+      ctx.font = 'black 120px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('CAREERIQ', 600, 425);
+      ctx.restore();
 
-    // Header Text
-    ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 28px sans-serif';
-    ctx.fillText('CAREERIQ READINESS CERTIFICATE', 600, 175);
+      // 4. Layered Borders
+      // Outer Gradient Border
+      const borderGrad = ctx.createLinearGradient(0, 0, 1200, 850);
+      borderGrad.addColorStop(0, '#3b82f6');
+      borderGrad.addColorStop(0.5, '#8b5cf6');
+      borderGrad.addColorStop(1, '#f59e0b');
+      ctx.strokeStyle = borderGrad;
+      ctx.lineWidth = 12;
+      ctx.strokeRect(30, 30, 1140, 790);
 
-    // Subtitle
-    ctx.fillStyle = '#94a3b8';
-    ctx.font = '16px sans-serif';
-    ctx.fillText('This is to certify that', 600, 240);
+      // Thin Silver Border
+      const silverGrad = ctx.createLinearGradient(0, 0, 1200, 850);
+      silverGrad.addColorStop(0, '#94a3b8');
+      silverGrad.addColorStop(0.5, '#f1f5f9');
+      silverGrad.addColorStop(1, '#64748b');
+      ctx.strokeStyle = silverGrad;
+      ctx.lineWidth = 2;
+      ctx.strokeRect(45, 45, 1110, 760);
 
-    // Candidate Name
-    ctx.fillStyle = '#3b82f6';
-    ctx.font = 'bold 36px sans-serif';
-    ctx.fillText(fullName || 'Student Candidate', 600, 305);
+      // Dark Inner Border
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(55, 55, 1090, 740);
 
-    // Certification statement
-    ctx.fillStyle = '#94a3b8';
-    ctx.font = '15px sans-serif';
-    ctx.fillText('has successfully completed the CareerIQ Career Readiness Assessment and', 600, 375);
-    ctx.fillText('demonstrated industry-grade engineering capabilities across verified metrics.', 600, 405);
+      // 5. Logo with subtle glow
+      ctx.save();
+      ctx.shadowColor = '#3b82f6';
+      ctx.shadowBlur = 15;
+      const logoSize = 54;
+      ctx.drawImage(logo, 600 - logoSize / 2, 70, logoSize, logoSize);
+      ctx.restore();
 
-    // Score details box
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.02)';
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.roundRect ? ctx.roundRect(300, 455, 600, 190, 16) : ctx.rect(300, 455, 600, 190);
-    ctx.fill();
-    ctx.stroke();
+      ctx.textAlign = 'center';
 
-    // Overall Score Inside Box
-    ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 12px sans-serif';
-    ctx.fillText('CAREER READINESS INDEX', 600, 495);
+      // 6. Header Title (Lighter and spaced)
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '300 28px sans-serif';
+      ctx.fillText('Verified Career Readiness Certificate', 600, 165);
 
-    const activeScore = overallScore % 1 === 0 ? overallScore : parseFloat(overallScore.toFixed(1));
-    ctx.fillStyle = '#3b82f6';
-    ctx.font = 'bold 54px sans-serif';
-    ctx.fillText(`${activeScore}/100`, 600, 560);
+      // 7. Improved Certificate Wording
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '16px sans-serif';
+      ctx.fillText('This certifies that', 600, 220);
 
-    let levelText = 'Industry Ready';
-    if (activeScore >= 90) levelText = 'Elite';
-    else if (activeScore >= 80) levelText = 'Advanced';
-    else if (activeScore >= 70) levelText = 'Industry Ready';
-    else if (activeScore >= 60) levelText = 'Developing';
-    else levelText = 'Beginner';
+      // Candidate Name (Centered, size 52px, bold hero)
+      ctx.fillStyle = '#3b82f6';
+      ctx.font = 'bold 52px sans-serif';
+      ctx.fillText(fullName || 'Student Candidate', 600, 285);
 
-    ctx.fillStyle = '#10b981';
-    ctx.font = 'bold 16px sans-serif';
-    ctx.fillText(levelText, 600, 605);
+      // Certification statement (spaced around 1.5)
+      ctx.fillStyle = '#cbd5e1';
+      ctx.font = '14px sans-serif';
+      ctx.fillText('has successfully completed the CareerIQ Career Readiness Assessment and demonstrated professional competency', 600, 340);
+      ctx.fillText('across verified engineering, technical, and project-based evaluation metrics.', 600, 368);
 
-    // Detail Scores row at the bottom of the box
-    ctx.fillStyle = '#cbd5e1';
-    ctx.font = 'bold 13px sans-serif';
-    const certScoreVal = certificatesIncluded ? categoryScores.experienceScore : 'Excluded';
-    ctx.fillText(`Resume: ${computedResumeScore}   |   GitHub: ${githubScore}   |   Projects: ${portfolioScore}   |   Certs: ${certScoreVal}`, 600, 630);
+      const activeScore = overallScore % 1 === 0 ? overallScore : parseFloat(overallScore.toFixed(1));
 
-    // Signatures
-    ctx.fillStyle = '#94a3b8';
-    ctx.font = 'italic 16px sans-serif';
-    ctx.fillText('Chief Assessment Officer', 300, 715);
-    ctx.fillText('Verification Authority', 900, 715);
+      // 8. Achievement Level (Stars & Top Percentile Badge)
+      let stars = '★★★☆☆';
+      let percentile = 'Top 25%';
+      let levelText = 'Industry Ready';
+      let tierTitle = 'Professional Tier';
+      if (activeScore >= 90) {
+        stars = '★★★★★';
+        percentile = 'Top 5%';
+        levelText = 'Elite';
+        tierTitle = 'Elite Tier';
+      } else if (activeScore >= 80) {
+        stars = '★★★★☆';
+        percentile = 'Top 15%';
+        levelText = 'Advanced';
+        tierTitle = 'Advanced Tier';
+      } else if (activeScore >= 70) {
+        stars = '★★★☆☆';
+        percentile = 'Top 25%';
+        levelText = 'Industry Ready';
+        tierTitle = 'Professional Tier';
+      } else if (activeScore >= 60) {
+        stars = '★★☆☆☆';
+        percentile = 'Top 45%';
+        levelText = 'Developing';
+        tierTitle = 'Developing Tier';
+      } else {
+        stars = '★☆☆☆☆';
+        percentile = 'Qualified';
+        levelText = 'Beginner';
+        tierTitle = 'Beginner Tier';
+      }
 
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(200, 690); ctx.lineTo(400, 690);
-    ctx.moveTo(800, 690); ctx.lineTo(1000, 690);
-    ctx.stroke();
+      ctx.fillStyle = '#f59e0b'; // Gold
+      ctx.font = '22px sans-serif';
+      ctx.fillText(`${stars}  ${tierTitle}`, 600, 412);
 
-    // Unique Certificate hash & date
-    ctx.fillStyle = '#64748b';
-    ctx.font = '11px monospace';
-    const certHash = `CIQ-${(fullName || 'STUDENT').substring(0, 3).toUpperCase()}-${activeScore}-${Math.floor(1000 + Math.random() * 9000)}`;
-    ctx.fillText(`ID: ${certHash}   |   Date: ${new Date().toISOString().split('T')[0]}`, 600, 780);
+      // 9. Score Hero: Circular Gauge / Radial Ring (15% larger, centered vertically)
+      const gaugeX = 600;
+      const gaugeY = 515;
+      const gaugeR = 64;
 
-    // Download action
-    const link = document.createElement('a');
-    link.download = `careeriq_readiness_certificate_${fullName.replace(/\s+/g, '_') || 'student'}.png`;
-    link.href = canvas.toDataURL('image/png');
-    link.click();
+      // Draw background ring
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
+      ctx.lineWidth = 8;
+      ctx.beginPath();
+      ctx.arc(gaugeX, gaugeY, gaugeR, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Draw progress ring (Blue-Purple gradient)
+      const progressGrad = ctx.createLinearGradient(gaugeX - gaugeR, gaugeY, gaugeX + gaugeR, gaugeY);
+      progressGrad.addColorStop(0, '#3b82f6');
+      progressGrad.addColorStop(1, '#8b5cf6');
+      ctx.strokeStyle = progressGrad;
+      ctx.lineWidth = 8;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.arc(gaugeX, gaugeY, gaugeR, -Math.PI / 2, -Math.PI / 2 + (activeScore / 100) * Math.PI * 2);
+      ctx.stroke();
+
+      // Inside Gauge Value
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 34px sans-serif';
+      ctx.fillText(`${activeScore}`, gaugeX, gaugeY + 6);
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '11px sans-serif';
+      ctx.fillText('/100', gaugeX, gaugeY + 23);
+
+      // Label below Gauge
+      ctx.fillStyle = '#10b981';
+      ctx.font = 'bold 15px sans-serif';
+      ctx.fillText(`${levelText}  |  ${percentile}`, gaugeX, gaugeY + 92);
+
+      // 10. Gold Foil Verification Seal (Left Side, perfectly aligned)
+      const sealX = 220;
+      const sealY = 515;
+      ctx.save();
+      // Seal Outer Metallic Gold Gradient Circle
+      const sealGrad = ctx.createLinearGradient(sealX - 44, sealY - 44, sealX + 44, sealY + 44);
+      sealGrad.addColorStop(0, '#fef08a');
+      sealGrad.addColorStop(0.3, '#f59e0b');
+      sealGrad.addColorStop(0.5, '#fffbeb');
+      sealGrad.addColorStop(0.7, '#d97706');
+      sealGrad.addColorStop(1, '#fcd34d');
+      ctx.fillStyle = sealGrad;
+      ctx.beginPath();
+      ctx.arc(sealX, sealY, 44, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#f59e0b';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      // Seal Inner Dashed Ring
+      ctx.strokeStyle = '#78350f';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([3, 3]);
+      ctx.beginPath();
+      ctx.arc(sealX, sealY, 38, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.setLineDash([]); // reset
+
+      // Seal text
+      ctx.fillStyle = '#78350f';
+      ctx.textAlign = 'center';
+      ctx.font = 'bold 10px sans-serif';
+      ctx.fillText('✓ VERIFIED', sealX, sealY - 14);
+      ctx.font = '8px sans-serif';
+      ctx.fillText('CareerIQ', sealX, sealY - 2);
+      ctx.fillText('Certified', sealX, sealY + 8);
+      ctx.font = 'bold 9px sans-serif';
+      ctx.fillText('2026', sealX, sealY + 22);
+      ctx.restore();
+
+      // 11. QR Code Verification (Right Side, 20% larger, perfectly aligned)
+      const qrX = 980;
+      const qrY = 515;
+      const qrSize = 88;
+
+      // Draw QR Box
+      ctx.save();
+      ctx.fillStyle = '#111827';
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.roundRect ? ctx.roundRect(qrX - qrSize / 2, qrY - qrSize / 2, qrSize, qrSize, 8) : ctx.rect(qrX - qrSize / 2, qrY - qrSize / 2, qrSize, qrSize);
+      ctx.fill();
+      ctx.stroke();
+
+      // Mock QR Pattern
+      ctx.fillStyle = '#ffffff';
+      // Positional squares in corners
+      ctx.fillRect(qrX - qrSize / 2 + 6, qrY - qrSize / 2 + 6, 20, 20);
+      ctx.fillStyle = '#111827';
+      ctx.fillRect(qrX - qrSize / 2 + 10, qrY - qrSize / 2 + 10, 12, 12);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(qrX - qrSize / 2 + 13, qrY - qrSize / 2 + 13, 6, 6);
+
+      ctx.fillRect(qrX + qrSize / 2 - 26, qrY - qrSize / 2 + 6, 20, 20);
+      ctx.fillStyle = '#111827';
+      ctx.fillRect(qrX + qrSize / 2 - 22, qrY - qrSize / 2 + 10, 12, 12);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(qrX + qrSize / 2 - 19, qrY - qrSize / 2 + 13, 6, 6);
+
+      ctx.fillRect(qrX - qrSize / 2 + 6, qrY + qrSize / 2 - 26, 20, 20);
+      ctx.fillStyle = '#111827';
+      ctx.fillRect(qrX - qrSize / 2 + 10, qrY + qrSize / 2 - 22, 12, 12);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(qrX - qrSize / 2 + 13, qrY + qrSize / 2 - 19, 6, 6);
+
+      // Random mini pixel dots
+      ctx.fillStyle = '#ffffff';
+      for (let py = 0; py < 7; py++) {
+        for (let px = 0; px < 7; px++) {
+          if ((px + py) % 2 === 0) {
+            ctx.fillRect(qrX - 12 + px * 4, qrY - 12 + py * 4, 3, 3);
+          }
+        }
+      }
+      ctx.restore();
+
+      // QR Labels (Scan to Verify)
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = 'bold 9px sans-serif';
+      ctx.fillText('Scan to Verify', qrX, qrY + qrSize / 2 + 14);
+      ctx.fillStyle = '#60a5fa';
+      ctx.font = '8px sans-serif';
+      ctx.fillText('careeriq.ai/verify', qrX, qrY + qrSize / 2 + 25);
+
+      // 12. Signature Area (Verified with handwritten mock signature path)
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      // CAO line
+      ctx.moveTo(180, 700); ctx.lineTo(380, 700);
+      // Authority line
+      ctx.moveTo(820, 700); ctx.lineTo(1020, 700);
+      ctx.stroke();
+
+      // Blue ink handwritten signature above the Chief line
+      ctx.save();
+      ctx.strokeStyle = '#2563eb';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(220, 680);
+      ctx.bezierCurveTo(240, 660, 260, 695, 280, 675);
+      ctx.bezierCurveTo(300, 655, 310, 690, 330, 670);
+      ctx.stroke();
+      ctx.restore();
+
+      // Verification Authority Seal path
+      ctx.save();
+      ctx.strokeStyle = '#10b981';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(920, 672, 14, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '14px sans-serif';
+      ctx.fillText('Rakshak Patel V', 280, 722);
+      ctx.fillText('CareerIQ Team', 920, 722);
+
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = 'bold 11px sans-serif';
+      ctx.fillText('CHIEF ASSESSMENT OFFICER', 280, 738);
+      ctx.fillText('VERIFICATION AUTHORITY', 920, 738);
+
+      // 13. Elegant Bottom Metadata Table (Footer offset spacing increased)
+      const metaY = 804;
+      ctx.fillStyle = '#64748b';
+      ctx.font = '11px monospace';
+      const certHash = `CQ-${new Date().getFullYear()}-${(fullName || 'STU').substring(0, 3).toUpperCase()}-${Math.floor(100000 + Math.random() * 900000)}`;
+      ctx.fillText(`Certificate ID: ${certHash}   |   Issue Date: ${new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}   |   Version: v3.2   |   Status: Verified`, 600, metaY);
+
+      // Download action
+      const link = document.createElement('a');
+      link.download = `careeriq_readiness_certificate_${fullName.replace(/\s+/g, '_') || 'student'}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    };
   };
 
   const updateDashboardState = (data: any) => {
@@ -750,14 +967,14 @@ export const StudentDashboard: React.FC = () => {
               -webkit-print-color-adjust: exact !important;
               print-color-adjust: exact !important;
             }
-            .screen-only-container, .sidebar, .sidebar-container, aside, .floating-copilot, .badge, #root > div:not(.print-report-container) {
+            .screen-only-container, .sidebar, .sidebar-container, aside, .floating-copilot, .badge, header, nav, .header-container, button {
               display: none !important;
             }
             .print-report-container {
               display: block !important;
-              width: 210mm !important;
-              max-width: 210mm !important;
-              margin: 0 auto !important;
+              width: 100% !important;
+              max-width: 100% !important;
+              margin: 0 !important;
               background: #05070f !important;
               color: #ffffff !important;
               font-family: 'Inter', sans-serif;
@@ -879,7 +1096,7 @@ export const StudentDashboard: React.FC = () => {
           <section id="dashboard" style={{ paddingTop: '0.5rem' }}>
             {isMobile && <div style={{ height: '20px', width: '100%' }} />}
             {!isMobile && (
-              <div className="dashboard-header-flex" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+              <div id="dashboard-header" className="dashboard-header-flex" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
                 <div>
                   <h1 className="welcome-title-gradient" style={{ fontSize: '1.8rem', fontWeight: 800, marginBottom: '0.25rem' }}>
                     Welcome back, {fullName || 'Student'}
@@ -936,7 +1153,7 @@ export const StudentDashboard: React.FC = () => {
                 const potentialScore = Math.min(98, roundedScore + 12);
 
                 return (
-                  <div className="glass-card" style={{
+                  <div id="readiness-score-card" className="glass-card" style={{
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'space-between',
@@ -1699,8 +1916,8 @@ export const StudentDashboard: React.FC = () => {
                     {uploadingResume ? 'Processing...' : resumeUrl ? 'Uploaded' : 'No Resume'}
                   </span>
                   <div style={{ background: 'rgba(139, 92, 246, 0.1)', border: '1px solid rgba(139, 92, 246, 0.2)', borderRadius: '12px', padding: '0.5rem 1rem', display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '80px', flexShrink: 0 }}>
-                    <span style={{ fontSize: '0.7rem', color: '#a78bfa', textTransform: 'uppercase', letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>ATS Score</span>
-                    <span style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fff', lineHeight: 1, whiteSpace: 'nowrap' }}>{resumeATSScore}<span style={{ fontSize: '0.85rem', color: '#94a3b8', fontWeight: 500 }}>/25</span></span>
+                    <span style={{ fontSize: '0.7rem', color: '#a78bfa', textTransform: 'uppercase', letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>Total Score</span>
+                    <span style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fff', lineHeight: 1, whiteSpace: 'nowrap' }}>{computedResumeScore}<span style={{ fontSize: '0.85rem', color: '#94a3b8', fontWeight: 500 }}>/100</span></span>
                   </div>
                 </div>
               </div>
@@ -1759,9 +1976,9 @@ export const StudentDashboard: React.FC = () => {
                         </div>
                       ))}
 
-                      <div style={{ marginTop: '1rem', padding: '1rem', background: 'rgba(59, 130, 246, 0.1)', borderRadius: '12px', border: '1px dashed rgba(59, 130, 246, 0.3)' }}>
-                        <div style={{ fontSize: '0.85rem', color: '#94a3b8', marginBottom: '0.25rem' }}>Total Resume Score</div>
-                        <div style={{ fontSize: '2rem', fontWeight: 800, color: '#3b82f6', lineHeight: 1 }}>{computedResumeScore} <span style={{ fontSize: '1rem', color: '#94a3b8', fontWeight: 500 }}>/ 100</span></div>
+                      <div style={{ marginTop: '1rem', padding: '1rem', background: 'rgba(139, 92, 246, 0.1)', borderRadius: '12px', border: '1px dashed rgba(139, 92, 246, 0.3)' }}>
+                        <div style={{ fontSize: '0.85rem', color: '#94a3b8', marginBottom: '0.25rem' }}>ATS Score</div>
+                        <div style={{ fontSize: '2rem', fontWeight: 800, color: '#a78bfa', lineHeight: 1 }}>{resumeATSScore} <span style={{ fontSize: '1rem', color: '#94a3b8', fontWeight: 500 }}>/ 25</span></div>
                       </div>
 
                       {/* Unexpandable (Static) Logic Breakdown */}
@@ -2069,9 +2286,9 @@ export const StudentDashboard: React.FC = () => {
           )}
         </div>
         {showTour && (
-          <WelcomeTourModal onClose={() => setShowTour(false)} role={targetRole || 'Software Engineer'} />
+          <WelcomeTourModal onClose={() => setShowTour(false)} role="student" />
         )}
-        <FloatingCopilot />
+        {/* <FloatingCopilot /> */}
       </div>
 
       <div className="print-report-container" style={{ display: 'none' }}>

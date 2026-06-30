@@ -8,6 +8,15 @@ export const GitHubAnalysisReport: React.FC = () => {
   const [data, setData] = useState<any>(null);
   const [username, setUsername] = useState<string>('');
   const [reanalyzing, setReanalyzing] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [isReposExpanded, setIsReposExpanded] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 900);
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     fetchReport();
@@ -75,6 +84,10 @@ export const GitHubAnalysisReport: React.FC = () => {
   }
 
   const { profile, repositories } = data;
+  
+  const getRepoScore = (repo: any) => Math.round(((repo.complexityScore || 0) + (repo.documentationScore || 0) + (repo.productionReadinessScore || 0)) / 3);
+  const sortedRepositories = [...(repositories || [])].sort((a, b) => getRepoScore(b) - getRepoScore(a));
+  const displayedRepositories = isReposExpanded ? sortedRepositories : sortedRepositories.slice(0, 5);
   
   const score = profile.github_score || profile.employabilityScore || profile.githubScore || 0;
   const followers = profile.github_followers || profile.metadata?.followers || 0;
@@ -163,37 +176,62 @@ export const GitHubAnalysisReport: React.FC = () => {
           Repository Analysis
         </h2>
         <div className="overflow-x-auto">
-          {repositories && repositories.length > 0 ? (
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="border-b border-slate-700 text-slate-400 text-sm">
-                  <th className="py-4 px-4 font-semibold uppercase tracking-wider text-xs">Repository</th>
-                  <th className="py-4 px-4 font-semibold uppercase tracking-wider text-xs">Score</th>
-                  <th className="py-4 px-4 font-semibold uppercase tracking-wider text-xs">Complexity</th>
-                  <th className="py-4 px-4 font-semibold uppercase tracking-wider text-xs">Quality</th>
-                  <th className="py-4 px-4 font-semibold uppercase tracking-wider text-xs">Stars</th>
-                  <th className="py-4 px-4 font-semibold uppercase tracking-wider text-xs">Language</th>
-                </tr>
-              </thead>
-              <tbody>
-                {repositories.map((repo: any, idx: number) => (
-                  <tr key={idx} className="border-b border-slate-700/30 hover:bg-slate-700/20 transition-colors">
-                    <td className="py-4 px-4 font-medium text-blue-400"><a href={repo.url} target="_blank" rel="noreferrer" className="hover:underline">{repo.name}</a></td>
-                    <td className="py-4 px-4"><span className="bg-emerald-400/10 text-emerald-400 px-2 py-1 rounded font-bold text-sm">{repo.overallScore || repo.score || 0}</span></td>
-                    <td className="py-4 px-4 text-slate-300">{repo.complexityScore || 0}/10</td>
-                    <td className="py-4 px-4 text-slate-300">{repo.qualityScore || 0}/10</td>
-                    <td className="py-4 px-4 text-yellow-400/80">⭐ {repo.stars || repo.stargazersCount || 0}</td>
-                    <td className="py-4 px-4 text-slate-400 text-sm">{repo.language || repo.primaryLanguage || 'Mixed'}</td>
-                  </tr>
+          {sortedRepositories && sortedRepositories.length > 0 ? (
+            isMobile ? (
+              <div className="flex flex-col gap-3">
+                {displayedRepositories.map((repo: any, idx: number) => (
+                  <div key={idx} className="flex justify-between items-center bg-slate-900/20 border border-slate-700/50 p-4 rounded-xl">
+                    <span className="font-semibold text-blue-400 truncate mr-2" style={{ maxWidth: '75%' }}>
+                      <a href={repo.url} target="_blank" rel="noreferrer" className="hover:underline">{repo.name}</a>
+                    </span>
+                    <span className="bg-emerald-400/10 text-emerald-400 px-2.5 py-1.5 rounded font-bold text-sm flex-shrink-0">
+                      {Math.round(((repo.complexityScore || 0) + (repo.documentationScore || 0) + (repo.productionReadinessScore || 0)) / 3)}
+                    </span>
+                  </div>
                 ))}
-              </tbody>
-            </table>
+              </div>
+            ) : (
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-slate-700 text-slate-400 text-sm whitespace-nowrap">
+                    <th className="py-4 px-4 font-semibold uppercase tracking-wider text-xs">Repository</th>
+                    <th className="py-4 px-4 font-semibold uppercase tracking-wider text-xs">Score</th>
+                    <th className="py-4 px-4 font-semibold uppercase tracking-wider text-xs">Complexity</th>
+                    <th className="py-4 px-4 font-semibold uppercase tracking-wider text-xs">Quality</th>
+                    <th className="py-4 px-4 font-semibold uppercase tracking-wider text-xs">Stars</th>
+                    <th className="py-4 px-4 font-semibold uppercase tracking-wider text-xs">Language</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {displayedRepositories.map((repo: any, idx: number) => (
+                    <tr key={idx} className="border-b border-slate-700/30 hover:bg-slate-700/20 transition-colors whitespace-nowrap">
+                      <td className="py-4 px-4 font-medium text-blue-400"><a href={repo.url} target="_blank" rel="noreferrer" className="hover:underline">{repo.name}</a></td>
+                      <td className="py-4 px-4"><span className="bg-emerald-400/10 text-emerald-400 px-2 py-1 rounded font-bold text-sm">{Math.round(((repo.complexityScore || 0) + (repo.documentationScore || 0) + (repo.productionReadinessScore || 0)) / 3)}</span></td>
+                      <td className="py-4 px-4 text-slate-300">{repo.complexityScore || 0}/100</td>
+                      <td className="py-4 px-4 text-slate-300">{repo.productionReadinessScore || 0}/100</td>
+                      <td className="py-4 px-4 text-yellow-400/80">⭐ {repo.stars || repo.stargazersCount || 0}</td>
+                      <td className="py-4 px-4 text-slate-400 text-sm">{repo.language || repo.primaryLanguage || 'Mixed'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )
           ) : (
             <div className="text-center py-8 text-slate-400 bg-slate-900/30 rounded-xl border border-slate-700/30">
               No detailed repository data available.
             </div>
           )}
         </div>
+        {sortedRepositories && sortedRepositories.length > 5 && (
+          <div className="flex justify-center mt-6">
+            <button 
+              onClick={() => setIsReposExpanded(!isReposExpanded)}
+              className="bg-slate-900/80 hover:bg-slate-800 text-blue-400 hover:text-white border border-slate-700/80 font-bold px-5 py-2.5 rounded-xl transition-all text-xs flex items-center justify-center gap-2"
+            >
+              {isReposExpanded ? 'Show Less' : `Show More (${sortedRepositories.length - 5} hidden)`}
+            </button>
+          </div>
+        )}
       </div>
 
       {/* SECTION 3: Health Score */}

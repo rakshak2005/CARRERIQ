@@ -211,7 +211,7 @@ export const RecruiterDashboard: React.FC = () => {
               <p>Try broadening your filter criteria or search queries.</p>
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div id="candidate-list-section" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               {/* Table/List View Header */}
               <div 
                 style={{ 
