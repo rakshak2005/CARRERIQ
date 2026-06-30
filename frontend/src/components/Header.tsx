@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
-import { Search, Bell, ChevronDown, Upload, GitBranch, Plus, FileText } from 'lucide-react';
+import { Search, Bell } from 'lucide-react';
 import logoImg from '../assets/logo.png';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -11,7 +11,6 @@ export const Header: React.FC = () => {
   useTheme();
   const navigate = useNavigate();
   const location = useLocation();
-  const [showQuickActions, setShowQuickActions] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 

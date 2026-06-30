@@ -24,12 +24,11 @@ const SECTIONS = [
 ];
 
 interface SidebarProps {
-  onReplayTour?: () => void;
   projectCount?: number;
   certificateCount?: number;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ onReplayTour, projectCount = 3, certificateCount = 0 }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ projectCount = 3, certificateCount = 0 }) => {
   const [activeSection, setActiveSection] = useState('dashboard');
 
   const scrollToSection = (id: string) => {
