@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
+import logoImg from '../assets/logo.png';
 import { useAuth } from '../context/AuthContext';
+import { ArrowLeft } from 'lucide-react';
 import { registerWithEmail, getCurrentUserToken } from '../services/firebase';
 import { BACKEND_URL } from '../services/api';
 
@@ -178,15 +180,45 @@ export const Register: React.FC = () => {
   return (
     <div 
       className="container flex-center" 
-      style={{ minHeight: 'calc(100vh - 100px)', flexDirection: 'column' }}
+      style={{ minHeight: '100vh', flexDirection: 'column', overflow: 'hidden', padding: '1rem', background: '#050816', position: 'relative' }}
     >
+      {/* Back to Home Button */}
+      <button
+        onClick={() => navigate('/')}
+        style={{
+          position: 'absolute',
+          top: '2rem',
+          left: '2rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem',
+          background: 'transparent',
+          border: 'none',
+          color: '#94a3b8',
+          fontSize: '0.85rem',
+          fontWeight: 600,
+          cursor: 'pointer',
+          transition: 'all 0.3s',
+          zIndex: 100
+        }}
+        onMouseEnter={(e) => (e.currentTarget.style.color = '#fff')}
+        onMouseLeave={(e) => (e.currentTarget.style.color = '#94a3b8')}
+      >
+        <ArrowLeft size={16} />
+        Back to Home
+      </button>
+
       <div 
         className="glass-card animate-slide-up" 
-        style={{ width: '100%', maxWidth: '600px', padding: '2.5rem' }}
+        style={{ width: '100%', maxWidth: '640px', padding: '1.5rem 2rem', borderRadius: '12px', background: 'rgba(22, 23, 27, 0.85)', backdropFilter: 'blur(20px)', boxShadow: '0 20px 40px rgba(0, 0, 0, 0.4)' }}
       >
-        <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-          <h2 style={{ fontWeight: 800, margin: '0 0 0.5rem 0' }}>Create Account</h2>
-          <p style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)', margin: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem' }}>
+          <img src={logoImg} alt="CareerIQ Logo" style={{ width: '42px', height: '42px', objectFit: 'contain' }} />
+        </div>
+
+        <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
+          <h2 style={{ fontSize: '1.75rem', fontWeight: 800, margin: '0 0 0.25rem 0' }}>Create Account</h2>
+          <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', margin: 0 }}>
             {role === 'student' ? 'Intelligent onboarding setup for candidates' : 'Setup your recruiter dashboard'}
           </p>
         </div>
@@ -194,7 +226,7 @@ export const Register: React.FC = () => {
         {error && (
           <div 
             className="badge badge-danger" 
-            style={{ width: '100%', display: 'block', textAlign: 'center', padding: '0.75rem', marginBottom: '1.5rem', textTransform: 'none' }}
+            style={{ width: '100%', display: 'block', textAlign: 'center', padding: '0.5rem', marginBottom: '1rem', textTransform: 'none', borderRadius: '6px', fontSize: '0.8rem' }}
           >
             {error}
           </div>
@@ -202,50 +234,50 @@ export const Register: React.FC = () => {
 
         {/* Step indicator (only for student) */}
         {role === 'student' && (
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '2rem', marginBottom: '2rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '1.5rem', marginBottom: '1rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
               <span style={{
                 display: 'inline-flex',
-                width: '24px',
-                height: '24px',
+                width: '20px',
+                height: '20px',
                 alignItems: 'center',
                 justifyContent: 'center',
                 borderRadius: '50%',
                 background: step === 1 ? 'var(--grad-primary)' : 'var(--bg-subcard)',
                 color: '#fff',
-                fontSize: '0.75rem',
+                fontSize: '0.7rem',
                 fontWeight: 700
               }}>1</span>
-              <span style={{ fontSize: '0.85rem', fontWeight: step === 1 ? 700 : 400 }}>Account Info</span>
+              <span style={{ fontSize: '0.75rem', fontWeight: step === 1 ? 700 : 400 }}>Account Info</span>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
               <span style={{
                 display: 'inline-flex',
-                width: '24px',
-                height: '24px',
+                width: '20px',
+                height: '20px',
                 alignItems: 'center',
                 justifyContent: 'center',
                 borderRadius: '50%',
                 background: step === 2 ? 'var(--grad-primary)' : 'var(--bg-subcard)',
                 color: '#fff',
-                fontSize: '0.75rem',
+                fontSize: '0.7rem',
                 fontWeight: 700
               }}>2</span>
-              <span style={{ fontSize: '0.85rem', fontWeight: step === 2 ? 700 : 400 }}>Career Profile</span>
+              <span style={{ fontSize: '0.75rem', fontWeight: step === 2 ? 700 : 400 }}>Career Profile</span>
             </div>
           </div>
         )}
 
         {/* Role Selection Tabs */}
         {step === 1 && (
-          <div style={{ marginBottom: '1.5rem' }}>
-            <label>Select Account Type</label>
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={{ fontSize: '0.7rem', marginBottom: '0.25rem' }}>Select Account Type</label>
             <div 
               style={{
                 display: 'flex',
                 background: 'var(--bg-subcard)',
                 border: '1px solid var(--border-subcard)',
-                padding: '0.25rem',
+                padding: '0.2rem',
                 borderRadius: '8px',
                 gap: '0.25rem'
               }}
@@ -256,8 +288,8 @@ export const Register: React.FC = () => {
                 onClick={() => setRole('student')}
                 style={{
                   flex: 1,
-                  padding: '0.5rem',
-                  fontSize: '0.9rem',
+                  padding: '0.4rem',
+                  fontSize: '0.8rem',
                   borderRadius: '6px',
                   background: role === 'student' ? 'var(--grad-primary)' : 'transparent',
                   color: role === 'student' ? '#ffffff' : 'var(--color-text-main)',
@@ -271,8 +303,8 @@ export const Register: React.FC = () => {
                 onClick={() => setRole('recruiter')}
                 style={{
                   flex: 1,
-                  padding: '0.5rem',
-                  fontSize: '0.9rem',
+                  padding: '0.4rem',
+                  fontSize: '0.8rem',
                   borderRadius: '6px',
                   background: role === 'recruiter' ? 'var(--grad-secondary)' : 'transparent',
                   color: role === 'recruiter' ? '#ffffff' : 'var(--color-text-main)',
@@ -286,9 +318,9 @@ export const Register: React.FC = () => {
 
         {step === 1 ? (
           /* STEP 1 FORM */
-          <form onSubmit={handleNextStep}>
-            <div style={{ marginBottom: '1.25rem' }}>
-              <label htmlFor="email">Email Address</label>
+          <form onSubmit={handleNextStep} style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+            <div>
+              <label htmlFor="email" style={{ fontSize: '0.7rem', marginBottom: '0.25rem' }}>Email Address</label>
               <input 
                 id="email"
                 type="email" 
@@ -296,13 +328,13 @@ export const Register: React.FC = () => {
                 placeholder="name@example.com" 
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                style={INPUT_STYLE}
+                style={{ ...INPUT_STYLE, borderRadius: '8px', padding: '0.65rem 0.85rem' }}
                 required
               />
             </div>
 
-            <div style={{ marginBottom: '1.25rem' }}>
-              <label htmlFor="password">Password</label>
+            <div>
+              <label htmlFor="password" style={{ fontSize: '0.7rem', marginBottom: '0.25rem' }}>Password</label>
               <input 
                 id="password"
                 type="password" 
@@ -310,13 +342,13 @@ export const Register: React.FC = () => {
                 placeholder="Min 6 characters" 
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                style={INPUT_STYLE}
+                style={{ ...INPUT_STYLE, borderRadius: '8px', padding: '0.65rem 0.85rem' }}
                 required
               />
             </div>
 
-            <div style={{ marginBottom: '1.75rem' }}>
-              <label htmlFor="confirmPassword">Confirm Password</label>
+            <div>
+              <label htmlFor="confirmPassword" style={{ fontSize: '0.7rem', marginBottom: '0.25rem' }}>Confirm Password</label>
               <input 
                 id="confirmPassword"
                 type="password" 
@@ -324,7 +356,7 @@ export const Register: React.FC = () => {
                 placeholder="Re-enter password" 
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                style={INPUT_STYLE}
+                style={{ ...INPUT_STYLE, borderRadius: '8px', padding: '0.65rem 0.85rem' }}
                 required
               />
             </div>
@@ -332,39 +364,40 @@ export const Register: React.FC = () => {
             <button 
               type="submit" 
               className="btn btn-primary" 
-              style={{ width: '100%', padding: '0.85rem', marginBottom: '1rem' }}
+              style={{ width: '100%', padding: '0.7rem', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 700, background: '#4b61eb', border: 'none', color: '#fff', cursor: 'pointer', marginTop: '0.25rem' }}
             >
               {role === 'student' ? 'Next: Setup Career Profile' : 'Next: Setup Recruiter Profile'}
             </button>
 
-            <p style={{ textAlign: 'center', fontSize: '0.9rem', margin: 0 }}>
+            <p style={{ textAlign: 'center', fontSize: '0.8rem', margin: 0 }}>
               Already have an account?{' '}
-              <Link to="/login" style={{ fontWeight: 600 }}>Sign in</Link>
+              <Link to="/login" style={{ fontWeight: 600, color: '#4b61eb', textDecoration: 'none' }}>Sign in</Link>
             </p>
           </form>
         ) : (
           /* STEP 2 FORM */
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
             {role === 'student' ? (
               /* Student Step 2 */
               <>
-                <div style={{ marginBottom: '1.25rem' }}>
-                  <label htmlFor="resume">Upload Resume (PDF, DOCX)</label>
+                <div>
+                  <label htmlFor="resume" style={{ fontSize: '0.7rem', marginBottom: '0.25rem' }}>Upload Resume (PDF, DOCX)</label>
                   <input 
                     id="resume"
                     type="file" 
                     className="glass-input"
                     accept=".pdf,.docx"
                     onChange={(e) => setResumeFile(e.target.files ? e.target.files[0] : null)}
+                    style={{ ...INPUT_STYLE, borderRadius: '8px', padding: '0.5rem 0.85rem', fontSize: '0.8rem' }}
                     required
                   />
-                  <small style={{ display: 'block', marginTop: '0.25rem', color: 'var(--color-text-muted)' }}>
+                  <small style={{ display: 'block', marginTop: '0.2rem', color: 'var(--color-text-muted)', fontSize: '0.65rem' }}>
                     CareerIQ will automatically parse your name, skills, and projects from the resume.
                   </small>
                 </div>
 
-                <div style={{ marginBottom: '1.25rem' }}>
-                  <label htmlFor="githubUrl">GitHub Profile URL</label>
+                <div>
+                  <label htmlFor="githubUrl" style={{ fontSize: '0.7rem', marginBottom: '0.25rem' }}>GitHub Profile URL</label>
                   <input 
                     id="githubUrl"
                     type="url" 
@@ -372,13 +405,13 @@ export const Register: React.FC = () => {
                     placeholder="https://github.com/username"
                     value={githubUrl}
                     onChange={(e) => setGithubUrl(e.target.value)}
-                    style={INPUT_STYLE}
+                    style={{ ...INPUT_STYLE, borderRadius: '8px', padding: '0.65rem 0.85rem' }}
                     required
                   />
                 </div>
 
-                <div style={{ marginBottom: '1.75rem' }}>
-                  <label htmlFor="targetRole">Target Role</label>
+                <div>
+                  <label htmlFor="targetRole" style={{ fontSize: '0.7rem', marginBottom: '0.25rem' }}>Target Role</label>
                   <input
                     id="targetRole"
                     type="text"
@@ -386,7 +419,7 @@ export const Register: React.FC = () => {
                     placeholder="e.g. Full Stack Developer, ML Engineer..."
                     value={targetRole}
                     onChange={(e) => setTargetRole(e.target.value)}
-                    style={INPUT_STYLE}
+                    style={{ ...INPUT_STYLE, borderRadius: '8px', padding: '0.65rem 0.85rem' }}
                     required
                   />
                 </div>
@@ -394,8 +427,8 @@ export const Register: React.FC = () => {
             ) : (
               /* Recruiter Step 2 */
               <>
-                <div style={{ marginBottom: '1.25rem' }}>
-                  <label htmlFor="fullName">Full Name</label>
+                <div>
+                  <label htmlFor="fullName" style={{ fontSize: '0.7rem', marginBottom: '0.25rem' }}>Full Name</label>
                   <input 
                     id="fullName"
                     type="text" 
@@ -403,13 +436,13 @@ export const Register: React.FC = () => {
                     placeholder="Jane Doe" 
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
-                    style={INPUT_STYLE}
+                    style={{ ...INPUT_STYLE, borderRadius: '8px', padding: '0.65rem 0.85rem' }}
                     required
                   />
                 </div>
 
-                <div style={{ marginBottom: '1.25rem' }}>
-                  <label htmlFor="companyName">Company Name</label>
+                <div>
+                  <label htmlFor="companyName" style={{ fontSize: '0.7rem', marginBottom: '0.25rem' }}>Company Name</label>
                   <input 
                     id="companyName"
                     type="text" 
@@ -417,19 +450,19 @@ export const Register: React.FC = () => {
                     placeholder="Google" 
                     value={companyName}
                     onChange={(e) => setCompanyName(e.target.value)}
-                    style={INPUT_STYLE}
+                    style={{ ...INPUT_STYLE, borderRadius: '8px', padding: '0.65rem 0.85rem' }}
                     required
                   />
                 </div>
 
-                <div style={{ marginBottom: '1.75rem' }}>
-                  <label htmlFor="industry">Industry</label>
+                <div>
+                  <label htmlFor="industry" style={{ fontSize: '0.7rem', marginBottom: '0.25rem' }}>Industry</label>
                   <select
                     id="industry"
                     className="glass-input"
                     value={industry}
                     onChange={(e) => setIndustry(e.target.value)}
-                    style={SELECT_STYLE}
+                    style={{ ...SELECT_STYLE, borderRadius: '8px', padding: '0.65rem 0.85rem' }}
                     required
                   >
                     <option value="Technology">Technology</option>

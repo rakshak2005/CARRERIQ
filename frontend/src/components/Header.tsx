@@ -23,8 +23,8 @@ export const Header: React.FC = () => {
 
   const isDashboard = location.pathname === '/student-dashboard';
 
-  // Hide the global dashboard header on the landing page
-  if (location.pathname === '/') {
+  // Hide the global dashboard header on the landing, login, register, and leaderboard pages
+  if (location.pathname === '/' || location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/leaderboard') {
     return null;
   }
 

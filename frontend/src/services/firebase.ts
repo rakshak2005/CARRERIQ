@@ -4,7 +4,10 @@ import {
   signInWithEmailAndPassword as fbSignIn, 
   createUserWithEmailAndPassword as fbCreateUser, 
   signOut as fbSignOut, 
-  onAuthStateChanged as fbOnAuthStateChanged
+  onAuthStateChanged as fbOnAuthStateChanged,
+  GoogleAuthProvider,
+  signInWithPopup,
+  sendPasswordResetEmail as fbSendPasswordResetEmail
 } from 'firebase/auth';
 
 const firebaseConfig = {
@@ -126,6 +129,33 @@ export const subscribeToAuthChanges = (callback: (user: any) => void): (() => vo
       const idx = authChangeListeners.indexOf(callback);
       if (idx !== -1) authChangeListeners.splice(idx, 1);
     };
+  }
+};
+
+export const loginWithGoogle = async (): Promise<any> => {
+  if (isRealFirebase && realAuth) {
+    const provider = new GoogleAuthProvider();
+    const userCredential = await signInWithPopup(realAuth, provider);
+    return userCredential.user;
+  } else {
+    // Simulated Google Auth fallback
+    simulatedUser = {
+      uid: 'simulated-uid-google-user',
+      email: 'google-user@example.com'
+    };
+    localStorage.setItem('careeriq_simulated_user', JSON.stringify(simulatedUser));
+    triggerAuthChange();
+    return simulatedUser;
+  }
+};
+
+export const resetPassword = async (email: string): Promise<void> => {
+  if (isRealFirebase && realAuth) {
+    await fbSendPasswordResetEmail(realAuth, email);
+  } else {
+    // Simulated Password Reset fallback
+    console.log(`[Firebase Sim] Password reset email link printed for: ${email}`);
+    alert(`[Simulated Firebase] A password reset link has been simulated for: ${email}`);
   }
 };
 
