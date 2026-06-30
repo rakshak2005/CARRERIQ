@@ -282,6 +282,18 @@ router.get('/featured', async (req: Request, res: Response) => {
   }
 });
 
+// GET /api/auth/leaderboard
+// Public endpoint to get all candidate profiles sorted by score descending
+router.get('/leaderboard', async (req: Request, res: Response) => {
+  try {
+    const leaderboard = await db.getLeaderboard();
+    res.json(leaderboard);
+  } catch (error: any) {
+    console.error('Error fetching leaderboard:', error);
+    res.status(500).json({ error: 'Server error fetching leaderboard' });
+  }
+});
+
 // GET /api/auth/reviews
 // Public endpoint to get all reviews
 router.get('/reviews', async (req: Request, res: Response) => {

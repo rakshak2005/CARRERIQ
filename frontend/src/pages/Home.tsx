@@ -4,7 +4,7 @@ import { useTheme } from '../context/ThemeContext';
 import logoImg from '../assets/logo.png';
 import heroImg from '../assets/hero.png';
 import { api } from '../services/api';
-import { FileText, Code2, ShieldAlert, FolderGit2, CheckSquare, BrainCircuit, Compass } from 'lucide-react';
+import { FileText, Code2, ShieldAlert, FolderGit2, CheckSquare, BrainCircuit, Compass, ArrowUpRight } from 'lucide-react';
 
 export const Home: React.FC = () => {
   const navigate = useNavigate();
@@ -66,20 +66,20 @@ export const Home: React.FC = () => {
       comment: newReviewComment,
       rating: newReviewRating
     })
-    .then(newReview => {
-      setReviews(prev => [newReview, ...prev]);
-      setNewReviewName('');
-      setNewReviewComment('');
-      setNewReviewRating(5);
-      setReviewSubmitSuccess(true);
-      setTimeout(() => setReviewSubmitSuccess(false), 5000);
-    })
-    .catch(err => {
-      console.error('Error submitting review:', err);
-    })
-    .finally(() => {
-      setIsSubmittingReview(false);
-    });
+      .then(newReview => {
+        setReviews(prev => [newReview, ...prev]);
+        setNewReviewName('');
+        setNewReviewComment('');
+        setNewReviewRating(5);
+        setReviewSubmitSuccess(true);
+        setTimeout(() => setReviewSubmitSuccess(false), 5000);
+      })
+      .catch(err => {
+        console.error('Error submitting review:', err);
+      })
+      .finally(() => {
+        setIsSubmittingReview(false);
+      });
   };
 
   // Carousel ref for scroll behavior
@@ -144,6 +144,65 @@ export const Home: React.FC = () => {
         -webkit-background-clip: border-box !important;
         -webkit-text-fill-color: currentColor !important;
       }
+      @media (max-width: 768px) {
+        .nav-role-toggle {
+          display: none !important;
+        }
+        .nav-btn-discover {
+          display: none !important;
+        }
+        header {
+          padding: 0.5rem 0.75rem !important;
+          width: 94% !important;
+          top: 1rem !important;
+        }
+        .nav-btn-topper, .nav-btn-signin {
+          padding: 0.4rem 0.75rem !important;
+          font-size: 0.75rem !important;
+        }
+        #students-section {
+          padding-top: 4.5rem !important;
+          padding-bottom: 2rem !important;
+          display: flex !important;
+          flex-direction: column !important;
+          align-items: center !important;
+          gap: 1.5rem !important;
+          min-height: auto !important;
+          height: auto !important;
+          max-height: none !important;
+          overflow: visible !important;
+        }
+        .hero-title {
+          font-size: 28px !important;
+          line-height: 1.2 !important;
+        }
+        .hero-desc {
+          font-size: 14px !important;
+          margin-top: 0.75rem !important;
+        }
+        .hero-buttons {
+          margin-top: 1rem !important;
+          gap: 0.75rem !important;
+        }
+        .hero-buttons button {
+          padding: 0.6rem 1.2rem !important;
+          font-size: 13px !important;
+        }
+        .hero-img-container {
+          max-height: none !important;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          margin-top: 1rem !important;
+          overflow: visible !important;
+        }
+        .hero-img-container img {
+          max-height: none !important;
+          width: 90% !important;
+          height: auto !important;
+          object-fit: contain !important;
+        }
+      }
     `;
     document.head.appendChild(styles);
     return () => {
@@ -175,7 +234,7 @@ export const Home: React.FC = () => {
         </div>
 
         {/* Central Toggle */}
-        <div className="flex items-center bg-[#f3f0ea] dark:bg-[#1e2025] rounded-full p-1 border border-slate-200/30 dark:border-white/5 shadow-inner">
+        <div className="nav-role-toggle flex items-center bg-[#f3f0ea] dark:bg-[#1e2025] rounded-full p-1 border border-slate-200/30 dark:border-white/5 shadow-inner">
           <button
             onClick={() => {
               setActiveRole('students');
@@ -204,11 +263,20 @@ export const Home: React.FC = () => {
 
         {/* Action Buttons */}
         <div className="flex items-center gap-3">
-
+          <button
+            onClick={() => navigate('/leaderboard')}
+            className={`nav-btn-topper text-xs font-bold px-4 py-2 rounded-xl transition-all duration-300 ${theme === 'dark'
+              ? 'border border-[#1c223c] hover:bg-[#1c223c]/40 text-[#fbbf24]'
+              : 'text-amber-600 hover:text-amber-700 border border-amber-200 hover:bg-amber-50'
+              }`}
+            style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}
+          >
+            Topper Lists
+          </button>
 
           <button
             onClick={() => navigate('/login')}
-            className={`text-xs font-bold px-4 py-2 rounded-xl transition-all duration-300 ${theme === 'dark'
+            className={`nav-btn-signin text-xs font-bold px-4 py-2 rounded-xl transition-all duration-300 ${theme === 'dark'
               ? 'border border-[#1c223c] hover:bg-[#1c223c]/40 text-white'
               : 'text-slate-600 hover:text-slate-900 border border-slate-300/60 hover:bg-slate-50'
               }`}
@@ -218,7 +286,7 @@ export const Home: React.FC = () => {
 
           <button
             onClick={() => navigate('/register')}
-            className="bg-[#4b61eb] hover:bg-[#3b51e6] text-white text-xs font-bold px-4 py-2 rounded-xl transition-all duration-300 shadow-md shadow-[#4b61eb]/25 hover:scale-[1.02] active:scale-95"
+            className="nav-btn-discover bg-[#4b61eb] hover:bg-[#3b51e6] text-white text-xs font-bold px-4 py-2 rounded-xl transition-all duration-300 shadow-md shadow-[#4b61eb]/25 hover:scale-[1.02] active:scale-95"
           >
             Discover My Potential
           </button>
@@ -228,7 +296,7 @@ export const Home: React.FC = () => {
       <main className="relative z-10">
 
         {/* 3. Hero Section (Centered Two-Column Layout) */}
-        <section id="students-section" className="pt-28 pb-16 px-6 md:px-12 max-w-[1200px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center min-h-[calc(100vh-100px)] relative z-10 overflow-hidden">
+        <section id="students-section" className="pt-28 pb-16 px-6 md:px-12 max-w-[1200px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center min-h-[calc(100vh-100px)] relative z-10 overflow-visible">
           {/* Left Text Block */}
           <div className="flex flex-col items-center text-center">
             <h1
@@ -338,12 +406,12 @@ export const Home: React.FC = () => {
               ))
             ) : (
               featuredCandidates.map((candidate) => (
-                <div 
-                  key={candidate.id} 
+                <div
+                  key={candidate.id}
                   className="bg-white dark:bg-[#121526] border border-slate-200/40 dark:border-[#1c223c]/85 rounded-[24px] p-6 shadow-[0_8px_30px_rgba(0,0,0,0.01)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.2)] hover:-translate-y-1.5 transition-all duration-300 relative overflow-hidden flex flex-col justify-between"
                 >
                   <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#4b61eb] to-[#9bb2ff]" />
-                  
+
                   <div>
                     {/* Header info */}
                     <div className="flex justify-between items-start mb-4">
@@ -376,8 +444,8 @@ export const Home: React.FC = () => {
                           <span className="font-bold text-slate-700 dark:text-slate-300">{candidate.githubScore || 0}%</span>
                         </div>
                         <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800/80 rounded-full overflow-hidden">
-                          <div 
-                            className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full transition-all duration-500" 
+                          <div
+                            className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full transition-all duration-500"
                             style={{ width: `${candidate.githubScore || 0}%` }}
                           />
                         </div>
@@ -389,8 +457,8 @@ export const Home: React.FC = () => {
                           <span className="font-bold text-slate-700 dark:text-slate-300">{candidate.resumeScore || 0}%</span>
                         </div>
                         <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800/80 rounded-full overflow-hidden">
-                          <div 
-                            className="h-full bg-gradient-to-r from-blue-500 to-indigo-400 rounded-full transition-all duration-500" 
+                          <div
+                            className="h-full bg-gradient-to-r from-blue-500 to-indigo-400 rounded-full transition-all duration-500"
                             style={{ width: `${candidate.resumeScore || 0}%` }}
                           />
                         </div>
@@ -522,7 +590,7 @@ export const Home: React.FC = () => {
                 </p>
               </div>
             </div>
-            <button 
+            <button
               onClick={() => navigate('/register')}
               className="px-6 py-3 bg-[#4b61eb] hover:bg-[#3b51e6] text-white text-xs font-extrabold rounded-xl shadow-[0_6px_20px_rgba(75,97,235,0.2)] transition-all duration-300 hover:scale-[1.03] active:scale-95 whitespace-nowrap"
             >
@@ -868,6 +936,12 @@ export const Home: React.FC = () => {
                 <span>Direct talent-recruiter connection</span>
               </li>
             </ul>
+            <button
+              onClick={() => navigate('/leaderboard')}
+              className="mt-6 px-6 py-3 bg-[#10b981] hover:bg-[#059669] text-white text-xs font-extrabold rounded-xl shadow-[0_6px_20px_rgba(16,185,129,0.2)] transition-all duration-300 hover:scale-[1.03] active:scale-95 flex items-center gap-2"
+            >
+              🏆 View Live Topper Lists <ArrowUpRight size={14} />
+            </button>
           </div>
         </section>
 

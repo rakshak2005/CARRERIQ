@@ -698,6 +698,33 @@ export const db = {
     }));
   },
 
+  getLeaderboard: async () => {
+    if (useMockDb) {
+      return mockDb.studentProfiles.map(p => ({
+        id: p.id,
+        fullName: p.full_name,
+        targetRole: p.target_role,
+        overallScore: p.overall_score,
+        githubScore: p.github_score,
+        resumeScore: p.resume_score || 0,
+        techStacks: p.github_tech_stacks || [],
+        githubUsername: p.github_username
+      })).sort((a,b) => b.overallScore - a.overallScore);
+    }
+    const profiles = await StudentProfileLocalModel.find()
+      .sort({ overallScore: -1 });
+    return profiles.map(p => ({
+      id: p._id,
+      fullName: p.fullName,
+      targetRole: p.targetRole,
+      overallScore: p.overallScore,
+      githubScore: p.githubScore,
+      resumeScore: p.resumeScore || 0,
+      techStacks: p.githubTechStacks || [],
+      githubUsername: p.githubUsername
+    }));
+  },
+
   getAllUsers: async () => {
     if (useMockDb) {
       return mockDb.users.map(u => {

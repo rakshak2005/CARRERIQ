@@ -45,6 +45,7 @@ export const api = {
     login: (body: any) => request('/auth/login', { method: 'POST', body: JSON.stringify(body) }),
     getStats: () => request('/auth/stats'),
     getFeatured: () => request('/auth/featured'),
+    getLeaderboard: () => request('/auth/leaderboard'),
     getReviews: () => request('/auth/reviews'),
     submitReview: (body: any) => request('/auth/reviews', { method: 'POST', body: JSON.stringify(body) }),
   },

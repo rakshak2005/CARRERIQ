@@ -13,6 +13,7 @@ import { CandidateDetail } from './pages/CandidateDetail';
 import { GitHubReport } from './pages/GitHubReport';
 import { GitHubAnalysisReport } from './pages/GitHubAnalysisReport';
 import { AdminDashboard } from './pages/AdminDashboard';
+import { Leaderboard } from './pages/Leaderboard';
 
 // Route Guard for Authenticated Users with Specific Role
 const ProtectedRoute: React.FC<{ children: React.ReactNode; allowedRole: 'student' | 'recruiter' | 'admin' }> = ({ children, allowedRole }) => {
@@ -57,6 +58,7 @@ function App() {
                 {/* Public Routes */}
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
+                <Route path="/leaderboard" element={<Leaderboard />} />
 
                 {/* Student Routes */}
                 <Route
