@@ -28,7 +28,7 @@ export const Register: React.FC = () => {
   // Student fields
   const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [githubUrl, setGithubUrl] = useState('');
-  const [targetRole, setTargetRole] = useState('Frontend Engineer');
+  const [targetRole, setTargetRole] = useState('');
   
   // Recruiter fields
   const [fullName, setFullName] = useState('');
@@ -379,21 +379,16 @@ export const Register: React.FC = () => {
 
                 <div style={{ marginBottom: '1.75rem' }}>
                   <label htmlFor="targetRole">Target Role</label>
-                  <select
+                  <input
                     id="targetRole"
+                    type="text"
                     className="glass-input"
+                    placeholder="e.g. Full Stack Developer, ML Engineer..."
                     value={targetRole}
                     onChange={(e) => setTargetRole(e.target.value)}
-                    style={SELECT_STYLE}
+                    style={INPUT_STYLE}
                     required
-                  >
-                    <option value="Frontend Engineer">Frontend Engineer</option>
-                    <option value="Backend Engineer">Backend Engineer</option>
-                    <option value="Full Stack Developer">Full Stack Developer</option>
-                    <option value="Data Scientist">Data Scientist</option>
-                    <option value="ML Engineer">ML Engineer</option>
-                    <option value="Mobile Developer">Mobile Developer</option>
-                  </select>
+                  />
                 </div>
               </>
             ) : (
