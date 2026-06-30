@@ -3,22 +3,31 @@
   --font-primary: 'Geist', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
   /* LAYOUT DEFAULTS - LIGHT THEME ("Human-Centered Career Platform") */
-  --bg-dark: #f8fafc;             /* Warm soft gray background */
-  --bg-card: #ffffff;             /* Pure white cards */
+  --bg-dark: #f8fafc;
+  /* Warm soft gray background */
+  --bg-card: #ffffff;
+  /* Pure white cards */
   --bg-card-hover: #ffffff;
-  
-  --color-primary: #2563eb;       /* Deep Trust Blue */
+
+  --color-primary: #2563eb;
+  /* Deep Trust Blue */
   --color-primary-glow: rgba(37, 99, 235, 0.08);
-  --color-secondary: #10b981;     /* Growth Green */
+  --color-secondary: #10b981;
+  /* Growth Green */
   --color-secondary-glow: rgba(16, 185, 129, 0.08);
-  --color-tertiary: #f59e0b;      /* Achievement Gold */
+  --color-tertiary: #f59e0b;
+  /* Achievement Gold */
   --color-tertiary-glow: rgba(245, 158, 11, 0.08);
-  
-  --color-text-main: #374151;     /* Charcoal Gray body text */
-  --color-text-muted: #6b7280;    /* Muted Slate Gray */
-  --color-text-dark: #111827;     /* Off-black headers */
-  --color-text-title: #111827;    /* Title Text */
-  
+
+  --color-text-main: #374151;
+  /* Charcoal Gray body text */
+  --color-text-muted: #6b7280;
+  /* Muted Slate Gray */
+  --color-text-dark: #111827;
+  /* Off-black headers */
+  --color-text-title: #111827;
+  /* Title Text */
+
   /* Semantic Statuses */
   --color-success: #10b981;
   --color-success-glow: rgba(16, 185, 129, 0.1);
@@ -26,17 +35,20 @@
   --color-warning-glow: rgba(245, 158, 11, 0.1);
   --color-error: #ef4444;
   --color-error-glow: rgba(239, 68, 68, 0.1);
-  
+
   /* Gradients */
-  --grad-primary: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);  /* Professional blue gradient */
-  --grad-secondary: linear-gradient(135deg, #10b981 0%, #34d399 100%); /* Green growth gradient */
+  --grad-primary: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+  /* Professional blue gradient */
+  --grad-secondary: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+  /* Green growth gradient */
   --grad-dark: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
   --grad-accent: linear-gradient(90deg, #2563eb 0%, #10b981 100%);
-  
+
   /* Glassmorphism / Modern Card Styles */
-  --glass-border: #e5e7eb;        /* Clean, subtle gray border */
+  --glass-border: #e5e7eb;
+  /* Clean, subtle gray border */
   --glass-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
-  
+
   /* Inputs */
   --bg-input: #ffffff;
   --color-input-text: #111827;
@@ -52,15 +64,16 @@
 
   /* Layout Border Radius */
   --radius-sm: 12px;
-  --radius-md: 24px;              /* High-end soft rounded cards */
+  --radius-md: 24px;
+  /* High-end soft rounded cards */
   --radius-lg: 32px;
   --radius-round: 50%;
-  
+
   /* Transitions */
   --transition-fast: 0.15s ease;
   --transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-slow: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  
+
   /* Background gradients */
   --bg-gradient: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
 
@@ -72,32 +85,38 @@
 
 /* DARK MODE OVERRIDES (Premium SaaS Deep Navy Theme) */
 :root.dark {
-  --bg-dark: #050816;             /* Deep Navy */
-  --bg-card: rgba(15, 23, 42, 0.6); /* Glassmorphism dark */
+  --bg-dark: #050816;
+  /* Deep Navy */
+  --bg-card: rgba(15, 23, 42, 0.6);
+  /* Glassmorphism dark */
   --bg-card-hover: rgba(15, 23, 42, 0.8);
-  
-  --color-primary: #3b82f6;       /* Lighter blue for dark contrast */
+
+  --color-primary: #3b82f6;
+  /* Lighter blue for dark contrast */
   --color-primary-glow: rgba(59, 130, 246, 0.15);
   --color-secondary: #10b981;
   --color-secondary-glow: rgba(16, 185, 129, 0.15);
   --color-tertiary: #f59e0b;
   --color-tertiary-glow: rgba(245, 158, 11, 0.15);
-  
-  --color-text-main: #e2e8f0;     /* Slate 200 */
-  --color-text-muted: #94a3b8;    /* Slate 400 */
+
+  --color-text-main: #e2e8f0;
+  /* Slate 200 */
+  --color-text-muted: #94a3b8;
+  /* Slate 400 */
   --color-text-dark: #ffffff;
   --color-text-title: #ffffff;
-  
-  --glass-border: rgba(255, 255, 255, 0.08); /* Clean glass border */
+
+  --glass-border: rgba(255, 255, 255, 0.08);
+  /* Clean glass border */
   --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-  
+
   --bg-input: rgba(15, 23, 42, 0.5);
   --color-input-text: #ffffff;
   --border-input: rgba(255, 255, 255, 0.1);
-  
+
   --bg-subcard: rgba(255, 255, 255, 0.03);
   --border-subcard: rgba(255, 255, 255, 0.05);
-  
+
   --bg-modal-overlay: rgba(5, 8, 22, 0.8);
   --bg-gradient: linear-gradient(180deg, #050816 0%, #0a0f25 100%);
 

@@ -3,6 +3,20 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { loginWithEmail, registerWithEmail, getCurrentUserToken } from '../services/firebase';
 
+// Hardcoded dark styles — prevents white-input flash on Vercel production
+const INPUT_STYLE: React.CSSProperties = {
+  width: '100%',
+  padding: '0.75rem 1rem',
+  fontSize: '0.9rem',
+  borderRadius: '12px',
+  background: 'rgba(15, 23, 42, 0.6)',
+  border: '1px solid rgba(255, 255, 255, 0.08)',
+  color: '#ffffff',
+  WebkitTextFillColor: '#ffffff',
+  outline: 'none',
+  transition: 'all 0.3s',
+};
+
 export const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -168,17 +182,7 @@ export const Login: React.FC = () => {
               placeholder="name@example.com" 
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '0.75rem 1rem',
-                fontSize: '0.9rem',
-                borderRadius: '12px',
-                background: 'rgba(0, 0, 0, 0.2)',
-                border: '1px solid rgba(255, 255, 255, 0.08)',
-                color: '#fff',
-                outline: 'none',
-                transition: 'all 0.3s'
-              }}
+              style={INPUT_STYLE}
               required
             />
           </div>
@@ -192,17 +196,7 @@ export const Login: React.FC = () => {
               placeholder="••••••••" 
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '0.75rem 1rem',
-                fontSize: '0.9rem',
-                borderRadius: '12px',
-                background: 'rgba(0, 0, 0, 0.2)',
-                border: '1px solid rgba(255, 255, 255, 0.08)',
-                color: '#fff',
-                outline: 'none',
-                transition: 'all 0.3s'
-              }}
+              style={INPUT_STYLE}
               required
             />
           </div>

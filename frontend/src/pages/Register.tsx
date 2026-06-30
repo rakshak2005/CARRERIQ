@@ -4,6 +4,21 @@ import { useAuth } from '../context/AuthContext';
 import { registerWithEmail, getCurrentUserToken } from '../services/firebase';
 import { BACKEND_URL } from '../services/api';
 
+// Hardcoded dark styles applied directly — prevents white-input bug on Vercel
+// where CSS variables resolve to light-mode values before React hydrates.
+const INPUT_STYLE: React.CSSProperties = {
+  background: 'rgba(15, 23, 42, 0.6)',
+  color: '#ffffff',
+  border: '1px solid rgba(255, 255, 255, 0.1)',
+  WebkitTextFillColor: '#ffffff',
+};
+const SELECT_STYLE: React.CSSProperties = {
+  background: 'rgba(15, 23, 42, 0.8)',
+  color: '#ffffff',
+  border: '1px solid rgba(255, 255, 255, 0.1)',
+  WebkitTextFillColor: '#ffffff',
+};
+
 export const Register: React.FC = () => {
   const [step, setStep] = useState(1);
   const [email, setEmail] = useState('');
@@ -281,6 +296,7 @@ export const Register: React.FC = () => {
                 placeholder="name@example.com" 
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                style={INPUT_STYLE}
                 required
               />
             </div>
@@ -294,6 +310,7 @@ export const Register: React.FC = () => {
                 placeholder="Min 6 characters" 
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                style={INPUT_STYLE}
                 required
               />
             </div>
@@ -307,6 +324,7 @@ export const Register: React.FC = () => {
                 placeholder="Re-enter password" 
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
+                style={INPUT_STYLE}
                 required
               />
             </div>
@@ -354,6 +372,7 @@ export const Register: React.FC = () => {
                     placeholder="https://github.com/username"
                     value={githubUrl}
                     onChange={(e) => setGithubUrl(e.target.value)}
+                    style={INPUT_STYLE}
                     required
                   />
                 </div>
@@ -365,7 +384,7 @@ export const Register: React.FC = () => {
                     className="glass-input"
                     value={targetRole}
                     onChange={(e) => setTargetRole(e.target.value)}
-                    style={{ background: 'var(--bg-subcard)', color: 'var(--color-text-main)' }}
+                    style={SELECT_STYLE}
                     required
                   >
                     <option value="Frontend Engineer">Frontend Engineer</option>
@@ -389,6 +408,7 @@ export const Register: React.FC = () => {
                     placeholder="Jane Doe" 
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
+                    style={INPUT_STYLE}
                     required
                   />
                 </div>
@@ -402,6 +422,7 @@ export const Register: React.FC = () => {
                     placeholder="Google" 
                     value={companyName}
                     onChange={(e) => setCompanyName(e.target.value)}
+                    style={INPUT_STYLE}
                     required
                   />
                 </div>
@@ -413,7 +434,7 @@ export const Register: React.FC = () => {
                     className="glass-input"
                     value={industry}
                     onChange={(e) => setIndustry(e.target.value)}
-                    style={{ background: 'var(--bg-subcard)', color: 'var(--color-text-main)' }}
+                    style={SELECT_STYLE}
                     required
                   >
                     <option value="Technology">Technology</option>

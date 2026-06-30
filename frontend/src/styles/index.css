@@ -722,6 +722,7 @@ input[type="checkbox"] {
   .header-title {
     display: none !important;
   }
+
   .header-container {
     padding: 0.5rem 0.5rem !important;
   }
@@ -756,7 +757,7 @@ input[type="checkbox"] {
 
   main,
   .dashboard-container>main,
-  .screen-only-container > .container {
+  .screen-only-container>.container {
     padding: 1.5rem 1rem !important;
     padding-left: 1rem !important;
     width: 100% !important;
@@ -767,7 +768,8 @@ input[type="checkbox"] {
 /* Dashboard Grids & Layouts */
 @media (max-width: 768px) {
 
-  body, html {
+  body,
+  html {
     overflow-x: hidden !important;
     max-width: 100vw !important;
   }
@@ -806,7 +808,7 @@ input[type="checkbox"] {
     align-items: flex-start !important;
     gap: 1.25rem !important;
   }
-  
+
   .github-url-buttons {
     margin-left: 0 !important;
     width: 100% !important;
@@ -851,8 +853,8 @@ input[type="checkbox"] {
   .github-stats-grid {
     grid-template-columns: repeat(3, 1fr) !important;
   }
-  
-  .github-stats-grid > div {
+
+  .github-stats-grid>div {
     min-width: 0 !important;
   }
 
@@ -897,6 +899,7 @@ input[type="checkbox"] {
 }
 
 @media (max-width: 360px) {
+
   /* Extra narrow screens */
   .glass-card,
   #github,
@@ -912,7 +915,7 @@ input[type="checkbox"] {
     font-size: 1.15rem !important;
   }
 
-  .github-stats-grid > div {
+  .github-stats-grid>div {
     padding: 0.75rem !important;
   }
 }
@@ -988,7 +991,8 @@ input[type="checkbox"] {
     align-items: flex-start !important;
     gap: 0.75rem !important;
   }
-  .github-url-config-row > div {
+
+  .github-url-config-row>div {
     margin-left: 0 !important;
     width: 100% !important;
     justify-content: flex-start !important;
@@ -1004,14 +1008,17 @@ input[type="checkbox"] {
     height: 70vh !important;
     max-height: 480px !important;
   }
+
   .copilot-button {
     bottom: 1rem !important;
     right: 1rem !important;
   }
+
   .github-url-buttons {
     flex-direction: column !important;
     width: 100% !important;
   }
+
   .github-url-buttons button {
     width: 100% !important;
   }
