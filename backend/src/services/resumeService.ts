@@ -31,7 +31,7 @@ export interface ResumeAnalysisResult {
 
 export const extractTextFromFile = async (filePath: string, mimeType: string): Promise<string> => {
   const fullPath = path.resolve(__dirname, '../../', filePath);
-  
+
   if (!fs.existsSync(fullPath)) {
     throw new Error(`File not found: ${filePath}`);
   }
@@ -42,7 +42,7 @@ export const extractTextFromFile = async (filePath: string, mimeType: string): P
     const data = await pdfParse(dataBuffer);
     text = data.text;
   } else if (
-    mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' || 
+    mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
     filePath.toLowerCase().endsWith('.docx')
   ) {
     const result = await mammoth.extractRawText({ path: fullPath });
@@ -64,7 +64,7 @@ export const normalizeResumeText = (text: string): string => {
 
 export const analyzeResumeRuleBased = (text: string, targetRole: string): Partial<ResumeAnalysisResult> => {
   const lowerText = text.toLowerCase();
-  
+
   // Section checks
   const hasName = text.split('\n').slice(0, 5).some(line => line.trim().split(' ').length >= 2);
   const hasEmail = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/.test(text);
@@ -88,7 +88,7 @@ export const analyzeResumeRuleBased = (text: string, targetRole: string): Partia
   if (wordCount > 300 && wordCount < 1500) atsScore += 2; // good length
   const bulletCount = (text.match(/•|- /g) || []).length;
   if (bulletCount > 5) atsScore += 2; // good use of bullets
-  
+
   atsScore = Math.min(25, atsScore);
 
   // Professional Presence (max 10)
@@ -96,7 +96,7 @@ export const analyzeResumeRuleBased = (text: string, targetRole: string): Partia
   if (/github\.com/i.test(lowerText)) professionalPresenceScore += 4;
   if (/linkedin\.com/i.test(lowerText)) professionalPresenceScore += 4;
   if (/(https?:\/\/|www\.)[a-zA-Z0-9-]+\.[a-zA-Z0-9-]+/i.test(lowerText) && !/github\.com|linkedin\.com/i.test(lowerText)) professionalPresenceScore += 2;
-  
+
   // Extracted skills (Regex matching common skills for match scoring)
   const commonSkills = [
     'react', 'javascript', 'typescript', 'node.js', 'html', 'css', 'git', 'docker', 'aws', 'python', 'java', 'sql', 'mongodb', 'express', 'linux', 'c++', 'c#', 'angular', 'vue'
@@ -110,7 +110,7 @@ export const analyzeResumeRuleBased = (text: string, targetRole: string): Partia
   // Calculate generic role match based on exact overlap
   let roleMatchScore = 0;
   let skillsScore = 0;
-  
+
   if (targetRole) {
     const roleTokens = targetRole.toLowerCase().split(' ').filter(t => t.length > 2);
     let matchCount = 0;
@@ -248,7 +248,7 @@ ${text.substring(0, 8000)}
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'openai/gpt-oss-120b:free',
         max_tokens: 3000,
         messages: [
           {
@@ -281,7 +281,7 @@ ${text.substring(0, 8000)}
     finalResult.recommendedSkills = aiData.recommendedSkills || finalResult.recommendedSkills;
     finalResult.summary = aiData.resumeSummary || 'AI analyzed successfully.';
     finalResult.extractedProjects = aiData.extractedProjects || [];
-    
+
     if (aiData.extractedSkills && Array.isArray(aiData.extractedSkills)) {
       // Merge unique skills
       const allSkills = new Set([...finalResult.extractedSkills, ...aiData.extractedSkills]);
@@ -298,7 +298,7 @@ ${text.substring(0, 8000)}
     clearTimeout(timeoutId);
     console.error('Error analyzing resume with OpenRouter, falling back to rule-based logic:', error);
     finalResult.summary = 'AI analysis unavailable due to an error: ' + (error.message || 'Unknown Error') + '. Generated score based purely on rule-based ATS checks.';
-    finalResult.weaknesses = [ 'Could not generate AI insights: ' + (error.message || 'Unknown Error') ];
+    finalResult.weaknesses = ['Could not generate AI insights: ' + (error.message || 'Unknown Error')];
     return finalResult;
   }
 };

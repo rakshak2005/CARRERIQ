@@ -166,7 +166,7 @@ export const generateAIEvaluation = async (
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'openai/gpt-oss-120b:free',
         max_tokens: 3000,
         messages: [
           {
@@ -343,7 +343,7 @@ export const generateWowProjects = async (targetRole: string, currentSkills: str
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'openai/gpt-oss-120b:free',
         max_tokens: 2000,
         messages: [
           {
@@ -436,7 +436,7 @@ export const generateGitHubImprovementReport = async (
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'openai/gpt-oss-120b:free',
         max_tokens: 3000,
         messages: [
           {
@@ -521,7 +521,7 @@ export const generateDetailedCareerReview = async (
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'openai/gpt-oss-120b:free',
         max_tokens: 3000,
         messages: [
           {
