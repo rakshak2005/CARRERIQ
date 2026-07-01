@@ -127,33 +127,12 @@ export const calculateClientScores = (input: ClientScoreInput): ClientScoreOutpu
     : `Total Score = ${githubScore}`;
 
   // 6. Career Readiness weighted score
-  const wResume = 0.40;
-  const wGitHub = 0.30;
+  const wResume = 0.35;
+  const wGitHub = 0.45;
   const wProjects = 0.20;
-  const wCertificates = 0.10;
 
-  let overallScoreRaw = 0;
-  let careerReadinessFormula = '';
-
-  if (input.certificatesIncluded) {
-    overallScoreRaw = 
-      (resumeScore * wResume) +
-      (githubScore * wGitHub) +
-      (projectsScore * wProjects) +
-      (experienceScore * wCertificates);
-    careerReadinessFormula = `(Resume × 40%) + (GitHub × 30%) + (Projects × 20%) + (Certificates × 10%) = (${Math.round(resumeScore)} × 0.40) + (${githubScore} × 0.30) + (${Math.round(projectsScore)} × 0.20) + (${Math.round(experienceScore)} × 0.10) = ${Math.round(overallScoreRaw)}`;
-  } else {
-    const totalActiveWeight = wResume + wGitHub + wProjects; // 0.90
-    const normResume = wResume / totalActiveWeight;
-    const normGitHub = wGitHub / totalActiveWeight;
-    const normProjects = wProjects / totalActiveWeight;
-
-    overallScoreRaw = 
-      (resumeScore * normResume) +
-      (githubScore * normGitHub) +
-      (projectsScore * normProjects);
-    careerReadinessFormula = `Weights normalized (Resume = 44.44%, GitHub = 33.33%, Projects = 22.22%):\n(${Math.round(resumeScore)} × 44.44%) + (${githubScore} × 33.33%) + (${Math.round(projectsScore)} × 22.22%) = (${Math.round(resumeScore)} × 0.4444) + (${githubScore} × 0.3333) + (${Math.round(projectsScore)} × 0.2222) = ${Math.round(overallScoreRaw)}`;
-  }
+  let overallScoreRaw = (resumeScore * wResume) + (githubScore * wGitHub) + (projectsScore * wProjects);
+  let careerReadinessFormula = `(GitHub × 45%) + (Resume × 35%) + (Projects × 20%) = (${githubScore} × 0.45) + (${Math.round(resumeScore)} × 0.35) + (${Math.round(projectsScore)} × 0.20) = ${Math.round(overallScoreRaw)}`;
 
   const overallScore = Math.round(overallScoreRaw);
 

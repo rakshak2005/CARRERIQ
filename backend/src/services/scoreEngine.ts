@@ -92,22 +92,12 @@ export const calculateScores = (input: ScoreInput): ScoreOutput => {
   let overallScore: number;
   const activeGithubScore = input.githubScore || 0;
 
-  if (input.certificatesIncluded) {
-    // Weights (100% Total): Resume 40%, GitHub 30%, Projects 20%, Certifications 10%
-    overallScore = Math.round(
-      (resumeScore * 0.40) +
-      (activeGithubScore * 0.30) +
-      (projectsScore * 0.20) +
-      (experienceScore * 0.10)
-    );
-  } else {
-    // Certificates excluded — redistribute: Resume 44.44%, GitHub 33.33%, Projects 22.22%
-    overallScore = Math.round(
-      ((resumeScore * 0.40) +
-      (activeGithubScore * 0.30) +
-      (projectsScore * 0.20)) / 0.90
-    );
-  }
+  // Weights (100% Total): GitHub 45%, Resume 35%, Projects 20%
+  overallScore = Math.round(
+    (resumeScore * 0.35) +
+    (activeGithubScore * 0.45) +
+    (projectsScore * 0.20)
+  );
 
   return {
     overallScore: Math.min(100, Math.max(0, overallScore)),

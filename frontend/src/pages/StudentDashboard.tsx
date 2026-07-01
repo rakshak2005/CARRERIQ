@@ -697,11 +697,9 @@ export const StudentDashboard: React.FC = () => {
   }, [location.state]);
 
   useEffect(() => {
-    const computed = certificatesIncluded
-      ? (computedResumeScore * 0.40) + (githubScore * 0.30) + (portfolioScore * 0.20) + (categoryScores.experienceScore * 0.10)
-      : (computedResumeScore * 0.4444) + (githubScore * 0.3333) + (portfolioScore * 0.2222);
+    const computed = (computedResumeScore * 0.35) + (githubScore * 0.45) + (portfolioScore * 0.20);
     setOverallScore(computed);
-  }, [computedResumeScore, categoryScores.experienceScore, githubScore, portfolioScore, certificatesIncluded]);
+  }, [computedResumeScore, githubScore, portfolioScore]);
 
   useEffect(() => {
     if (githubBreakdown) {
@@ -1395,25 +1393,21 @@ export const StudentDashboard: React.FC = () => {
 
               {/* Radar Chart & Stats - Redesigned Executive Analytics Card */}
               {(() => {
-                const roundedScoreVal = Math.round(overallScore);
-                const resumeWeight = certificatesIncluded ? 0.40 : 0.4444;
-                const githubWeight = certificatesIncluded ? 0.30 : 0.3333;
-                const projectsWeight = certificatesIncluded ? 0.20 : 0.2222;
-                const certsWeight = certificatesIncluded ? 0.10 : 0;
+                const resumeWeight = 0.35;
+                const githubWeight = 0.45;
+                const projectsWeight = 0.20;
+                const certsWeight = 0;
 
                 const resumeContribution = (computedResumeScore * resumeWeight).toFixed(1);
                 const githubContribution = (githubScore * githubWeight).toFixed(1);
                 const projectsContribution = (portfolioScore * projectsWeight).toFixed(1);
-                const certsContribution = (categoryScores.experienceScore * certsWeight).toFixed(1);
+                const certsContribution = (0).toFixed(1);
 
                 const contributionsList = [
                   { name: 'Resume Assessment', val: computedResumeScore, contribution: parseFloat(resumeContribution) },
                   { name: 'GitHub Assessment', val: githubScore, contribution: parseFloat(githubContribution) },
                   { name: 'Project Portfolio', val: portfolioScore, contribution: parseFloat(projectsContribution) }
                 ];
-                if (certificatesIncluded) {
-                  contributionsList.push({ name: 'Certificates Assessment', val: categoryScores.experienceScore, contribution: parseFloat(certsContribution) });
-                }
                 const highestContributor = [...contributionsList].sort((a, b) => b.contribution - a.contribution)[0];
 
                 const improvementTargetName = portfolioScore < githubScore ? 'Project Portfolio' : 'GitHub Assessment';
@@ -1551,26 +1545,15 @@ export const StudentDashboard: React.FC = () => {
                         <span style={{ background: 'rgba(59, 130, 246, 0.06)', padding: '0.15rem 0.4rem', borderRadius: '6px', border: '1px solid rgba(59, 130, 246, 0.1)' }}>Resume: <strong style={{ color: '#3b82f6' }}>{resumeContribution} pt</strong></span>
                         <span style={{ background: 'rgba(16, 185, 129, 0.06)', padding: '0.15rem 0.4rem', borderRadius: '6px', border: '1px solid rgba(16, 185, 129, 0.1)' }}>GitHub: <strong style={{ color: '#10b981' }}>{githubContribution} pt</strong></span>
                         <span style={{ background: 'rgba(245, 158, 11, 0.06)', padding: '0.15rem 0.4rem', borderRadius: '6px', border: '1px solid rgba(245, 158, 11, 0.1)' }}>Projects: <strong style={{ color: '#f59e0b' }}>{projectsContribution} pt</strong></span>
-                        {certificatesIncluded && (
-                          <span style={{ background: 'rgba(168, 85, 247, 0.06)', padding: '0.15rem 0.4rem', borderRadius: '6px', border: '1px solid rgba(168, 85, 247, 0.1)' }}>Certs: <strong style={{ color: '#c084fc' }}>{certsContribution} pt</strong></span>
-                        )}
                       </div>
-
+ 
                       <ExpandableExplanation
                         title="Overall Score Breakdown"
-                        formula={certificatesIncluded ? "Resume (40%) + GitHub (30%) + Projects (20%) + Certificates (10%)" : "Resume (44.44%) + GitHub (33.33%) + Projects (22.22%)"}
-                        breakdown={certificatesIncluded ? [
-                          { name: 'Resume Contribution', value: `${computedResumeScore} × 40% = ${resumeContribution}` },
-                          { name: 'GitHub Contribution', value: `${githubScore} × 30% = ${githubContribution}` },
+                        formula="GitHub (45%) + Resume (35%) + Projects (20%)"
+                        breakdown={[
+                          { name: 'GitHub Contribution', value: `${githubScore} × 45% = ${githubContribution}` },
+                          { name: 'Resume Contribution', value: `${computedResumeScore} × 35% = ${resumeContribution}` },
                           { name: 'Projects Contribution', value: `${portfolioScore} × 20% = ${projectsContribution}` },
-                          { name: 'Certificates Contribution', value: `${categoryScores.experienceScore} × 10% = ${certsContribution}` },
-                          { name: 'Highest Contributor', value: `${highestContributor.name.split(' ')[0]} (${highestContributor.val})` },
-                          { name: 'Improvement Opportunity', value: `${improvementTargetName.split(' ')[0]} (+${gapToResume})` },
-                          { name: 'Total Sum', value: `${overallScore.toFixed(1)} / 100` }
-                        ] : [
-                          { name: 'Resume Contribution', value: `${computedResumeScore} × 44.44% = ${resumeContribution}` },
-                          { name: 'GitHub Contribution', value: `${githubScore} × 33.33% = ${githubContribution}` },
-                          { name: 'Projects Contribution', value: `${portfolioScore} × 22.22% = ${projectsContribution}` },
                           { name: 'Highest Contributor', value: `${highestContributor.name.split(' ')[0]} (${highestContributor.val})` },
                           { name: 'Improvement Opportunity', value: `${improvementTargetName.split(' ')[0]} (+${gapToResume})` },
                           { name: 'Total Sum', value: `${overallScore.toFixed(1)} / 100` }
