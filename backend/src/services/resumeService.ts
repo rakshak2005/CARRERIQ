@@ -8,6 +8,7 @@ import { cleanAndParseJSON } from './aiService';
 dotenv.config();
 
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
+const GROQ_API_KEY = process.env.GROQ_API_KEY;
 
 export interface ResumeAnalysisResult {
   fullName?: string;
@@ -198,8 +199,8 @@ export const analyzeResumeWithAI = async (text: string, targetRole: string, rule
   }
   finalResult.fullName = fallbackName || 'Candidate';
 
-  if (!OPENROUTER_API_KEY) {
-    console.warn("No OPENROUTER_API_KEY, falling back to rule-based ATS analysis");
+  if (!GROQ_API_KEY && !OPENROUTER_API_KEY) {
+    console.warn("No GROQ_API_KEY or OPENROUTER_API_KEY, falling back to rule-based ATS analysis");
     return finalResult;
   }
 
@@ -207,10 +208,18 @@ export const analyzeResumeWithAI = async (text: string, targetRole: string, rule
   const timeoutId = setTimeout(() => controller.abort(), 60000);
 
   try {
-    const prompt = `You are a senior ATS reviewer and technical recruiter.
+    const prompt = `You are an extremely strict, elite technical recruiter and senior ATS systems reviewer.
 Target Role: ${targetRole || 'Software Engineer'}
 
-Analyze this resume.
+Analyze the candidate's resume with high scrutiny. Be very critical and realistic.
+Evaluation Guidelines:
+- Do not award high scores easily. A score above 80 should only be given to candidates with strong, proven professional experience.
+- Heavily penalize the lack of formal professional work experience (e.g., only having internships or training institutes), missing automated testing (Jest, Cypress, Mocha), lack of CI/CD pipelines, and lack of cloud/DevOps experience (AWS, GCP, Docker, Kubernetes).
+- Provide a highly realistic 'atsScore' (typically 30-70 for junior/mid candidates).
+- Identify at least 7 to 10 highly specific, concrete weaknesses and key areas for improvement (e.g., testing frameworks, cloud infrastructure, architectural design, database optimization) to give the candidate clear, actionable points for growth.
+- The "resumeSummary" must be a long, detailed, and comprehensive summary (at least 5 to 7 sentences) analyzing the candidate's current capabilities, project scope, experience gaps, and career trajectory.
+- Evaluate project and experience quality realistically (e.g., standard training/tutorial projects should be scored strictly between 20-50).
+
 Return JSON EXACTLY matching this structure, with no markdown, just the raw JSON object:
 {
   "fullName": "string",
@@ -241,14 +250,14 @@ Resume Text:
 ${text.substring(0, 8000)}
 """`;
 
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+        'Authorization': `Bearer ${GROQ_API_KEY || OPENROUTER_API_KEY}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'openai/gpt-oss-120b:free',
+        model: 'openai/gpt-oss-120b',
         max_tokens: 3000,
         messages: [
           {

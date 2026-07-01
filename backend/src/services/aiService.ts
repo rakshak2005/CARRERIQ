@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || '';
+const GROQ_API_KEY = process.env.GROQ_API_KEY || '';
 
 export const cleanAndParseJSON = (text: string): any => {
   let cleanText = text.trim();
@@ -101,8 +102,8 @@ export const generateAIEvaluation = async (
   repositories: any[],
   consistencyScore: number
 ): Promise<any> => {
-  if (!OPENROUTER_API_KEY) {
-    console.log('[INFO] OPENROUTER_API_KEY not set. Using simulated evaluations.');
+  if (!GROQ_API_KEY && !OPENROUTER_API_KEY) {
+    console.log('[INFO] API Key not set. Using simulated evaluations.');
     return getSimulatedAIEvaluation(username, techStack);
   }
 
@@ -116,14 +117,14 @@ export const generateAIEvaluation = async (
       - Bio: ${bio}
       - Detected Tech Stack: ${techStack.join(', ')}
       - Repositories: ${JSON.stringify(repositories.map(r => ({
-          name: r.name,
-          description: r.description,
-          languages: r.languages,
-          techStack: r.techStack,
-          complexityScore: r.complexityScore,
-          documentationScore: r.documentationScore,
-          productionReadinessScore: r.productionReadinessScore
-        })))}
+      name: r.name,
+      description: r.description,
+      languages: r.languages,
+      techStack: r.techStack,
+      complexityScore: r.complexityScore,
+      documentationScore: r.documentationScore,
+      productionReadinessScore: r.productionReadinessScore
+    })))}
       - Commit Consistency Score: ${consistencyScore}/100
 
       Perform a career readiness evaluation. You MUST output a JSON object with this exact schema:
@@ -159,14 +160,14 @@ export const generateAIEvaluation = async (
       }
     `;
 
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+        'Authorization': `Bearer ${GROQ_API_KEY || OPENROUTER_API_KEY}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'openai/gpt-oss-120b:free',
+        model: 'openai/gpt-oss-120b',
         max_tokens: 3000,
         messages: [
           {
@@ -307,7 +308,7 @@ export const generateWowProjects = async (targetRole: string, currentSkills: str
     }
   ];
 
-  if (!OPENROUTER_API_KEY) {
+  if (!GROQ_API_KEY && !OPENROUTER_API_KEY) {
     return fallback;
   }
 
@@ -336,14 +337,14 @@ export const generateWowProjects = async (targetRole: string, currentSkills: str
       ]
     `;
 
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+        'Authorization': `Bearer ${GROQ_API_KEY || OPENROUTER_API_KEY}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'openai/gpt-oss-120b:free',
+        model: 'openai/gpt-oss-120b',
         max_tokens: 2000,
         messages: [
           {
@@ -380,7 +381,7 @@ export const generateGitHubImprovementReport = async (
   repos: any[],
   currentScore: number
 ): Promise<any> => {
-  if (!OPENROUTER_API_KEY) {
+  if (!GROQ_API_KEY && !OPENROUTER_API_KEY) {
     return null;
   }
 
@@ -429,14 +430,14 @@ export const generateGitHubImprovementReport = async (
       }
     `;
 
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+        'Authorization': `Bearer ${GROQ_API_KEY || OPENROUTER_API_KEY}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'openai/gpt-oss-120b:free',
+        model: 'openai/gpt-oss-120b',
         max_tokens: 3000,
         messages: [
           {
@@ -484,7 +485,7 @@ export const generateDetailedCareerReview = async (
     overallVerdict: 'A solid portfolio showing good technical progression. Enhancing DevOps and testing will maximize employability.'
   };
 
-  if (!OPENROUTER_API_KEY) {
+  if (!GROQ_API_KEY && !OPENROUTER_API_KEY) {
     return fallback;
   }
 
@@ -493,8 +494,14 @@ export const generateDetailedCareerReview = async (
 
   try {
     const prompt = `
-      You are an elite Senior Staff Engineer and Technical Recruiter.
+      You are an extremely strict, elite Senior Staff Engineer and Technical Recruiter.
       Evaluate the GitHub profile and repositories for candidate "${username}" aiming for "${targetRole}".
+      Be very critical, realistic, and direct. Do not sugarcoat evaluations.
+      
+      Guidelines:
+      - Point out clear engineering weaknesses (e.g., lack of tests, missing documentation, lack of production-level deployments, simple clones, basic/unpolished repos).
+      - Provide highly critical but constructive feedback to give the candidate maximum points of improvement.
+      - Evaluate 'portfolioMaturity' and 'interviewReadiness' realistically based on whether they have advanced engineering patterns (design patterns, microservices, robust tooling).
       
       Repositories Data:
       ${JSON.stringify(repos.slice(0, 10).map(r => ({ name: r.name, description: r.description, languages: r.languages, complexity: r.complexityLevel })), null, 2)}
@@ -514,14 +521,14 @@ export const generateDetailedCareerReview = async (
       }
     `;
 
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+        'Authorization': `Bearer ${GROQ_API_KEY || OPENROUTER_API_KEY}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'openai/gpt-oss-120b:free',
+        model: 'openai/gpt-oss-120b',
         max_tokens: 3000,
         messages: [
           {
