@@ -200,7 +200,7 @@ export const Login: React.FC = () => {
     } catch (err: any) {
       setError(err.message || 'Failed to send password reset email.');
     }
-  };  return (
+  }; return (
     <div
       className="container flex-center"
       style={{ minHeight: '100vh', flexDirection: 'column', overflow: 'hidden', padding: '1rem', background: '#050816', position: 'relative' }}
@@ -269,7 +269,7 @@ export const Login: React.FC = () => {
               id="email"
               type="email"
               className="glass-input"
-              placeholder="name@example.com"
+              placeholder="your.personal@gmail.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               style={{ ...INPUT_STYLE, borderRadius: '8px', padding: '0.65rem 0.85rem' }}

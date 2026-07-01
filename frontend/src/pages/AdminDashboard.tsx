@@ -15,7 +15,7 @@ export const AdminDashboard: React.FC = () => {
   const [users, setUsers] = useState<UserRecord[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Add User Form State
   const [showAddForm, setShowAddForm] = useState<boolean>(false);
   const [newEmail, setNewEmail] = useState<string>('');
@@ -48,7 +48,7 @@ export const AdminDashboard: React.FC = () => {
     e.preventDefault();
     setFormError(null);
     setFormSuccess(null);
-    
+
     if (!newEmail || !newPassword || !newFullName) {
       setFormError('All fields are required');
       return;
@@ -107,7 +107,7 @@ export const AdminDashboard: React.FC = () => {
             Manage system users, view registration metrics, register new personnel, or delete accounts.
           </p>
         </div>
-        
+
         <button
           onClick={() => {
             setShowAddForm(!showAddForm);
@@ -125,7 +125,7 @@ export const AdminDashboard: React.FC = () => {
         <div className="mb-8 bg-white dark:bg-[#121526] border border-[#4b61eb]/20 dark:border-[#1c223c] rounded-[24px] p-6 shadow-lg relative overflow-hidden transition-all duration-500">
           <div className="absolute top-0 left-0 right-0 h-1 bg-[#4b61eb]" />
           <h2 className="text-xl font-bold text-slate-800 dark:text-white mb-4">Register Personnel Accounts</h2>
-          
+
           {formError && (
             <div className="p-3 bg-red-500/10 border border-red-500/25 text-red-500 rounded-xl text-xs mb-4">
               {formError}
@@ -161,7 +161,7 @@ export const AdminDashboard: React.FC = () => {
                 type="email"
                 value={newEmail}
                 onChange={(e) => setNewEmail(e.target.value)}
-                placeholder="email@example.com"
+                placeholder="your.personal@gmail.com"
                 className="w-full bg-[#fbf9f6] dark:bg-[#0b0c10] border border-slate-200 dark:border-white/5 rounded-xl px-4 py-2.5 text-xs text-slate-800 dark:text-white focus:outline-none focus:border-[#4b61eb] transition-all"
                 required
               />
@@ -267,13 +267,12 @@ export const AdminDashboard: React.FC = () => {
                     </td>
                     <td className="px-8 py-4 text-center">
                       <span
-                        className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider ${
-                          u.role === 'admin'
+                        className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider ${u.role === 'admin'
                             ? 'bg-amber-500/10 text-amber-500'
                             : u.role === 'recruiter'
-                            ? 'bg-emerald-500/10 text-emerald-500'
-                            : 'bg-indigo-500/10 text-[#4b61eb]'
-                        }`}
+                              ? 'bg-emerald-500/10 text-emerald-500'
+                              : 'bg-indigo-500/10 text-[#4b61eb]'
+                          }`}
                       >
                         {u.role}
                       </span>

@@ -26,17 +26,17 @@ export const Register: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  
+
   // Student fields
   const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [githubUrl, setGithubUrl] = useState('');
   const [targetRole, setTargetRole] = useState('');
-  
+
   // Recruiter fields
   const [fullName, setFullName] = useState('');
   const [companyName, setCompanyName] = useState('');
   const [industry, setIndustry] = useState('Technology');
-  
+
   const [role, setRole] = useState<'student' | 'recruiter'>('student');
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -98,7 +98,7 @@ export const Register: React.FC = () => {
 
       // 1. Firebase Auth Registration
       await registerWithEmail(email, password);
-      
+
       const fbToken = await getCurrentUserToken();
       if (!fbToken) throw new Error('Failed to retrieve authentication token.');
 
@@ -125,10 +125,10 @@ export const Register: React.FC = () => {
         }
 
         const result = await response.json();
-        
+
         // Login local auth context
         login(fbToken, result.user);
-        
+
         // Redirect to dashboard with active job ID in state
         navigate('/student-dashboard', { state: { jobId: result.jobId } });
 
@@ -178,8 +178,8 @@ export const Register: React.FC = () => {
   };
 
   return (
-    <div 
-      className="container flex-center" 
+    <div
+      className="container flex-center"
       style={{ minHeight: '100vh', flexDirection: 'column', overflow: 'hidden', padding: '1rem', background: '#050816', position: 'relative' }}
     >
       {/* Back to Home Button */}
@@ -208,8 +208,8 @@ export const Register: React.FC = () => {
         Back to Home
       </button>
 
-      <div 
-        className="glass-card animate-slide-up" 
+      <div
+        className="glass-card animate-slide-up"
         style={{ width: '100%', maxWidth: '640px', padding: '1.5rem 2rem', borderRadius: '12px', background: 'rgba(22, 23, 27, 0.85)', backdropFilter: 'blur(20px)', boxShadow: '0 20px 40px rgba(0, 0, 0, 0.4)' }}
       >
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem' }}>
@@ -224,8 +224,8 @@ export const Register: React.FC = () => {
         </div>
 
         {error && (
-          <div 
-            className="badge badge-danger" 
+          <div
+            className="badge badge-danger"
             style={{ width: '100%', display: 'block', textAlign: 'center', padding: '0.5rem', marginBottom: '1rem', textTransform: 'none', borderRadius: '6px', fontSize: '0.8rem' }}
           >
             {error}
@@ -272,7 +272,7 @@ export const Register: React.FC = () => {
         {step === 1 && (
           <div style={{ marginBottom: '1rem' }}>
             <label style={{ fontSize: '0.7rem', marginBottom: '0.25rem' }}>Select Account Type</label>
-            <div 
+            <div
               style={{
                 display: 'flex',
                 background: 'var(--bg-subcard)',
@@ -321,11 +321,11 @@ export const Register: React.FC = () => {
           <form onSubmit={handleNextStep} style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
             <div>
               <label htmlFor="email" style={{ fontSize: '0.7rem', marginBottom: '0.25rem' }}>Email Address</label>
-              <input 
+              <input
                 id="email"
-                type="email" 
-                className="glass-input" 
-                placeholder="name@example.com" 
+                type="email"
+                className="glass-input"
+                placeholder="your.personal@gmail.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 style={{ ...INPUT_STYLE, borderRadius: '8px', padding: '0.65rem 0.85rem' }}
@@ -335,11 +335,11 @@ export const Register: React.FC = () => {
 
             <div>
               <label htmlFor="password" style={{ fontSize: '0.7rem', marginBottom: '0.25rem' }}>Password</label>
-              <input 
+              <input
                 id="password"
-                type="password" 
-                className="glass-input" 
-                placeholder="Min 6 characters" 
+                type="password"
+                className="glass-input"
+                placeholder="Min 6 characters"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 style={{ ...INPUT_STYLE, borderRadius: '8px', padding: '0.65rem 0.85rem' }}
@@ -349,11 +349,11 @@ export const Register: React.FC = () => {
 
             <div>
               <label htmlFor="confirmPassword" style={{ fontSize: '0.7rem', marginBottom: '0.25rem' }}>Confirm Password</label>
-              <input 
+              <input
                 id="confirmPassword"
-                type="password" 
-                className="glass-input" 
-                placeholder="Re-enter password" 
+                type="password"
+                className="glass-input"
+                placeholder="Re-enter password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 style={{ ...INPUT_STYLE, borderRadius: '8px', padding: '0.65rem 0.85rem' }}
@@ -361,9 +361,9 @@ export const Register: React.FC = () => {
               />
             </div>
 
-            <button 
-              type="submit" 
-              className="btn btn-primary" 
+            <button
+              type="submit"
+              className="btn btn-primary"
               style={{ width: '100%', padding: '0.7rem', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 700, background: '#4b61eb', border: 'none', color: '#fff', cursor: 'pointer', marginTop: '0.25rem' }}
             >
               {role === 'student' ? 'Next: Setup Career Profile' : 'Next: Setup Recruiter Profile'}
@@ -382,9 +382,9 @@ export const Register: React.FC = () => {
               <>
                 <div>
                   <label htmlFor="resume" style={{ fontSize: '0.7rem', marginBottom: '0.25rem' }}>Upload Resume (PDF, DOCX)</label>
-                  <input 
+                  <input
                     id="resume"
-                    type="file" 
+                    type="file"
                     className="glass-input"
                     accept=".pdf,.docx"
                     onChange={(e) => setResumeFile(e.target.files ? e.target.files[0] : null)}
@@ -398,10 +398,10 @@ export const Register: React.FC = () => {
 
                 <div>
                   <label htmlFor="githubUrl" style={{ fontSize: '0.7rem', marginBottom: '0.25rem' }}>GitHub Profile URL</label>
-                  <input 
+                  <input
                     id="githubUrl"
-                    type="url" 
-                    className="glass-input" 
+                    type="url"
+                    className="glass-input"
                     placeholder="https://github.com/username"
                     value={githubUrl}
                     onChange={(e) => setGithubUrl(e.target.value)}
@@ -429,11 +429,11 @@ export const Register: React.FC = () => {
               <>
                 <div>
                   <label htmlFor="fullName" style={{ fontSize: '0.7rem', marginBottom: '0.25rem' }}>Full Name</label>
-                  <input 
+                  <input
                     id="fullName"
-                    type="text" 
-                    className="glass-input" 
-                    placeholder="Jane Doe" 
+                    type="text"
+                    className="glass-input"
+                    placeholder="Jane Doe"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     style={{ ...INPUT_STYLE, borderRadius: '8px', padding: '0.65rem 0.85rem' }}
@@ -443,11 +443,11 @@ export const Register: React.FC = () => {
 
                 <div>
                   <label htmlFor="companyName" style={{ fontSize: '0.7rem', marginBottom: '0.25rem' }}>Company Name</label>
-                  <input 
+                  <input
                     id="companyName"
-                    type="text" 
-                    className="glass-input" 
-                    placeholder="Google" 
+                    type="text"
+                    className="glass-input"
+                    placeholder="Google"
                     value={companyName}
                     onChange={(e) => setCompanyName(e.target.value)}
                     style={{ ...INPUT_STYLE, borderRadius: '8px', padding: '0.65rem 0.85rem' }}
@@ -477,8 +477,8 @@ export const Register: React.FC = () => {
             )}
 
             <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
-              <button 
-                type="button" 
+              <button
+                type="button"
                 className="btn btn-secondary"
                 onClick={() => setStep(1)}
                 style={{ flex: 1, padding: '0.85rem' }}
@@ -486,8 +486,8 @@ export const Register: React.FC = () => {
               >
                 Back
               </button>
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 className="btn btn-primary"
                 style={{ flex: 2, padding: '0.85rem' }}
                 disabled={submitting}
