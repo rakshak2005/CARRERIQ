@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
@@ -12,6 +13,7 @@ interface UserRecord {
 
 export const AdminDashboard: React.FC = () => {
   const { user: currentUser } = useAuth();
+  const navigate = useNavigate();
   const [users, setUsers] = useState<UserRecord[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -280,7 +282,21 @@ export const AdminDashboard: React.FC = () => {
                     <td className="px-8 py-4 text-slate-500 dark:text-slate-400 text-xs">
                       {u.createdAt ? new Date(u.createdAt).toLocaleDateString(undefined, { dateStyle: 'medium' }) : 'N/A'}
                     </td>
-                    <td className="px-8 py-4 text-right">
+                    <td className="px-8 py-4 text-right flex items-center justify-end gap-2.5">
+                      {u.role !== 'admin' && (
+                        <button
+                          onClick={() => {
+                            if (u.role === 'student') {
+                              navigate(`/student-dashboard?impersonateUserId=${u.id}`);
+                            } else if (u.role === 'recruiter') {
+                              navigate(`/recruiter-dashboard?impersonateUserId=${u.id}`);
+                            }
+                          }}
+                          className="px-3.5 py-1.5 bg-[#4b61eb]/15 hover:bg-[#4b61eb] text-[#4b61eb] hover:text-white text-xs font-bold rounded-xl transition-all duration-300"
+                        >
+                          View Dashboard
+                        </button>
+                      )}
                       {currentUser && currentUser.id === u.id ? (
                         <span className="text-xs text-slate-400 italic pr-2">Current Admin</span>
                       ) : (

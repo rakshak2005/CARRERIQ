@@ -32,7 +32,8 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode; allowedRole: 'studen
     return <Navigate to="/login" replace />;
   }
 
-  if (user.role !== allowedRole) {
+  // Allow admin to bypass checks on student/recruiter pages for dashboard viewing
+  if (user.role !== allowedRole && !(user.role === 'admin' && (allowedRole === 'student' || allowedRole === 'recruiter'))) {
     // Redirect unauthorized users to their proper dashboard
     if (user.role === 'admin') {
       return <Navigate to="/admin-dashboard" replace />;

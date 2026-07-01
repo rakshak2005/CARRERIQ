@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { api } from '../services/api';
 
 export const RecruiterDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'candidates' | 'profile'>('candidates');
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Candidates list state
   const [candidates, setCandidates] = useState<any[]>([]);
@@ -53,7 +54,11 @@ export const RecruiterDashboard: React.FC = () => {
   // Load recruiter profile
   const loadProfile = async () => {
     try {
-      const profile = await api.recruiter.getProfile();
+      const params = new URLSearchParams(location.search);
+      const impersonateUserIdParam = params.get('impersonateUserId');
+      const impersonateUserId = impersonateUserIdParam ? parseInt(impersonateUserIdParam, 10) : undefined;
+
+      const profile = await api.recruiter.getProfile(impersonateUserId);
       if (profile) {
         setFullName(profile.full_name || '');
         setCompanyName(profile.company_name || '');

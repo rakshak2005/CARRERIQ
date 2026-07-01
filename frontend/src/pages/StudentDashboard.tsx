@@ -649,7 +649,11 @@ export const StudentDashboard: React.FC = () => {
 
   const loadProfile = async () => {
     try {
-      const data = await api.student.getProfile();
+      const params = new URLSearchParams(location.search);
+      const impersonateUserIdParam = params.get('impersonateUserId');
+      const impersonateUserId = impersonateUserIdParam ? parseInt(impersonateUserIdParam, 10) : undefined;
+
+      const data = await api.student.getProfile(impersonateUserId);
       updateDashboardState(data);
 
       if (data.profile && !data.profile.onboarding_completed) {

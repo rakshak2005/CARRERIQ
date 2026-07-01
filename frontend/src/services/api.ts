@@ -52,7 +52,7 @@ export const api = {
 
   // Student Profile
   student: {
-    getProfile: () => request('/student/profile'),
+    getProfile: (impersonateUserId?: number) => request(`/student/profile${impersonateUserId ? `?impersonateUserId=${impersonateUserId}` : ''}`),
     updateProfile: (body: any) => request('/student/profile', { method: 'POST', body: JSON.stringify(body) }),
     uploadResume: (file: File) => {
       const formData = new FormData();
@@ -112,7 +112,7 @@ export const api = {
     },
     getCandidateDetail: (id: number) => request(`/recruiter/candidates/${id}`),
     updateProfile: (body: any) => request('/recruiter/profile', { method: 'POST', body: JSON.stringify(body) }),
-    getProfile: () => request('/recruiter/profile'),
+    getProfile: (impersonateUserId?: number) => request(`/recruiter/profile${impersonateUserId ? `?impersonateUserId=${impersonateUserId}` : ''}`),
   },
 
   // Admin Actions

@@ -70,11 +70,18 @@ export const recalculateStudentProfile = async (studentId: number) => {
 // GET /api/student/profile - Get profile dashboard details
 router.get('/profile', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    if (!req.user || req.user.role !== 'student') {
+    if (!req.user) {
+      return res.status(403).json({ error: 'Not authenticated' });
+    }
+
+    let userId = req.user.id;
+    if (req.user.role === 'admin' && req.query.impersonateUserId) {
+      userId = parseInt(req.query.impersonateUserId as string, 10);
+    } else if (req.user.role !== 'student') {
       return res.status(403).json({ error: 'Requires student role' });
     }
 
-    let profile = await db.getStudentProfileByUserId(req.user.id);
+    let profile = await db.getStudentProfileByUserId(userId);
     
     // If profile doesn't exist, return empty template but don't error out
     if (!profile) {

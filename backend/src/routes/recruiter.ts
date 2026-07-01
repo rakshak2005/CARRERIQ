@@ -118,11 +118,18 @@ router.post('/profile', authenticateToken, async (req: AuthenticatedRequest, res
 // GET /api/recruiter/profile - Get current recruiter profile
 router.get('/profile', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    if (!req.user || req.user.role !== 'recruiter') {
+    if (!req.user) {
+      return res.status(403).json({ error: 'Not authenticated' });
+    }
+
+    let userId = req.user.id;
+    if (req.user.role === 'admin' && req.query.impersonateUserId) {
+      userId = parseInt(req.query.impersonateUserId as string, 10);
+    } else if (req.user.role !== 'recruiter') {
       return res.status(403).json({ error: 'Requires recruiter role' });
     }
 
-    const profile = await db.getRecruiterProfileByUserId(req.user.id);
+    const profile = await db.getRecruiterProfileByUserId(userId);
     res.json(profile);
   } catch (error: any) {
     console.error('Error fetching recruiter profile:', error);

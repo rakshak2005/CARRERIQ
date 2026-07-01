@@ -4,6 +4,7 @@ import { verifyFirebaseIdToken } from '../middleware/auth';
 import { upload } from '../middleware/upload';
 import { triggerOnboardingAnalysis } from '../services/queue';
 import { analysisDb } from '../db/mongoService';
+import { sendWelcomeEmail } from '../services/emailService';
 
 const router = Router();
 
@@ -47,6 +48,9 @@ router.post('/signup', upload.single('resume'), async (req: Request, res: Respon
 
     // Create user in local database
     const user = await db.createUser(email, password || 'firebase_managed', 'student');
+
+    // Send automated welcome email asynchronously
+    sendWelcomeEmail(email, 'student').catch(err => console.error('Failed to send welcome email:', err));
 
     // Create student profile record (fullName starts as 'Anonymous Candidate' until extracted)
     const profile = await db.createOrUpdateStudentProfile(
@@ -131,6 +135,9 @@ router.post('/register', async (req: Request, res: Response) => {
 
     // Create user in local database
     const user = await db.createUser(email, 'firebase_managed', role);
+
+    // Send automated welcome email asynchronously
+    sendWelcomeEmail(email, role).catch(err => console.error('Failed to send welcome email:', err));
 
     // Create corresponding profile record immediately
     if (role === 'student') {
