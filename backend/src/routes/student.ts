@@ -350,9 +350,33 @@ router.post('/portfolio/sync', authenticateToken, async (req: AuthenticatedReque
       });
     });
 
+    // Deduplicate by normalized title
+    const seenTitles = new Set<string>();
+    const dedupedProjects: any[] = [];
+    
+    const getProjectWeight = (p: any) => {
+      let weight = 0;
+      if (p.description) weight += p.description.length;
+      if (p.technologies && p.technologies.length) weight += p.technologies.length * 10;
+      if (p.liveUrl) weight += 50;
+      if (p.source === 'manual') weight += 20;
+      if (p.source === 'github') weight += 30;
+      return weight;
+    };
+    
+    unifiedProjects.sort((a, b) => getProjectWeight(b) - getProjectWeight(a));
+
+    unifiedProjects.forEach(p => {
+      const normalizedTitle = (p.title || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+      if (normalizedTitle && !seenTitles.has(normalizedTitle)) {
+        seenTitles.add(normalizedTitle);
+        dedupedProjects.push(p);
+      }
+    });
+
     // 4. Evaluate all projects
     const targetRole = profile.target_role || 'Software Engineer';
-    const evaluatedProjects = unifiedProjects.map(p => evaluateProject(p, targetRole));
+    const evaluatedProjects = dedupedProjects.map(p => evaluateProject(p, targetRole));
 
     // 5. Generate Insights
     const insights = generatePortfolioInsights(evaluatedProjects, targetRole);
