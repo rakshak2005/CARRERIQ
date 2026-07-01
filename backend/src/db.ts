@@ -1022,12 +1022,18 @@ export const db = {
       experienceScore: number;
       onlinePresenceScore: number;
       dsaScore: number;
+      githubScore?: number;
     }
   ) => {
     if (useMockDb) {
       const profile = mockDb.studentProfiles.find(p => p.id === studentId);
       if (profile) {
         profile.overall_score = overallScore;
+        if (catScores.githubScore !== undefined) {
+          profile.github_score = catScores.githubScore;
+        }
+        profile.resume_score = catScores.resumeScore;
+        profile.portfolio_score = catScores.projectsScore;
       }
       let scoreRecord = mockDb.categoryScores.find(s => s.student_id === studentId);
       if (scoreRecord) {
@@ -1053,7 +1059,15 @@ export const db = {
       return { overallScore, categoryScores: scoreRecord };
     }
 
-    await StudentProfileLocalModel.findByIdAndUpdate(studentId, { overallScore });
+    const updateFields: any = {
+      overallScore,
+      resumeScore: catScores.resumeScore,
+      portfolioScore: catScores.projectsScore
+    };
+    if (catScores.githubScore !== undefined) {
+      updateFields.githubScore = catScores.githubScore;
+    }
+    await StudentProfileLocalModel.findByIdAndUpdate(studentId, updateFields);
 
     let scoreRecord = await CategoryScoreLocalModel.findOne({ studentId });
     if (scoreRecord) {

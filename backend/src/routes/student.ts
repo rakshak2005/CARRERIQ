@@ -18,6 +18,35 @@ export const recalculateStudentProfile = async (studentId: number) => {
 
   // Fetch and update GitHub stats if URL exists
   let githubScore = profile.github_score || 0;
+  if (profile.github_breakdown) {
+    let breakdown = profile.github_breakdown;
+    if (typeof breakdown === 'string') {
+      try {
+        breakdown = JSON.parse(breakdown);
+      } catch (e) {}
+    }
+    if (breakdown) {
+      const gImpact = Math.min(20, breakdown.impact !== undefined ? breakdown.impact : (breakdown.activity || 0));
+      const gQuality = Math.min(20, breakdown.quality !== undefined ? breakdown.quality : 0);
+      const gComplexity = Math.min(20, breakdown.complexity !== undefined ? breakdown.complexity : 0);
+      const gConsistency = Math.min(15, breakdown.consistency !== undefined ? breakdown.consistency : Math.round(Math.min(15, (breakdown.activity || 0) * 0.75)));
+      const gTechDiversity = Math.min(15, breakdown.techDiversity !== undefined ? breakdown.techDiversity : 0);
+      const gCommunity = Math.min(10, breakdown.community !== undefined ? breakdown.community : 0);
+      githubScore = gImpact + gQuality + gComplexity + gConsistency + gTechDiversity + gCommunity;
+    }
+  }
+
+  // Recalculate Resume Score dynamically
+  let resumeScore = profile.resume_score || 0;
+  if (profile.resume_role_match_score || profile.resume_skills_score || profile.resume_projects_score || profile.resume_experience_score) {
+    resumeScore = Math.round(
+      ((profile.resume_role_match_score || 0) * 0.40) +
+      (((profile.resume_skills_score || 0) / 20) * 25) +
+      (((profile.resume_projects_score || 0) / 20) * 20) +
+      (((profile.resume_experience_score || 0) / 15) * 15)
+    );
+  }
+
   let updatedProfile = profile;
 
   // Use evaluated portfolio projects if they exist, otherwise fallback to raw manual projects
@@ -36,7 +65,7 @@ export const recalculateStudentProfile = async (studentId: number) => {
     projects: projectsToCalculate,
     certificates,
     githubScore,
-    resumeScore: updatedProfile.resume_score,
+    resumeScore,
     portfolioScore: updatedProfile.portfolio_score
   };
 
@@ -49,6 +78,7 @@ export const recalculateStudentProfile = async (studentId: number) => {
     experienceScore: scores.categoryScores.experienceScore,
     onlinePresenceScore: scores.categoryScores.onlinePresenceScore,
     dsaScore: scores.categoryScores.dsaScore,
+    githubScore: githubScore
   });
 
   // Generate recommendations
@@ -58,7 +88,7 @@ export const recalculateStudentProfile = async (studentId: number) => {
   await db.createRecommendations(studentId, recommendations);
 
   return {
-    profile: { ...updatedProfile, overall_score: scores.overallScore },
+    profile: { ...updatedProfile, overall_score: scores.overallScore, github_score: githubScore, resume_score: resumeScore },
     projects,
     certificates,
     scores: scores.categoryScores,
